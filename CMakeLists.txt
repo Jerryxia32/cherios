@@ -120,9 +120,9 @@ include_directories(include)
 # set up the right flags for C and ASM sources
 set(ASMC_COMPILER_FLAGS
     -mcpu=mips4
-#-mabi=sandbox
+    #-mabi=sandbox
     -cheri-linker
-    -fpic
+    #-fpic
     -integrated-as
     -msoft-float
     -fcolor-diagnostics

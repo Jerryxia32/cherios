@@ -112,7 +112,12 @@ start:
 	# Restore context from the register frame set by the scheduler,
 	# typically pointing to an init activation.
 	dla	$k0, kernel_exception_framep_ptr
-	clc	$kr1c, $k0, 0($kdc)
+    cld	$k0, $k0, 0($kdc)
+    #ld  $k0, 0($k0)
+    cmove   $kr1c, $kdc
+	csetoffset $kr1c, $kr1c, $k0
+    #sub	$k0, $k1, $k0
+    #csetbounds $kr1c, $kr1c, $k0
 
 	# Expands to a list of the form
 	# cld	$greg, $0, offset*REG_SIZE($kr1c)

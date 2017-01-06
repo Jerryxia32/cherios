@@ -186,7 +186,7 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 
 	//prgmp += entry;
 
-	void * stack = make_aligned_data_addr((void *)(cheri_getbase(prgmp) + allocsize));
+	void * stack = make_aligned_data_addr((void *)allocsize);
 	__capability void * pcc = cheri_getpcc();
 	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), allocsize);
 	pcc = cheri_setoffset(pcc, entry);

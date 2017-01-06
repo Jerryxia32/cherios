@@ -176,7 +176,11 @@ boot_info_t *load_init() {
 	bi.start_free_mem = make_free_mem_addr((char *)stack + INIT_STACK_SIZE);
 
 	/* set up pcc */
-	__capability void *pcc = prgmp;
+	__capability void *pcc = cheri_getpcc();
+	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)),
+			      cheri_getlen(prgmp));
+	pcc = cheri_andperm(pcc, (CHERI_PERM_GLOBAL | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
+				  | CHERI_PERM_LOAD_CAP));
 
 	/* populate frame */
 	bzero(&bi.init_frame, sizeof(bi.init_frame));

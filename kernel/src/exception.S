@@ -83,7 +83,12 @@ kernel_cp2_exception_handler:
 		# move on to general-purpose registers.
 		#
 		dla	$k0, kernel_exception_framep_ptr
-		clc	$kr1c, $k0, 0($kdc)
+        #clc	$kr1c, $k0, 0($kdc)
+        cld	$k0, $k0, 0($kdc)
+        cmove $kr1c, $kdc
+        csetoffset $kr1c, $kr1c, $k0
+        #sub	$k0, $k1, $k0
+        #csetbounds $kr1c, $kr1c, $k0
 
 		# Notice correspondence to the layout of struct reg_frame.
 		# Notice also that KCC and KDC are not preserved.
@@ -138,7 +143,12 @@ kernel_cp2_exception_handler:
 		# to the layout of struct reg_frame.
 		#
 		dla	$k0, kernel_exception_framep_ptr
-		clc	$kr1c, $k0, 0($kdc)
+        #clc	$kr1c, $k0, 0($kdc)
+        cld	$k0, $k0, 0($kdc)
+        cmove $kr1c, $kdc
+        csetoffset $kr1c, $kr1c, $k0
+        #sub	$k0, $k1, $k0
+        #csetbounds $kr1c, $kr1c, $k0
 
 		# Expands to a list of the form
 		# cld	$greg, $0, offset*REG_SIZE($kr1c)

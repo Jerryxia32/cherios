@@ -86,11 +86,14 @@ int cherios_main(int argc, void *p) {
 	 *
 	 * TODO: check that the expected size matches.
 	 */
-	memcpy(&boot_info, p, sizeof(boot_info));
+    __capability void *dest = cheri_getdefault();
+    __capability void *src = cheri_getdefault();
+    dest = cheri_setoffset(dest, (size_t)&boot_info);
+    src = cheri_setoffset(src, (size_t)p);
+	memcpy_c(dest, src, sizeof(boot_info));
 
 	install_exception_vectors();
 	act_init(&boot_info);
-	kernel_printf("boot start mem: %p\n", boot_info.start_free_mem);
 	kernel_interrupts_init(1);
 
 	KERNEL_TRACE("init", "init done");

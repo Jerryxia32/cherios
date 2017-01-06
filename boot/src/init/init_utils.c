@@ -30,6 +30,7 @@
  */
 
 #include "mips.h"
+#include"cheric.h"
 #include "cp0.h"
 #include "plat.h"
 #include "init.h"
@@ -54,21 +55,21 @@ static void * init_act_register(reg_frame_t * frame, const char * name) {
 	return ret;
 }
 
-static void * init_act_create(const char * name, void * c0, void *pcbase, void * pcc, void * stack,
+static void * init_act_create(const char * name, __capability void * c0, __capability void * pcc, void * stack,
 			      void * act_cap, void * ns_ref, void * ns_id,
 			      register_t rarg, const void * carg) {
 	reg_frame_t frame;
 	memset(&frame, 0, sizeof(reg_frame_t));
 
 	/* set pc */
-	frame.mf_pc	= (register_t)pcc;
+    frame.cf_pcc = pcc;
+	frame.mf_pc	= cheri_getoffset(pcc);
 
 	/* set stack */
-	frame.mf_sp	= (register_t)stack;
-
-	/* set c12 */
+	frame.mf_sp	= (size_t)stack + 0x10000;
 
 	/* set c0 */
+    frame.cf_c0 = c0;
 
 	/* set cap */
 	frame.mf_s5	= (register_t)act_cap;
@@ -76,9 +77,6 @@ static void * init_act_create(const char * name, void * c0, void *pcbase, void *
 	/* set namespace */
 	frame.mf_s6	= (register_t)ns_ref;
 	frame.mf_s7	= (register_t)ns_id;
-
-    /* remember pc for PIC */
-	frame.mf_s4	= (register_t)pcbase;
 
 	void * ctrl = init_act_register(&frame, name);
 	CCALL(1, act_ctrl_get_ref(ctrl), act_ctrl_get_id(ctrl), 0,
@@ -140,18 +138,28 @@ static void * get_act_cap(module_t type) {
 static void * ns_ref = NULL;
 static void * ns_id  = NULL;
 
-static void * elf_loader(Elf_Env *env, const char * file, size_t *maxaddr, size_t * entry) {
+static __capability void * elf_loader(Elf_Env *env, const char * file, size_t *maxaddr, size_t * entry) {
 	int filelen=0;
 	char * addr = load(file, &filelen);
 	if(!addr) {
 		printf("Could not read file %s", file);
-		return NULL;
+		return NULLCAP;
 	}
 	return elf_loader_mem(env, addr, NULL, maxaddr, entry);
 }
 
-static void *init_memcpy(void *dest, const void *src, size_t n) {
-	return memcpy(dest, src, n);
+static __capability void *init_memcpy(__capability void *dest, const __capability void *src, size_t n) {
+	return memcpy_c(dest, src, n);
+}
+
+#define	PAGE_ALIGN	0x1000
+
+static void *make_aligned_data_addr(const char *start) {
+	size_t desired_ofs = ((size_t)start + PAGE_ALIGN);
+	desired_ofs &= ~ PAGE_ALIGN;
+
+	char *cap = (char *)desired_ofs;
+	return cap;
 }
 
 void * load_module(module_t type, const char * file, int arg, const void *carg) {
@@ -162,11 +170,11 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 	  .free    = init_free,
 	  .printf  = printf,
 	  .vprintf = vprintf,
-	  .memcpy  = init_memcpy,
+	  .memcpy_c  = init_memcpy,
 	};
 
-	char *prgmp = elf_loader(&env, file, &allocsize, &entry);
-    printf("Module loaded at %p, entry: %lx\n", prgmp, entry);
+	__capability char *prgmp = elf_loader(&env, file, &allocsize, &entry);
+    printf("Module loaded at %p, entry: %lx\n", (void *)cheri_getbase(prgmp), entry);
 	if(!prgmp) {
 		assert(0);
 		return NULL;
@@ -174,17 +182,18 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 
 	/* Invalidate the whole range; elf_loader only returns a
 	   pointer to the entry point. */
-	caches_invalidate(prgmp, allocsize);
+	caches_invalidate((void *)cheri_getbase(prgmp), allocsize);
 
-	size_t stack_size = 0x10000;
-	void * stack = init_alloc(stack_size);
-	if(!stack) {
-		assert(0);
-		return NULL;
-	}
-	void * pcc = (void *)((size_t)prgmp + entry);
-	void * ctrl = init_act_create(file, 0, prgmp,
-				      pcc, (void *)((size_t)stack + stack_size), get_act_cap(type),
+	//prgmp += entry;
+
+	void * stack = make_aligned_data_addr((void *)(cheri_getbase(prgmp) + allocsize));
+	__capability void * pcc = cheri_getpcc();
+	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), allocsize);
+	pcc = cheri_setoffset(pcc, entry);
+	pcc = cheri_andperm(pcc, (CHERI_PERM_GLOBAL | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
+				  | CHERI_PERM_LOAD_CAP));
+	void * ctrl = init_act_create(file, cheri_setoffset(prgmp, 0),
+				      pcc, stack, get_act_cap(type),
 				      ns_ref, ns_id, arg, carg);
 	if(ctrl == NULL) {
 		return NULL;

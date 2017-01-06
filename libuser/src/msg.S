@@ -55,20 +55,15 @@ msg_entry:
 	nop
 
 	dla		$t0, msg_methods
-	dadd    $t0, $s4, $t0
 	dla		$t1, msg_methods_nb
-	dadd    $t1, $s4, $t1
 #b		call
     dla $t9, call
-    dadd    $t9, $s4, $t9
     jr  $t9
 	nop
 
 control:
 	dla		$t0, ctrl_methods
-	dadd    $t0, $s4, $t0
 	dla		$t1, ctrl_methods_nb
-    dadd    $t1, $s4, $t1
 	sub		$v0, $0, $v0
 call:
 	ld		$t1, 0($t1)
@@ -78,7 +73,6 @@ call:
 
 	#Save sync_token
 	dla		$t1, sync_token
-	dadd    $t1, $s4, $t1
 	sd		$t2, 0($t1)
 
 	sll		$v0, $v0, REG_SIZE_BITS
@@ -88,7 +82,6 @@ call:
 	nop
 #b		end
     dla $t9, end
-    dadd    $t9, $s4, $t9
     jr  $t9
 	nop
 
@@ -98,14 +91,12 @@ overflow:
 #	cfromptr	$c3, $c3, $0
 #b		end
     dla $t9, end
-    dadd    $t9, $s4, $t9
     jr  $t9
 	nop
 
 end:
 	#Restore sync_token
 	dla		$t1, sync_token
-	dadd    $t1, $s4, $t1
 	ld		$t2, 0($t1)
 #jr  $ra
     li $v1, 1010
@@ -115,7 +106,6 @@ end:
 	#We are scheduled again: new message
 #b msg_entry
     dla $t9, msg_entry
-    dadd    $t9, $s4, $t9
     jr  $t9
 	nop
 msg_entry_end:

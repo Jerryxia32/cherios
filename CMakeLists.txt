@@ -66,9 +66,9 @@ set(CMAKE_ASM_COMPILER_ID "Clang")  # for some reason CMake doesn't detect this 
 set(CMAKE_C_COMPILER ${CheriSDK_CC})
 set(CMAKE_CXX_COMPILER ${CheriSDK_CXX})
 # make sure we compile for cheri:
-set(CMAKE_ASM_COMPILER_TARGET mips64-unknown-freebsd)
-set(CMAKE_C_COMPILER_TARGET mips64-unknown-freebsd)
-set(CMAKE_CXX_COMPILER_TARGET mips64-unknown-freebsd)
+set(CMAKE_ASM_COMPILER_TARGET cheri-unknown-freebsd)
+set(CMAKE_C_COMPILER_TARGET cheri-unknown-freebsd)
+set(CMAKE_CXX_COMPILER_TARGET cheri-unknown-freebsd)
 # sysroot should not be needed as we are in a freestanding environment
 # set(CMAKE_SYSROOT ${CheriSDK_SYSROOT_DIR})
 
@@ -121,6 +121,7 @@ include_directories(include)
 set(ASMC_COMPILER_FLAGS
     -mcpu=mips4
     #-mabi=sandbox
+    #-mllvm -cheri128
     -cheri-linker
     #-fpic
     -integrated-as
@@ -277,17 +278,17 @@ endfunction()
 add_subdirectory(libuser)
 #
 add_subdirectory(bitcount)
-add_subdirectory(qsort)
-add_subdirectory(spam)
-add_subdirectory(CRC32)
-add_subdirectory(stringsearch)
-add_subdirectory(sha)
+#add_subdirectory(qsort)
+#add_subdirectory(spam)
+#add_subdirectory(CRC32)
+#add_subdirectory(stringsearch)
+#add_subdirectory(sha)
 add_subdirectory(dijkstra)
-add_subdirectory(AES)
+#add_subdirectory(AES)
 #add_subdirectory(fatfs)
 #add_subdirectory(hello)
-add_subdirectory(memmgt)
-add_subdirectory(namespace)
+#add_subdirectory(memmgt)
+#add_subdirectory(namespace)
 #add_subdirectory(prga)
 #add_subdirectory(sockets)
 #add_subdirectory(test1a)
@@ -295,7 +296,7 @@ add_subdirectory(namespace)
 #add_subdirectory(test2a)
 #add_subdirectory(test2b)
 #add_subdirectory(test3)
-add_subdirectory(uart)
+#add_subdirectory(uart)
 #add_subdirectory(virtio-blk)
 #add_subdirectory(zlib)
 #add_subdirectory(zlib_test)

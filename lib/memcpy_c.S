@@ -40,11 +40,7 @@
 #define CAP_ALIGN_MASK (CAP_SIZE-1)
 
 .macro ret
-#ifdef __CHERI_PURE_CAPABILITY__
-	cjr	$c17
-#else
 	jr	$ra
-#endif
 .endm
 
 #

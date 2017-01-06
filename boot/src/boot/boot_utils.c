@@ -30,6 +30,7 @@
  */
 
 #include "mips.h"
+#include"cheric.h"
 #include "cp0.h"
 #include "plat.h"
 #include "boot/boot.h"
@@ -41,19 +42,19 @@
 
 extern u8 __fs_start, __fs_end;
 
-static void *kernel_alloc_mem(size_t _size) {
+static __capability void *kernel_alloc_mem(size_t _size) {
 	/* The kernel is direct-mapped. */
 	(void) _size;
-	return NULL;
+	return cheri_getdefault();
 }
 
-static void kernel_free_mem(void *addr) {
+static void kernel_free_mem(__capability void *addr) {
 	/* no-op */
 	(void)addr;
 }
 
-static void *boot_memcpy(void *dest, const void *src, size_t n) {
-	return memcpy(dest, src, n);
+static __capability void *boot_memcpy(__capability void *dest, __capability const void *src, size_t n) {
+	return memcpy_c(dest, src, n);
 }
 
 static boot_info_t bi;
@@ -64,16 +65,16 @@ void init_elf_loader() {
   env.free    = kernel_free_mem;
   env.printf  = boot_printf;
   env.vprintf = boot_vprintf;
-  env.memcpy  = boot_memcpy;
+  env.memcpy_c  = boot_memcpy;
 }
 
 void load_kernel() {
 	extern u8 __kernel_elf_start, __kernel_elf_end;
 	size_t minaddr, maxaddr, entry;
-	char *prgmp = elf_loader_mem(&env, &__kernel_elf_start,
+	__capability char *prgmp = elf_loader_mem(&env, &__kernel_elf_start,
 				     &minaddr, &maxaddr, &entry);
 
-	if((size_t)prgmp + (size_t)entry == 0) {
+	if(!prgmp) {
 		boot_printf(KRED"Could not load kernel file"KRST"\n");
 		goto err;
 	}
@@ -107,7 +108,7 @@ err:
 #define	INIT_STACK_SIZE	0x10000
 #define	PAGE_ALIGN	0x1000
 
-static void *make_aligned_data_cap(const char *start, size_t len) {
+static void *make_aligned_data_addr(const char *start) {
 	size_t desired_ofs = ((size_t)start + PAGE_ALIGN);
 	desired_ofs &= ~ PAGE_ALIGN;
 
@@ -115,9 +116,34 @@ static void *make_aligned_data_cap(const char *start, size_t len) {
 	return cap;
 }
 
-static void *make_free_mem_cap(const char *start) {
+static void *make_free_mem_addr(const char *start) {
 	char *cap  = (char *)(size_t)start;
 
+	return cap;
+}
+
+static __capability void *make_aligned_data_cap(const __capability char *start, size_t len) {
+	size_t desired_ofs = (cheri_getbase(start) + cheri_getoffset(start) + PAGE_ALIGN);
+	desired_ofs &= ~ PAGE_ALIGN;
+
+	__capability char *cap = (__capability char *)cheri_getdefault();
+	cap += desired_ofs - cheri_getbase(cap);
+
+	cap = cheri_setbounds(cap, len);
+	cap = cheri_andperm(cap, ~ CHERI_PERM_EXECUTE);
+	return cap;
+}
+
+static __capability void *make_free_mem_cap(const char *start) {
+	__capability char *cap  = (__capability char *)cheri_getdefault();
+	size_t len = cheri_getlen(cap);
+	size_t ofs = (size_t)start - cheri_getbase(cap);
+
+	cap += ofs;
+	len -= ofs;
+
+	cap = cheri_setbounds(cap, len);
+	cap = cheri_andperm(cap, ~ CHERI_PERM_EXECUTE);
 	return cap;
 }
 
@@ -126,10 +152,10 @@ boot_info_t *load_init() {
 	size_t minaddr, maxaddr, entry;
 
 	// FIXME: init is direct mapped for now
-	char *prgmp = elf_loader_mem(&env, &__init_elf_start,
+	__capability char *prgmp = elf_loader_mem(&env, &__init_elf_start,
 				     &minaddr, &maxaddr, &entry);
 
-	if((size_t)prgmp + (size_t)entry == 0) {
+	if(!prgmp) {
 		boot_printf(KRED"Could not load init file"KRST"\n");
 		goto err;
 	}
@@ -144,24 +170,24 @@ boot_info_t *load_init() {
 	                  maxaddr - (size_t)(&__init_load_virtaddr));
 
 	/* set up a stack region just after the loaded executable */
-	void * stack = make_aligned_data_cap(prgmp + maxaddr, INIT_STACK_SIZE);
+	void * stack = make_aligned_data_addr((void *)(cheri_getbase(prgmp) + maxaddr));
 
 	/* free memory starts beyond this stack */
-	bi.start_free_mem = make_free_mem_cap((char *)stack + INIT_STACK_SIZE);
+	bi.start_free_mem = make_free_mem_addr((char *)stack + INIT_STACK_SIZE);
 
 	/* set up pcc */
-	void *pcc = prgmp;
+	__capability void *pcc = prgmp;
 
 	/* populate frame */
 	bzero(&bi.init_frame, sizeof(bi.init_frame));
-	//bi.init_frame.cf_pcc = pcc;
-	bi.init_frame.mf_pc  = (size_t)pcc + entry;
+	bi.init_frame.cf_pcc = pcc;
+	bi.init_frame.mf_pc  = cheri_getoffset(pcc) + entry;
 	//bi.init_frame.cf_c11 = stack;
 	bi.init_frame.mf_sp  = (size_t)stack + INIT_STACK_SIZE;
     bi.init_frame.mf_t0 = (register_t)&__fs_start;
     bi.init_frame.mf_t1 = (register_t)&__fs_end;
 	//bi.init_frame.cf_c12 = pcc;
-	//bi.init_frame.cf_c0  = 0;
+	bi.init_frame.cf_c0  = cheri_setoffset(prgmp, 0);
 
 	return &bi;
 err:

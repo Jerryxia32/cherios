@@ -65,8 +65,8 @@ extern char	__stop_heap;
  */
 void	init_alloc_init(void);
 void	init_alloc_enable_system(void * ctrl);
-void *	init_alloc(size_t s);
-void	init_free(void * p);
+__capability void *	init_alloc(size_t s);
+void	init_free(__capability void * p);
 
 void	glue_memmgt(void * memmgt_ctrl, void* ns_ctrl);
 

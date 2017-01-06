@@ -30,6 +30,7 @@
  */
 
 #include "mips.h"
+#include"cheric.h"
 #include "string.h"
 #include "stdlib.h"
 #include "sys/mman.h"
@@ -46,7 +47,7 @@ static inline void *align_upwards(void *p, uintptr_t align)
 	return (void *)addr;
 }
 
-static const size_t pool_size = 1024*1024;
+static const size_t pool_size = 1024*1024*5;
 static char pool[pool_size];
 
 static char * pool_start = NULL;
@@ -55,11 +56,13 @@ static char * pool_next = NULL;
 
 static int system_alloc = 0;
 
-static void *init_alloc_core(size_t s) {
+static __capability void *init_alloc_core(size_t s) {
 	if(pool_next + s >= pool_end) {
-		return NULL;
+		return NULLCAP;
 	}
-	void * p = pool_next;
+    __capability void *p = cheri_getdefault();
+    p = cheri_setoffset(p, (size_t)pool_next);
+    p = cheri_setbounds(p, s);
 	pool_next = align_upwards(pool_next+s, 4096);
 	return p;
 }
@@ -78,18 +81,20 @@ void init_alloc_enable_system(void * c_memmgt) {
     printf("System alloc (mmap) enabled.\n");
 }
 
-void *init_alloc(size_t s) {
+__capability void *init_alloc(size_t s) {
+    /*
 	if(system_alloc == 1) {
-		void * p = mmap(NULL, s, PROT_RW, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+		__capability void * p = mmap(NULL, s, PROT_RW, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 		if(p == MAP_FAILED) {
-			return NULL;
+			return NULLCAP;
 		}
 		return p;
 	}
+    */
 	return init_alloc_core(s);
 }
 
-void init_free(void * p __unused) {
+void init_free(__capability void * p __unused) {
 	if(system_alloc == 1) {
 		/* fixme: use munmap */
 	}

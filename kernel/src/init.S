@@ -1,5 +1,4 @@
 #-
-# Copyright (c) 2016 Hongyan Xia
 # Copyright (c) 2016 Robert N. M. Watson
 # Copyright (c) 2016 Hadrien Barral
 # All rights reserved.
@@ -52,31 +51,35 @@ start:
 
 	#Save register frame
 	dla	$k0, kernel_init_save_frame
+	dla	$k1, kernel_init_save_frame_end
+	cgetdefault $kr1c
+	csetoffset $kr1c, $kr1c, $k0
+	sub	$k0, $k1, $k0
+	csetbounds $kr1c, $kr1c, $k0
 
+	cgetdefault	$kr2c
 	# Expands to a list of the form
 	# csc	$creg, $0, offset*CAP_SIZE+MIPS_FRAME_SIZE($kr1c)
-    #foreachi csave, 0, $kr1c,					\
-	#	$kr2c, $c1, $c2, $c3, $c4, $c5, $c6, $c7, $c8, $c9,	\
-	#	$c10, $c11, $c12, $c13, $c14, $c15, $c16, $c17, $c18,	\
-	#	$c19, $c20, $c21, $c22, $c23, $c24, $c25, $c26, $c31
+	foreachi csave, 0, $kr1c,					\
+		$kr2c, $c1, $c2, $c3, $c4, $c5, $c6, $c7, $c8, $c9,	\
+		$c26, $c31
 	# Expands to a list of the form
 	# csd	$greg, $0, offset*REG_SIZE($kr1c)
-	foreachi gsave, 0, $k0,					\
+	foreachi gsave, 0, $kr1c,					\
 		$at, $v0, $v1, $a0, $a1, $a2, $a3, $a4, $a5, $a6, $a7,	\
 		$t0, $t1, $t2, $t3, $s0, $s1, $s2, $s3, $s4, $s5, $s6,	\
 		$s7, $t8, $t9, $gp, $sp, $fp, $ra
 	mfhi	$k1
-	sd	$k1, 29*REG_SIZE($k0)
+	csd	$k1, $0, 29*REG_SIZE($kr1c)
 	mflo	$k1
-	sd	$k1, 30*REG_SIZE($k0)
+	csd	$k1, $0, 30*REG_SIZE($kr1c)
 	dmfc0	$k1, $14		# EPC
-	sd	$k1, 31*REG_SIZE($k0)
+	csd	$k1, $0, 31*REG_SIZE($kr1c)
 
 
 	# Set up a boot-time stack using memory allocated by the linker;
 	# assume that $c0 is a sensible starting capability for this.
-	dla		$t0, __stop_exception_stack
-	move		$sp, $t0
+	dla		$sp, __stop_exception_stack
 
 	# Initialise BSS and globals before running C constructors, so that C
 	# constructors can take them (and other aspects of the conventional C
@@ -99,7 +102,7 @@ start:
 
 	# Pass arguments to cherios_main(int, void*) in a0 and c3.
 	dli		$a0, 1
-	ld	$a1, 4*REG_SIZE($k0)
+	cld		$a1, $0, 4*REG_SIZE($kr1c)
 
 	# Call cherios_main().
 	dla		$t9, cherios_main
@@ -109,38 +112,37 @@ start:
 	# Restore context from the register frame set by the scheduler,
 	# typically pointing to an init activation.
 	dla	$k0, kernel_exception_framep_ptr
-    ld  $k0, 0($k0)
+	clc	$kr1c, $k0, 0($kdc)
 
 	# Expands to a list of the form
 	# cld	$greg, $0, offset*REG_SIZE($kr1c)
-	foreachi grestore, 0, $k0,					\
+	foreachi grestore, 0, $kr1c,					\
 		$at, $v0, $v1, $a0, $a1, $a2, $a3, $a4, $a5, $a6, $a7,	\
 		$t0, $t1, $t2, $t3, $s0, $s1, $s2, $s3, $s4, $s5, $s6,	\
 		$s7, $t8, $t9, $gp, $sp, $fp, $ra
-	ld	$k1, 29*REG_SIZE($k0)
+	cld	$k1, $0, 29*REG_SIZE($kr1c)
 	mthi	$k1
-	ld	$k1, 30*REG_SIZE($k0)
+	cld	$k1, $0, 30*REG_SIZE($kr1c)
 	mtlo	$k1
-	ld	$k1, 31*REG_SIZE($k0)
+	cld	$k1, $0, 31*REG_SIZE($kr1c)
 	dmtc0	$k1, $14		# EPC
 	# Expands to a list of the form
 	# clc	$creg, $0, offset*CAP_SIZE+MIPS_FRAME_SIZE($kr1c)
-    #foreachi crestore, 0, $kr1c,					\
-	#	$kr2c, $c1, $c2, $c3, $c4, $c5, $c6, $c7, $c8, $c9,	\
-	#	$c10, $c11, $c12, $c13, $c14, $c15, $c16, $c17, $c18,	\
-	#	$c19, $c20, $c21, $c22, $c23, $c24, $c25, $c26, $c31
+	foreachi crestore, 0, $kr1c,					\
+		$kr2c, $c1, $c2, $c3, $c4, $c5, $c6, $c7, $c8, $c9,	\
+		$c26, $c31
+	csetdefault	$kr2c
 
 	# Kernel init done
 	move	$k0, $zero
 	move	$k1, $zero
 	eret
-    nop
 start_end:
 	.size start, start_end - start
 	.end start
 
 	.align 5
 kernel_init_save_frame:
-	.skip (32*CAP_SIZE + 32*REG_SIZE), 0 #Should be enough
+	.skip 16*CAP_SIZE + 32*REG_SIZE, 0 #Should be enough
 kernel_init_save_frame_end:
 	.size kernel_init_save_frame, kernel_init_save_frame_end - kernel_init_save_frame

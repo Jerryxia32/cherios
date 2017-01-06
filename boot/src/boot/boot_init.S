@@ -61,18 +61,31 @@ start:
 
 	# Clear other capability registers to ensure we don't retain any
 	# executable capabilities: everything but $pcc and $c0.
-#CClearLo	0xfffe
-#CClearHi	0xffff
+    CClearLo	0xfffe
+    CClearHi	0xffff
+
+	# W^X for pointers: ensure $c0 is never executable.
+	cgetdefault	$c3
+	dli		$t0, ~(1<<1)
+	candperm	$c3, $c3, $t0
+	csetdefault	$c3
+
+	# Implement W^X for pointers: trim store permissions from $pcc to
+	# prevent it from becoming writable in the future.
+	cgetpcc		$c9
+	dli		$t0, ~((1<<3) | (1<<5))
+	candperm	$c9, $c9, $t0
 
 	# Jump to write-free $pcc.
 	dla		$t0, cherios_init_jump_target
-	jalr		$t0
+	csetoffset	$c9, $c9, $t0
+	cjr		$c9
 	nop
 cherios_init_jump_target:
 
 	# Populate exception registers: $kdc and $kcc
-#cgetpcc		$c29
-#cgetdefault	$c30
+    cgetpcc		$c29
+    cgetdefault	$c30
 
 	# Set up a boot-time stack using memory allocated by the linker;
 	# assume that $c0 is a sensible starting capability for this.

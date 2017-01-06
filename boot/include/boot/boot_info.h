@@ -32,6 +32,7 @@
 #define _BOOT_INFO_H_
 
 #include"mips.h"
+#include"cheric.h"
 
 /*
  * Information populated by boot-loader, and given to the kernel via a

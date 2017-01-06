@@ -54,19 +54,16 @@ start_common:
 
 	# Zero BSS.
     dla     $t9, crt_init_bss
-    dadd    $t9, $s4, $t9
     jalr    $t9
     nop
 
 	# Initialise globals.
     dla     $t9, crt_init_globals
-    dadd    $t9, $s4, $t9
     jalr    $t9
     nop
 
 	# Call C constructors.
     dla     $t9, crt_call_constructors
-    dadd    $t9, $s4, $t9
     jalr    $t9
     nop
 
@@ -76,7 +73,6 @@ start_common:
 	move		$a2, $s6
 	move		$a3, $s7 # careful, s8 is used to remember pc for PIC
     dla     $t9, libuser_init
-    dadd    $t9, $s4, $t9
     jalr    $t9
     nop
 
@@ -87,20 +83,17 @@ start_common:
 
 	# Call main().
     dla     $t9, main
-    dadd    $t9, $s4, $t9
     jalr    $t9
     nop
 
 	# main() done. Exit or CReturn
 	dla		$t0, msg_enable
-	dadd		$t0, $s4
     #cgetdefault	$c17
     #cld		$t0, $t0, 0($c17)
     ld  $t0, 0($t0)
 	bne		$t0, $zero, to_msg
 	nop
 	dla		$t0, act_self_ctrl
-	dadd		$t0, $s4
     ld  $a0, 0($t0)
     #clc		$c3, $t0, 0($c17)
 	li		$v1, 26
@@ -119,6 +112,5 @@ to_msg:
 #j msg_entry
 #nop
     dla $t9, msg_entry
-    dadd $t9, $s4, $t9
     jr  $t9
     nop

@@ -34,6 +34,7 @@
  * $FreeBSD$
  */
 
+#include"cheric.h"
 #include "init.h"
 #include "debug.h"
 #include "stdio.h"
@@ -87,7 +88,7 @@ load(const char *filepath, int *bufsize)
 		return NULL;
 	}
 
-	void * buf = init_alloc(size);
+	void * buf = (void *)cheri_getbase(init_alloc(size));
 	if (buf == NULL) {
 		printf("Failed to allocate read buffer %zu for '%s'\n",
 		       size, filepath);
@@ -98,7 +99,8 @@ load(const char *filepath, int *bufsize)
 	if ((size_t)read != size) {
 		printf("Failed to read '%s' (%zd != %zu)\n", filepath, read,
 		       size);
-		init_free(buf);
+        /* XXX currently not freeing the memory after a failure, should be */
+		//init_free(buf);
 		return NULL;
 	}
 

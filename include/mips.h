@@ -398,7 +398,7 @@ mips_cap_iowrite_uint32le(void * cap, size_t offset, uint32_t v)
  * init.s know about this layout, so great care should be taken.
  */
 #if 1
-typedef struct reg_frame {
+typedef struct reg_frame_mips {
 	/*
 	 * General-purpose MIPS registers.
 	 */
@@ -416,7 +416,7 @@ typedef struct reg_frame {
 
 	/* Program counter. */
 	register_t	mf_pc;
-} reg_frame_t;
+} reg_frame_mips_t;
 #endif
 
 #endif /* _CHERIOS_MIPS_H_ */

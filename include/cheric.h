@@ -127,6 +127,9 @@
 #define CHERI_PERM_SOFT_3		(1 << 18)
 #endif
 
+#define CHERI_TB_WIDTH 8
+#define	NULLCAP		((__capability void *)0)
+
 /*
  * Two variations on cheri_ptr() based on whether we are looking for a code or
  * data capability.  The compiler's use of CFromPtr will be with respect to
@@ -293,14 +296,14 @@ static inline int VCAPS(const void * cap, size_t len, unsigned flags) {
 /*
  * Canonical C-language representation of a capability.
  */
-typedef void * capability;
+typedef __capability void * capability;
 
 /*
  * Register frame to be preserved on context switching. The order of
  * save/restore is very important for both reasons of correctness and security.
  * Assembler routines know about this layout, so great care should be taken.
  */
-typedef struct reg_frame_cheri {
+typedef struct reg_frame {
 	/*
 	 * General-purpose MIPS registers.
 	 */
@@ -329,9 +332,9 @@ typedef struct reg_frame_cheri {
 	 * General purpose capability registers.
 	 */
 	capability	cf_c1, cf_c2, cf_c3, cf_c4, cf_c5;
-	//capability	cf_c6, cf_c7;
-	//capability	cf_c8, cf_c9, cf_c10, cf_c11, cf_c12;
-	//capability	cf_c13, cf_c14, cf_c15, cf_c16, cf_c17;
+	capability	cf_c6, cf_c7, cf_c8, cf_c9;
+    //capability  cf_c10, cf_c11, cf_c12, cf_c13;
+	//capability	cf_c14, cf_c15, cf_c16, cf_c17;
 	//capability	cf_c18, cf_c19, cf_c20, cf_c21, cf_c22;
 	//capability	cf_c23, cf_c24, cf_c25;
 
@@ -345,5 +348,5 @@ typedef struct reg_frame_cheri {
 	capability	cf_pcc;
 
 
-} reg_frame_cheri_t;
+} reg_frame_t;
 #endif /* _MIPS_INCLUDE_CHERIC_H_ */

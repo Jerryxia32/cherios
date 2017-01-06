@@ -42,6 +42,7 @@
 
 #include "colors.h"
 #include "mips.h"
+#include"cheric.h"
 #include "math.h"
 #include "string.h"
 #include "elf.h"
@@ -136,8 +137,10 @@ static inline Elf64_Phdr *elf_segment(Elf64_Ehdr *hdr, int idx) {
 
 /* not secure */
 
-void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, size_t *entry) {
-	char *addr = (char *)p;
+__capability void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, size_t *entry) {
+	//char *addr = (char *)p;
+    __capability char *addr = cheri_getdefault();
+    addr = cheri_setoffset(addr, (size_t)p);
     char *strtable;
 	size_t lowaddr = (size_t)(-1);
 	Elf64_Ehdr *hdr = (Elf64_Ehdr *)addr;
@@ -168,39 +171,18 @@ void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, si
 		}
 	}
 
-	char *prgmp = env->alloc(allocsize);
-	if((size_t)prgmp + (size_t)e_entry == 0) {
+	__capability char *prgmp = env->alloc(allocsize + 0x20000); //over provision for a 1MiB stack
+	if(!prgmp) {
 		ERROR("alloc failed");
 		return NULL;
 	}
-    /* rewrite .got and .data.rel.local with additional offset
-     * However, more sections might need rewriting. XXX
-     */
-    for(int i=0; i<hdr->e_shnum; i++) {
-        if(elf_section(hdr, i)->sh_type == 3) { // This section is a string table
-            strtable = elf_section(hdr, i)->sh_offset + addr;
-            break;
-        }
-    }
-
-    for(int i=0; i<hdr->e_shnum; i++) {
-        if(strcmp(strtable + elf_section(hdr, i)->sh_name, ".got") == 0 || 
-                strncmp(".data.rel", strtable + elf_section(hdr, i)->sh_name, 9) == 0) { //Hongyan debug
-            //env->printf("GOT found at %p\n", elf_section(hdr, i)->sh_offset);
-            char *gotstart = (char *)((size_t)addr + elf_section(hdr, i)->sh_offset);
-            size_t gotsize = elf_section(hdr, i)->sh_size;
-            for(size_t j=0; j<gotsize; j+=8) {
-                *(uint64_t *)((size_t)gotstart + j) += (uint64_t)prgmp;
-            }
-        }
-    }
 
 	TRACE("Allocated %lx bytes of target memory", allocsize);
 
 	for(int i=0; i<hdr->e_phnum; i++) {
 		Elf64_Phdr *seg = elf_segment(hdr, i);
 		if(seg->p_type == 1) {
-			env->memcpy(prgmp+seg->p_vaddr, addr + seg->p_offset, seg->p_filesz);
+			env->memcpy_c(prgmp+seg->p_vaddr, addr + seg->p_offset, seg->p_filesz);
 			TRACE("memcpy: [%lx %lx] <-- [%lx %lx] (%lx bytes)",
 			      seg->p_vaddr, seg->p_vaddr + seg->p_filesz,
 			      seg->p_offset, seg->p_offset + seg->p_filesz,

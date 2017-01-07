@@ -44,6 +44,12 @@ int	act_ctrl_terminate(void * ctrl);
 __capability void *	act_get_cap(void);
 void *	act_seal_id(void * id);
 
+typedef struct {
+	__capability void * cret;
+	register_t rret;
+}  ret_t;
+
+
 void	object_init(void * self_ctrl, __capability void * self_cap);
 
 void	ctor_null(void);
@@ -58,19 +64,29 @@ extern long msg_enable;
 
 #define CCALL(selector, ...) ccall_##selector(__VA_ARGS__)
 register_t ccall_1(void * cb, void * cs, int method_nb,
-		  register_t rarg1, register_t rarg2,
-		  register_t rarg3, register_t rarg4);
+        register_t rarg1, register_t rarg2, register_t rarg3,
+        const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
 register_t ccall_2(void * cb, void * cs, int method_nb,
-		  register_t rarg1, register_t rarg2,
-		  register_t rarg3, register_t rarg4);
+        register_t rarg1, register_t rarg2, register_t rarg3,
+        const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
 
-void ccall_r_n(void * cb, void * cs, int method_nb, register_t rarg1);
-void ccall_rr_n(void * cb, void * cs, int method_nb, register_t rarg1, register_t rarg2);
-void ccall_rrr_n(void * cb, void * cs, int method_nb, register_t rarg1, register_t rarg2, register_t rarg3);
-void ccall_rrrr_n(void * cb, void * cs, int method_nb, register_t rarg1, register_t rarg2, register_t rarg3, register_t rarg4);
+void    ccall_c_n(void * cb, void * cs, int method_nb, const __capability void * carg);
+__capability void *  ccall_n_c(void * cb, void * cs, int method_nb);
+__capability void *  ccall_r_c(void * cb, void * cs, int method_nb, int rarg);
+__capability void *  ccall_c_c(void * cb, void * cs, int method_nb, const __capability void * carg);
+__capability void *  ccall_rr_c(void * cb, void * cs, int method_nb, int rarg, int rarg2);
 register_t ccall_n_r(void * cb, void * cs, int method_nb);
-register_t ccall_r_r(void * cb, void * cs, int method_nb, register_t rarg1);
-register_t ccall_rr_r(void * cb, void * cs, int method_nb, register_t rarg1, register_t rarg2);
-register_t ccall_rrr_r(void * cb, void * cs, int method_nb, register_t rarg1, register_t rarg2, register_t rarg3);
-register_t ccall_rrrr_r(void * cb, void * cs, int method_nb, register_t rarg1, register_t rarg2, register_t rarg3, register_t rarg4); 
+register_t ccall_r_r(void * cb, void * cs, int method_nb, int rarg);
+register_t ccall_c_r(void * cb, void * cs, int method_nb, __capability void * carg);
+register_t ccall_rr_r(void * cb, void * cs, int method_nb, int rarg, int rarg2);
+register_t ccall_rrr_r(void * cb, void * cs, int method_nb, int rarg1, int rarg2, int rarg3);
+register_t ccall_rc_r(void * cb, void * cs, int method_nb, int rarg, const __capability void * carg);
+void    ccall_cc_n(void * cb, void * cs, int method_nb, __capability void * carg1, __capability void * carg2);
+void    ccall_rc_n(void * cb, void * cs, int method_nb, int rarg, __capability void * carg);
+register_t ccall_rcc_r(void * cb, void * cs, int method_nb, register_t rarg1, __capability void * carg1, __capability void * carg2);
+__capability void *  ccall_rrrc_c(void * cb, void * cs, int method_nb,
+        register_t, register_t, register_t, __capability void * carg);
+register_t ccall_rrcc_r(void * cb, void * cs, int method_nb,
+        register_t rarg1, register_t rarg2, __capability void * carg1, __capability void * carg2);
+
 #endif

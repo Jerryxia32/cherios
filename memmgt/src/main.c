@@ -69,7 +69,7 @@ int main(void) {
 
 	/* init release mecanism */
 	// XXX no gc for now
-    // release_init();
+    release_init();
 
 	syscall_puts("memmgt: setup done\n");
 

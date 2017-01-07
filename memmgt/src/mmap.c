@@ -52,7 +52,7 @@ static page_t * book = NULL;
 
 /* fd and offset are currently unused and discarded in userspace */
 __capability void *__mmap(__capability void *addr, size_t length, int prot, int flags) {
-	int perms = CHERI_PERM_SOFT_0; /* can-free perm */
+	int perms = 0;
 	if(addr != NULLCAP)
 		panic("mmap: addr must be NULL");
 
@@ -153,16 +153,11 @@ int __munmap(__capability void *addr, size_t length) {
 	free(addr);
 	return 0;
 #endif
-	if(!(cheri_getperm(addr) & CHERI_PERM_SOFT_0)) {
-		errno = EINVAL;
-		printf(KRED"BAD MUNMAP\n");
-		return -1;
-	}
 
 	bzero_c(addr, length); /* clear mem */
 
 	length += pagesz; /* fixme: fix for dlmalloc, see above */
-	size_t page = addr2chunk(addr, length);
+	size_t page = addr2chunk((void *)(cheri_getbase(addr) + cheri_getoffset(addr)), length);
 
 	book[page].status = page_released;
 	release(addr);
@@ -171,7 +166,7 @@ int __munmap(__capability void *addr, size_t length) {
 
 void mfree(__capability void *addr) {
 	//CHERI_PRINT_CAP(addr);
-	size_t page = addr2page(addr);
+	size_t page = addr2page((void *)(cheri_getbase(addr) + cheri_getoffset(addr)));
 	book[page].status = page_unused;
 }
 

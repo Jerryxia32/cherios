@@ -7,7 +7,10 @@ typedef struct
 	register_t a0; /* GP arguments */
 	register_t a1;
 	register_t a2;
-	register_t a3;
+
+    __capability void *c3; /* Cap arguments */
+    __capability void *c4; /* Cap arguments */
+    __capability void *c5; /* Cap arguments */
 
 	register_t v0;  /* method nb */
 	register_t v1;  /* syscall nb */

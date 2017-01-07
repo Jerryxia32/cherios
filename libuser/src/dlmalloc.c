@@ -2018,7 +2018,7 @@ typedef struct malloc_tree_chunk* tbinptr; /* The type of bins of trees */
 */
 
 struct malloc_segment {
-  char*        base;             /* base address */
+  __capability char*        base;             /* base address */
   size_t       size;             /* allocated size */
   struct malloc_segment* next;   /* ptr to next segment */
   flag_t       sflags;           /* mmap and extern flag */

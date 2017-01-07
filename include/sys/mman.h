@@ -32,7 +32,7 @@
 #include "errno.h"
 
 __capability void *	mmap(__capability void *addr, size_t length, int prot, int flags, __unused int fd, __unused off_t offset);
-int	munmap(__capability void *addr, size_t length);
+int	munmap(void *addr, size_t length);
 
 void	mmap_set_act(void * ref, void * id);
 

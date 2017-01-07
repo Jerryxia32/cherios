@@ -37,20 +37,20 @@
 static void * memmgt_ref = NULL;
 static void * memmgt_id  = NULL;
 
-static void *_mmap(void *addr, size_t length, int prot, int flags) {
+static void __capability *_mmap(__capability void *addr, size_t length, int prot, int flags) {
 	if(memmgt_ref == NULL) {
 		memmgt_ref = namespace_get_ref(3);
 		memmgt_id  = namespace_get_id(3);
 	}
-	return (void *)ccall_rrrr_r(memmgt_ref, memmgt_id, 0,  (register_t)addr, length, prot, flags);
+	return ccall_rrrc_c(memmgt_ref, memmgt_id, 0, length, prot, flags, addr);
 }
 
-void *mmap(void *addr, size_t length, int prot, int flags, __unused int fd, __unused off_t offset) {
+__capability void *mmap(__capability void *addr, size_t length, int prot, int flags, __unused int fd, __unused off_t offset) {
 	return _mmap(addr, length, prot, flags);
 }
 
-int munmap(void *addr, size_t length) {
-	return ccall_rr_r(memmgt_ref, memmgt_id, 1, (register_t)addr, length);
+int munmap(__capability void *addr, size_t length) {
+	return ccall_rc_r(memmgt_ref, memmgt_id, 1, length, addr);
 }
 
 void mmap_set_act(void * ref, void * id) {

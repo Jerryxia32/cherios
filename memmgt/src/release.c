@@ -32,7 +32,7 @@
 
 typedef struct {
 	int	used;
-	void *	p;
+	__capability void *	p;
 	int	r;
 } rel_t;
 
@@ -44,7 +44,7 @@ static inline size_t safe(size_t i) {
 	return i%release_pending_size;
 }
 
-static void rel_push(void * p) {
+static void rel_push(__capability void * p) {
 	static size_t lastfree = 0;
 	size_t i = lastfree;
 	while(lastfree - i <  release_pending_size) {
@@ -61,17 +61,17 @@ static void rel_push(void * p) {
 	panic("cannot store pointer to release");
 }
 
-static int try_gc(void * p) {
+static int try_gc(__capability void * p) {
 	register_t ret;
 	__asm__ __volatile__ (
-		"li    $v0, 66       \n"
+		"li    $v1, 66       \n"
 		"cmove $c3, %[p]     \n"
 		"cmove $c4, %[pool]  \n"
 		"syscall             \n"
 		"move %[ret], $v0    \n"
 		: [ret] "=r" (ret)
 		: [p] "C" (p), [pool] "C" (pool)
-		: "v0", "$c3", "$c4");
+		: "v0", "v1", "$c3", "$c4");
 	return ret;
 }
 
@@ -92,7 +92,7 @@ static void try_gc_rel(void) {
 	}
 }
 
-void release(void * p) {
+void release(__capability void * p) {
 	rel_push(p);
 	try_gc_rel();
 	iteration++;

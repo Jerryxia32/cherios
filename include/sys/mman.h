@@ -31,11 +31,18 @@
 #include "cdefs.h"
 #include "errno.h"
 
-__capability void *	mmap(__capability void *addr, size_t length, int prot, int flags, __unused int fd, __unused off_t offset);
-int	munmap(__capability void *addr, size_t length);
+/*
+void *	mmap(void *addr, size_t length, int prot, int flags, __unused int fd, __unused off_t offset);
+int	munmap(void *addr, size_t length);
+ */
 
-void	mmap_set_act(void * ref, void * id);
+static void	memmgt_set_act(void *ref, void *id);
+static __capability void *malloc(size_t n);
+static __capability void *calloc(size_t n, size_t s);
+static __capability void *realloc(__capability void *oldmem, size_t s);
+static void    free(__capability void *p);
 
+/*
 enum mmap_prot
 {
   PROT_READ		= 1 << 0,
@@ -60,6 +67,5 @@ enum mmap_return
   ENOMEM = 1
 };
 
-#define MAP_FAILED ((__capability void *) -1)
-
-
+#define MAP_FAILED ((void *) -1)
+ */

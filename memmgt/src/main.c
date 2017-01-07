@@ -32,7 +32,7 @@
 #include "malloc_heap.h"
 
 extern void msg_entry;
-void (*msg_methods[]) = {__mmap, __munmap};
+void (*msg_methods[]) = {__malloc, __calloc, __realloc, __free};
 size_t msg_methods_nb = countof(msg_methods);
 void (*ctrl_methods[]) = {NULL, ctor_null, dtor_null, register_ns};
 size_t ctrl_methods_nb = countof(ctrl_methods);
@@ -69,7 +69,7 @@ int main(void) {
 
 	/* init release mecanism */
 	// XXX no gc for now
-    release_init();
+    //release_init();
 
 	syscall_puts("memmgt: setup done\n");
 

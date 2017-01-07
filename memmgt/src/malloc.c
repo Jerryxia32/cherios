@@ -62,7 +62,7 @@ void init_pagebucket(void);
  * byte is set to MAGIC, and the second byte is the size index.
  */
 union	overhead {
-	union	overhead *ov_next;	/* when free */
+	__capability union	overhead *ov_next;	/* when free */
 	struct {
 		u_char	ovu_magic;	/* magic number */
 		u_char	ovu_index;	/* bucket # */
@@ -80,7 +80,7 @@ union	overhead {
  * precedes the data area returned to the user.
  */
 #define	NBUCKETS 30
-static	union overhead *nextf[NBUCKETS];
+static	__capability union overhead *nextf[NBUCKETS];
 
 static	int pagebucket;			/* page size bucket */
 
@@ -99,10 +99,10 @@ botch(char *s)
 #define	ASSERT(p)
 #endif
 
-void *
+__capability void *
 malloc(size_t nbytes)
 {
-	union overhead *op;
+	__capability union overhead *op;
 	int bucket;
 	size_t amt;
 
@@ -122,17 +122,17 @@ malloc(size_t nbytes)
 	while (nbytes > (size_t)amt - sizeof(*op)) {
 		amt <<= 1;
 		if (amt == 0)
-			return (NULL);
+			return (NULLCAP);
 		bucket++;
 	}
 	/*
 	 * If nothing in hash bucket right now,
 	 * request more memory from the system.
 	 */
-	if ((op = nextf[bucket]) == NULL) {
+	if ((op = nextf[bucket]) == NULLCAP) {
 		morecore(bucket);
-		if ((op = nextf[bucket]) == NULL)
-			return (NULL);
+		if ((op = nextf[bucket]) == NULLCAP)
+			return (NULLCAP);
 	}
 	/* remove from linked list */
 	nextf[bucket] = op->ov_next;
@@ -141,18 +141,18 @@ malloc(size_t nbytes)
 	return (cheri_setbounds(op + 1, nbytes));
 }
 
-void *
+__capability void *
 calloc(size_t num, size_t size)
 {
-	void *ret;
+	__capability void *ret;
 
 	if (size != 0 && (num * size) / size != num) {
 		/* size_t overflow. */
-		return (NULL);
+		return (NULLCAP);
 	}
 
-	if ((ret = malloc(num * size)) != NULL)
-		memset(ret, 0, num * size);
+	if ((ret = malloc(num * size)) != NULLCAP)
+		memset_c(ret, 0, num * size);
 
 	return (ret);
 }
@@ -163,8 +163,8 @@ calloc(size_t num, size_t size)
 static void
 morecore(int bucket)
 {
-	char *buf;
-	union overhead *op;
+	__capability char *buf;
+	__capability union overhead *op;
 	size_t sz;			/* size of desired block */
 	int amt;			/* amount to allocate */
 	int nblks;			/* how many blocks we get */
@@ -201,24 +201,24 @@ morecore(int bucket)
 	 */
 	nextf[bucket] = op = cheri_setbounds(buf, sz);
 	while (--nblks > 0) {
-		op->ov_next = (union overhead *)cheri_setbounds(buf + sz, sz);
+		op->ov_next = (__capability union overhead *)cheri_setbounds(buf + sz, sz);
 		buf += sz;
 		op = op->ov_next;
 	}
-	op->ov_next = NULL;
+	op->ov_next = NULLCAP;
 }
 
-static union overhead *
+static __capability union overhead *
 find_overhead(void * cp)
 {
-	union overhead *op;
+	__capability union overhead *op;
 
 	if (!cheri_gettag(cp))
-		return (NULL);
+		return (NULLCAP);
 	op = __rederive_pointer(cp);
-	if (op == NULL) {
+	if (op == NULLCAP) {
 		printf("%s: no region found for %#p\n", __func__, cp);
-		return (NULL);
+		return (NULLCAP);
 	}
 	op--;
 
@@ -235,19 +235,19 @@ find_overhead(void * cp)
 	    "%s: Attempting to free or realloc unallocated memory\n",
 	    __func__);
 	CHERI_PRINT_PTR(cp);
-	return (NULL);
+	return (NULLCAP);
 }
 
 void
-free(void *cp)
+free(__capability void *cp)
 {
 	int bucket;
-	union overhead *op;
+	__capability union overhead *op;
 
-	if (cp == NULL)
+	if (cp == NULLCAP)
 		return;
 	op = find_overhead(cp);
-	if (op == NULL)
+	if (op == NULLCAP)
 		return;
 	bucket = op->ov_index;
 	ASSERT(bucket < NBUCKETS);
@@ -255,9 +255,10 @@ free(void *cp)
 	nextf[bucket] = op;
 }
 
-void *
-realloc(void *cp, size_t nbytes)
+__capability void *
+realloc(__capability void *cp, size_t nbytes)
 {
+#if 0
 	size_t cur_space;	/* Space in the current bucket */
 	size_t smaller_space;	/* Space in the next smaller bucket */
 	union overhead *op;
@@ -300,6 +301,9 @@ realloc(void *cp, size_t nbytes)
 	res = cheri_andperm(res, cheri_getperm(cp));
 	free(cp);
 	return (res);
+#endif
+    free(cp);
+    return malloc(nbytes);
 }
 
 

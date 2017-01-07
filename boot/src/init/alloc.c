@@ -76,15 +76,15 @@ void init_alloc_init(void) {
 }
 
 void init_alloc_enable_system(void * c_memmgt) {
-	mmap_set_act(act_ctrl_get_ref(c_memmgt), act_ctrl_get_id(c_memmgt));
+	memmgt_set_act(act_ctrl_get_ref(c_memmgt), act_ctrl_get_id(c_memmgt));
 	system_alloc = 1;
     printf("System alloc (mmap) enabled.\n");
 }
 
 __capability void *init_alloc(size_t s) {
 	if(system_alloc == 1) {
-		__capability void * p = mmap(NULL, s, PROT_RW, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-		if(p == MAP_FAILED) {
+		__capability void * p = calloc(s);
+		if(!p) {
 			return NULLCAP;
 		}
 		return p;
@@ -92,9 +92,9 @@ __capability void *init_alloc(size_t s) {
 	return init_alloc_core(s);
 }
 
-void init_free(__capability void * p __unused) {
+void init_free(__capability void * p) {
 	if(system_alloc == 1) {
-		/* fixme: use munmap */
+        free(p);
 	}
 	/* init alloc has no free */
 }

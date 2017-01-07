@@ -263,6 +263,11 @@ register_t ccall_rc_r(void * cb, void * cs, int method_nb, int rarg, const __cap
     return ret.rret;
 }
 
+__capability void *ccall_rc_c(void * cb, void * cs, int method_nb, int rarg, const __capability void * carg) {
+    ret_t ret = CCALLS(cb, cs, method_nb, rarg, 0, 0, carg, NULLCAP, NULLCAP);
+    return ret.cret;
+}
+
 void ccall_rc_n(void * cb, void * cs, int method_nb, int rarg, __capability void * carg) {
     CCALLS(cb, cs, method_nb, rarg, 0, 0, carg, NULLCAP, NULLCAP);
 }

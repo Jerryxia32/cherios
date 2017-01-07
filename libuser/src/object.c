@@ -30,6 +30,7 @@
  */
 
 #include "mips.h"
+#include"cheric.h"
 #include "object.h"
 #include "assert.h"
 #include "namespace.h"
@@ -37,9 +38,9 @@
 void * act_self_ctrl = NULL;
 void * act_self_ref  = NULL;
 void * act_self_id   = NULL;
-void * act_self_cap   = NULL;
+__capability void * act_self_cap   = NULLCAP;
 
-void object_init(void * self_ctrl, void* self_cap) {
+void object_init(void * self_ctrl, __capability void* self_cap) {
 	assert(self_ctrl != NULL);
 	act_self_ctrl = self_ctrl;
 	act_self_ref  = act_ctrl_get_ref(self_ctrl);
@@ -48,7 +49,7 @@ void object_init(void * self_ctrl, void* self_cap) {
 	act_self_cap = self_cap;
 }
 
-void * act_get_cap(void) {
+__capability void * act_get_cap(void) {
 	return act_self_cap;
 }
 

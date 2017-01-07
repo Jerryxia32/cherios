@@ -171,7 +171,7 @@ __capability void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t
 		}
 	}
 
-	__capability char *prgmp = env->alloc(allocsize + 0x20000); //over provision for a 1MiB stack
+	__capability char *prgmp = env->alloc(allocsize + 0x11000); //over provision for a 1MiB stack
 	if(!prgmp) {
 		ERROR("alloc failed");
 		return NULL;

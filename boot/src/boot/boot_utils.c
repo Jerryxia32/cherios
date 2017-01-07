@@ -177,15 +177,13 @@ boot_info_t *load_init() {
 
 	/* set up pcc */
 	__capability void *pcc = cheri_getpcc();
-	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)),
-			      cheri_getlen(prgmp));
 	pcc = cheri_andperm(pcc, (CHERI_PERM_GLOBAL | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
 				  | CHERI_PERM_LOAD_CAP));
 
 	/* populate frame */
 	bzero(&bi.init_frame, sizeof(bi.init_frame));
 	bi.init_frame.cf_pcc = pcc;
-	bi.init_frame.mf_pc  = cheri_getoffset(pcc) + entry;
+	bi.init_frame.mf_pc  = entry;
 	//bi.init_frame.cf_c11 = stack;
 	bi.init_frame.mf_sp  = (size_t)stack + INIT_STACK_SIZE;
     bi.init_frame.mf_t0 = (register_t)&__fs_start;

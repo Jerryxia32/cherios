@@ -32,6 +32,7 @@
 #define	_LIB_H_
 
 #include "mips.h"
+#include"cheric.h"
 #include "assert.h"
 #include "cdefs.h"
 #include "debug.h"
@@ -51,21 +52,21 @@ void register_ns(void * ns_ref, void * ns_id);
 #define calloc __calloc
 #define realloc __realloc
 
-void *	malloc(size_t nbytes);
-void *	calloc(size_t num, size_t size);
-void *	realloc(void *cp, size_t nbytes);
-void	free(void *cp);
+__capability void *	malloc(size_t nbytes);
+__capability void *	calloc(size_t num, size_t size);
+__capability void *	realloc(__capability void *cp, size_t nbytes);
+void	free(__capability void *cp);
 #endif
 
-void	release(void * p);
+void	release(__capability void * p);
 void	release_init(void);
 
-void *	__mmap(void *addr, size_t length, int prot, int flags);
-int	__munmap(void *addr, size_t length);
-void	minit(char *heap, size_t heaplen);
-void	mfree(void *addr);
+__capability void *	__mmap(__capability void *addr, size_t length, int prot, int flags);
+int	__munmap(__capability void *addr, size_t length);
+void	minit(__capability char *heap, size_t heaplen);
+void	mfree(__capability void *addr);
 
 extern	size_t pagesz;
-extern	char * pool;
+extern	__capability char * pool;
 
 #endif /* !_LIB_H_ */

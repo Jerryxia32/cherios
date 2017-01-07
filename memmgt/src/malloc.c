@@ -47,6 +47,7 @@ static char *rcsid = "$FreeBSD$";
 
 #include "lib.h"
 #include "mips.h"
+#include "cheric.h"
 #include "malloc_heap.h"
 
 #pragma clang diagnostic ignored "-Wsign-compare"
@@ -137,7 +138,7 @@ malloc(size_t nbytes)
 	nextf[bucket] = op->ov_next;
 	op->ov_magic = MAGIC;
 	op->ov_index = bucket;
-	return op + 1;
+	return (cheri_setbounds(op + 1, nbytes));
 }
 
 void *
@@ -190,16 +191,18 @@ morecore(int bucket)
 		if (__morepages(amt/pagesz) == 0)
 			return;
 
-	buf = (char *)pagepool_start;
+	buf = cheri_setoffset(pool, pagepool_start);
+	buf = cheri_setbounds(buf, amt);
 	pagepool_start += amt;
 
 	/*
 	 * Add new memory allocated to that on
 	 * free list for this hash bucket.
 	 */
-	nextf[bucket] = op = (union overhead *)buf;
+	nextf[bucket] = op = cheri_setbounds(buf, sz);
 	while (--nblks > 0) {
-		op->ov_next = (union overhead *)((char *)op + sz);
+		op->ov_next = (union overhead *)cheri_setbounds(buf + sz, sz);
+		buf += sz;
 		op = op->ov_next;
 	}
 	op->ov_next = NULL;
@@ -210,6 +213,8 @@ find_overhead(void * cp)
 {
 	union overhead *op;
 
+	if (!cheri_gettag(cp))
+		return (NULL);
 	op = __rederive_pointer(cp);
 	if (op == NULL) {
 		printf("%s: no region found for %#p\n", __func__, cp);
@@ -229,6 +234,7 @@ find_overhead(void * cp)
 	printf(
 	    "%s: Attempting to free or realloc unallocated memory\n",
 	    __func__);
+	CHERI_PRINT_PTR(cp);
 	return (NULL);
 }
 
@@ -280,7 +286,8 @@ realloc(void *cp, size_t nbytes)
 	 */
 	smaller_space = (1 << (op->ov_index + 2)) - sizeof(*op);
 	if (nbytes <= cur_space && nbytes > smaller_space)
-		return (op+1);
+		return (cheri_andperm(cheri_setbounds(op + 1, nbytes),
+		    cheri_getperm(cp)));
 
 	if ((res = malloc(nbytes)) == NULL)
 		return (NULL);
@@ -289,8 +296,8 @@ realloc(void *cp, size_t nbytes)
 	 * than the size of the original allocation.  This risks surprise
 	 * for some programmers, but to do otherwise risks information leaks.
 	 */
-	memcpy(res, cp, nbytes);
-	//res = cheri_andperm(res, cheri_getperm(cp));
+	memcpy(res, cp, (nbytes <= cheri_getlen(cp)) ? nbytes : cheri_getlen(cp));
+	res = cheri_andperm(res, cheri_getperm(cp));
 	free(cp);
 	return (res);
 }

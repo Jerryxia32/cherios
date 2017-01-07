@@ -31,7 +31,7 @@
 #include "lib.h"
 #include "sys/mman.h"
 
-char * pool = NULL;
+__capability char * pool = NULLCAP;
 static size_t pages_nb = 0;
 
 typedef enum e_page_status {
@@ -51,8 +51,9 @@ typedef struct {
 static page_t * book = NULL;
 
 /* fd and offset are currently unused and discarded in userspace */
-void *__mmap(void *addr, size_t length, int prot, int flags) {
-	if(addr != NULL)
+__capability void *__mmap(__capability void *addr, size_t length, int prot, int flags) {
+	int perms = CHERI_PERM_SOFT_0; /* can-free perm */
+	if(addr != NULLCAP)
 		panic("mmap: addr must be NULL");
 
 	if(!(flags & MAP_ANONYMOUS)) {
@@ -65,28 +66,26 @@ void *__mmap(void *addr, size_t length, int prot, int flags) {
 	}
 
 	if(flags & MAP_PRIVATE) {
-		//perms |= 1 << 6;
+		perms |= 1 << 6;
 	} else if(flags & MAP_SHARED) {
-		//perms |= 1 << 0;
+		perms |= 1 << 0;
 	} else {
 		errno = EINVAL;
 		goto fail;
 	}
 
 	if(prot & PROT_READ) {
-		//perms |= 1 << 2;
-		if(!(prot & PROT_NO_READ_CAP)) {
-			//perms |= 1 << 4;
-        }
+		perms |= 1 << 2;
+		if(!(prot & PROT_NO_READ_CAP))
+			perms |= 1 << 4;
 	}
 	if(prot & PROT_WRITE) {
-		//perms |= 1 << 3;
-		if(!(prot & PROT_NO_WRITE_CAP)) {
-			//perms |= 1 << 5;
-        }
+		perms |= 1 << 3;
+		if(!(prot & PROT_NO_WRITE_CAP))
+			perms |= 1 << 5;
 	}
 
-	void * p = NULL;
+	__capability void * p = NULL;
 #if !MMAP
 	p = __calloc(length, 1);
 	if(p)	goto ok;
@@ -123,11 +122,11 @@ void *__mmap(void *addr, size_t length, int prot, int flags) {
 		book[page+pages_wanted].status = page_unused;
 		book[page+pages_wanted].len = curr_len-pages_wanted;
 	}
-	p = pool+page*pagesz;
+	p = cheri_setbounds(pool+page*pagesz, length);
 	goto ok;
 
  ok:
-	//p = cheri_andperm(p, perms);
+	p = cheri_andperm(p, perms);
 	//CHERI_PRINT_CAP(p);
 	return p;
 
@@ -148,14 +147,19 @@ static size_t addr2chunk(void * addr, size_t length) {
 	return page;
 }
 
-int __munmap(void *addr, size_t length) {
+int __munmap(__capability void *addr, size_t length) {
 	//CHERI_PRINT_CAP(addr);
 #if !MMAP
 	free(addr);
 	return 0;
 #endif
+	if(!(cheri_getperm(addr) & CHERI_PERM_SOFT_0)) {
+		errno = EINVAL;
+		printf(KRED"BAD MUNMAP\n");
+		return -1;
+	}
 
-	bzero(addr, length); /* clear mem */
+	bzero_c(addr, length); /* clear mem */
 
 	length += pagesz; /* fixme: fix for dlmalloc, see above */
 	size_t page = addr2chunk(addr, length);
@@ -165,30 +169,28 @@ int __munmap(void *addr, size_t length) {
 	return 0;
 }
 
-void mfree(void *addr) {
+void mfree(__capability void *addr) {
 	//CHERI_PRINT_CAP(addr);
 	size_t page = addr2page(addr);
 	book[page].status = page_unused;
 }
 
-void minit(char *heap, size_t heaplen) {
+void minit(__capability char *heap) {
 	assert((size_t)heap == roundup2((size_t)heap, pagesz));
-	//assert(cheri_getoffset(heap) == 0);
+	assert(cheri_getoffset(heap) == 0);
 
-	size_t length = heaplen;
+	size_t length = cheri_getlen(heap);
 
 	pages_nb = length / (pagesz + sizeof(page_t));
 	assert(pages_nb > 0);
 	size_t pool_len = pages_nb*pagesz;
-	pool = heap;
+	pool = cheri_setbounds(heap, pool_len);
 
 	size_t book_len = pages_nb*sizeof(page_t);
 	//printf("Heaplen:%jx Poollen: %jx, Booklen: %jx\n", length, pool_len, book_len);
 	assert(book_len + pool_len <= length);
-	//book = cheri_setbounds(heap + pool_len, book_len);
-	book = (page_t *)(heap + pool_len);
+	book = cheri_setbounds(heap + pool_len, book_len);
 
 	book[0].status = page_unused;
 	book[0].len = pages_nb;
-    printf("Initialize the heap with base: %p, length %ld.\n", heap, length);
 }

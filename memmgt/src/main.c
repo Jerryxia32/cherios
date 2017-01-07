@@ -1,5 +1,4 @@
 /*-
- * Copyright (c) 2016 Hongyan Xia
  * Copyright (c) 2016 Hadrien Barral
  * All rights reserved.
  *
@@ -52,10 +51,9 @@ int main(void) {
 	syscall_puts("memmgt Hello world\n");
 
 	/* Get capability to heap */
-	void * heap = act_get_cap();
-    size_t heaplen = *(size_t *)((size_t)heap + 0x100);
+	__capability void * heap = act_get_cap();
 	//CHERI_PRINT_CAP(heap);
-	assert(heap != NULL);
+	assert(heap != NULLCAP);
 
 	/*
 	 * setup memory and
@@ -63,16 +61,15 @@ int main(void) {
 	 */
 	pagesz = CHERIOS_PAGESIZE;
 	#if MMAP
-	minit(heap, heaplen);
-    printf("Initialize(minit) the heap with base: %p, length %lx.\n", heap, heaplen);
+	minit(heap);
 	#else
 	init_pagebucket();
-	__init_heap(heap, heaplen);
-    printf("Initialize(__init_heap) the heap with base: %p, length %lx.\n", heap, heaplen);
+	__init_heap(heap);
 	#endif
 
 	/* init release mecanism */
-	release_init();
+	// XXX no gc for now
+    // release_init();
 
 	syscall_puts("memmgt: setup done\n");
 

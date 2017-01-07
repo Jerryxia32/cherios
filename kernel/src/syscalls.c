@@ -79,7 +79,7 @@ static void syscall_act_seal_identifier(void) {
 }
 
 static void syscall_puts() {
-	void * msg = (void *)kernel_exception_framep_ptr->mf_a0;
+	void * msg = (void *)(kernel_exception_framep_ptr->mf_a0 + cheri_getbase(cheri_getepcc()));
 	#ifndef __LITE__
 	printf(KGRN"%s" KREG KRST, msg);
 	#else

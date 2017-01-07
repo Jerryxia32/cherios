@@ -121,7 +121,7 @@ include_directories(include)
 set(ASMC_COMPILER_FLAGS
     -mcpu=mips4
     #-mabi=sandbox
-    #-mllvm -cheri128
+    -mllvm -cheri128
     -cheri-linker
     #-fpic
     -integrated-as
@@ -171,7 +171,7 @@ add_compile_options("$<$<COMPILE_LANGUAGE:ASM>:${ASM_COMPILER_FLAGS}>")
 
 # TODO: only add -g when CMAKE_BUILD_TYPE == Debug
 # for now we always want it
-#add_compile_options(-g)
+add_compile_options(-g)
 
 set(CHERIOS_FILESYSTEM_DIR "${CMAKE_BINARY_DIR}/fs")
 set(CHERIOS_FILESYSTEM_DEPENDS "" CACHE INTERNAL "dependencies for filesystem")
@@ -287,7 +287,7 @@ add_subdirectory(dijkstra)
 #add_subdirectory(AES)
 #add_subdirectory(fatfs)
 #add_subdirectory(hello)
-#add_subdirectory(memmgt)
+add_subdirectory(memmgt)
 #add_subdirectory(namespace)
 #add_subdirectory(prga)
 #add_subdirectory(sockets)

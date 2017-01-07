@@ -56,7 +56,7 @@ static void * init_act_register(reg_frame_t * frame, const char * name) {
 }
 
 static void * init_act_create(const char * name, __capability void * c0, __capability void * pcc, void * stack,
-			      void * act_cap, void * ns_ref, void * ns_id,
+			      __capability void * act_cap, void * ns_ref, void * ns_id,
 			      register_t rarg, const void * carg) {
 	reg_frame_t frame;
 	memset(&frame, 0, sizeof(reg_frame_t));
@@ -72,7 +72,7 @@ static void * init_act_create(const char * name, __capability void * c0, __capab
     frame.cf_c0 = c0;
 
 	/* set cap */
-	frame.mf_s5	= (register_t)act_cap;
+	frame.cf_c8	= act_cap;
 
 	/* set namespace */
 	frame.mf_s6	= (register_t)ns_ref;
@@ -85,8 +85,8 @@ static void * init_act_create(const char * name, __capability void * c0, __capab
 }
 
 /* Return the capability needed by the activation */
-static void * get_act_cap(module_t type) {
-	void * cap = NULL;
+static __capability void * get_act_cap(module_t type) {
+	__capability void * cap = NULLCAP;
 	switch(type) {
 	case m_uart:{}
 
@@ -107,25 +107,20 @@ static void * get_act_cap(module_t type) {
          */
 		break;
 	case m_memmgt:{}
-        /* heap length not passed in the MIPS case
-        if(caplen)
-            caplen = (size_t)&__stop_heap - (size_t)&__start_heap;
-         */
-		void * heap = &__start_heap;
-        *(size_t *)((size_t)heap + 0x100) = &__stop_heap - &__start_heap; // super ugly hack, put the length of the heap at heap + 0x100
-        printf("Size of the heap: 0x%lx\n", &__stop_heap - &__start_heap);
-        cap = heap;
-        /*
-		heap = cheri_setbounds(heap, heaplen);
-		cap = cheri_andperm(heap, (CHERI_PERM_GLOBAL | CHERI_PERM_LOAD | CHERI_PERM_STORE
-					   | CHERI_PERM_LOAD_CAP | CHERI_PERM_STORE_CAP
-					   | CHERI_PERM_STORE_LOCAL_CAP | CHERI_PERM_SOFT_1));
-         */
+        size_t heaplen = (size_t)&__stop_heap - (size_t)&__start_heap;
+        __capability void * heap = cheri_setoffset(cheri_getdefault(), (size_t)&__start_heap);
+        heap = cheri_setbounds(heap, heaplen);
+        cap = cheri_andperm(heap, (CHERI_PERM_GLOBAL | CHERI_PERM_LOAD | CHERI_PERM_STORE
+                    | CHERI_PERM_LOAD_CAP | CHERI_PERM_STORE_CAP
+                    | CHERI_PERM_STORE_LOCAL_CAP | CHERI_PERM_SOFT_1));
+
 		break;
 	case m_fs:{}
+        /*
 		void * mmio_cap = (void *)mips_phys_to_uncached(0x1e400000);
         cap = mmio_cap;
 		break;
+         */
 	case m_namespace:
 	case m_core:
 	case m_user:
@@ -189,7 +184,7 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 	void * stack = make_aligned_data_addr((void *)allocsize);
 	__capability void * pcc = cheri_getpcc();
 	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), allocsize);
-	pcc = cheri_setoffset(pcc, entry);
+	pcc = cheri_incoffset(pcc, entry);
 	pcc = cheri_andperm(pcc, (CHERI_PERM_GLOBAL | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
 				  | CHERI_PERM_LOAD_CAP));
 	void * ctrl = init_act_create(file, cheri_setoffset(prgmp, 0),

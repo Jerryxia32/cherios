@@ -47,7 +47,7 @@ static inline void *align_upwards(void *p, uintptr_t align)
 	return (void *)addr;
 }
 
-static const size_t pool_size = 1024*1024*5;
+static const size_t pool_size = 1024*1024;
 static char pool[pool_size];
 
 static char * pool_start = NULL;
@@ -82,7 +82,6 @@ void init_alloc_enable_system(void * c_memmgt) {
 }
 
 __capability void *init_alloc(size_t s) {
-    /*
 	if(system_alloc == 1) {
 		__capability void * p = mmap(NULL, s, PROT_RW, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 		if(p == MAP_FAILED) {
@@ -90,7 +89,6 @@ __capability void *init_alloc(size_t s) {
 		}
 		return p;
 	}
-    */
 	return init_alloc_core(s);
 }
 

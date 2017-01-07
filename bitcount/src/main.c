@@ -20,6 +20,7 @@ static int CDECL bit_shifter(uint32_t x);
 
 int main()
 {
+    printf("Bitcount hello world!.\n");
     uint32_t i, j, n, seed;
     uint32_t iterations;
     static int (* CDECL pBitCntFunc[FUNCS])(uint32_t) = {

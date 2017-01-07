@@ -36,15 +36,15 @@
 extern void * act_self_ctrl;
 extern void * act_self_ref;
 extern void * act_self_id;
-extern void * act_self_cap;
+extern __capability void * act_self_cap;
 void *	act_ctrl_get_ref(void * ctrl);
 void *	act_ctrl_get_id(void * ctrl);
 int	act_ctrl_revoke(void * ctrl);
 int	act_ctrl_terminate(void * ctrl);
-void *	act_get_cap(void);
+__capability void *	act_get_cap(void);
 void *	act_seal_id(void * id);
 
-void	object_init(void * self_ctrl, void * self_cap);
+void	object_init(void * self_ctrl, __capability void * self_cap);
 
 void	ctor_null(void);
 void	dtor_null(void);

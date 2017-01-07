@@ -1,5 +1,4 @@
 #-
-# Copyright (c) 2016 Hongyan Xia
 # Copyright (c) 2016 Hadrien Barral
 # All rights reserved.
 #
@@ -37,4 +36,4 @@
 	.global start
 	.ent start
 start:
-    j   start_common
+	j start_common

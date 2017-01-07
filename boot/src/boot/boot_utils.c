@@ -110,7 +110,7 @@ err:
 
 static void *make_aligned_data_addr(const char *start) {
 	size_t desired_ofs = ((size_t)start + PAGE_ALIGN);
-	desired_ofs &= ~ PAGE_ALIGN;
+	desired_ofs &= ~(PAGE_ALIGN-1);
 
 	char *cap = (char *)desired_ofs;
 	return cap;

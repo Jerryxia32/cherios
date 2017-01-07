@@ -48,15 +48,15 @@ void register_ns(void * ns_ref, void * ns_id);
 #define MMAP 0
 
 #if !MMAP
-#define malloc __malloc
-#define calloc __calloc
-#define realloc __realloc
-#define free __free
+#define malloc_c __malloc_c
+#define calloc_c __calloc_c
+#define realloc_c __realloc_c
+#define free_c __free_c
 
-static __capability void *	malloc(size_t nbytes);
-static __capability void *	calloc(size_t num, size_t size);
-static __capability void *	realloc(__capability void *cp, size_t nbytes);
-static void	free(__capability void *cp);
+__capability void *	malloc_c(size_t nbytes);
+__capability void *	calloc_c(size_t num, size_t size);
+__capability void *	realloc_c(__capability void *cp, size_t nbytes);
+void	free_c(__capability void *cp);
 #endif
 
 //void	release(__capability void * p);

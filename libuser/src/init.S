@@ -46,7 +46,6 @@ start_common:
 	move		$s0, $a0
 	move		$s1, $a1
 	move		$s2, $a2
-	move		$s3, $a3
 
 	# Initialise BSS and globals before running C constructors, so that C
 	# constructors can take them (and other aspects of the conventional C
@@ -68,7 +67,7 @@ start_common:
     nop
 
 	# Call object init.
-	move		$a0, $s3
+	move		$a0, $s2
     #move		$a1, $s5
     cmove       $c3, $c8
 	move		$a1, $s6

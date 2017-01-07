@@ -79,6 +79,7 @@ register_t ccall_n_r(void * cb, void * cs, int method_nb);
 register_t ccall_r_r(void * cb, void * cs, int method_nb, int rarg);
 register_t ccall_c_r(void * cb, void * cs, int method_nb, __capability void * carg);
 register_t ccall_rr_r(void * cb, void * cs, int method_nb, int rarg, int rarg2);
+void ccall_rr_n(void * cb, void * cs, int method_nb, int rarg, int rarg2);
 register_t ccall_rrr_r(void * cb, void * cs, int method_nb, int rarg1, int rarg2, int rarg3);
 register_t ccall_rc_r(void * cb, void * cs, int method_nb, int rarg, const __capability void * carg);
 void    ccall_cc_n(void * cb, void * cs, int method_nb, __capability void * carg1, __capability void * carg2);

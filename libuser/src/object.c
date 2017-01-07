@@ -272,6 +272,10 @@ void ccall_rc_n(void * cb, void * cs, int method_nb, int rarg, __capability void
     CCALLS(cb, cs, method_nb, rarg, 0, 0, carg, NULLCAP, NULLCAP);
 }
 
+void ccall_rr_n(void * cb, void * cs, int method_nb, int rarg, int rarg2) {
+    CCALLS(cb, cs, method_nb, rarg, rarg2, 0, NULLCAP, NULLCAP, NULLCAP);
+}
+
 void ccall_cc_n(void * cb, void * cs, int method_nb, __capability void * carg1, __capability void * carg2) {
     CCALLS(cb, cs, method_nb, 0, 0, 0, carg1, carg2, NULLCAP);
 }

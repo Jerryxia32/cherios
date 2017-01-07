@@ -36,11 +36,11 @@ void *	mmap(void *addr, size_t length, int prot, int flags, __unused int fd, __u
 int	munmap(void *addr, size_t length);
  */
 
-static void	memmgt_set_act(void *ref, void *id);
-static __capability void *malloc(size_t n);
-static __capability void *calloc(size_t n, size_t s);
-static __capability void *realloc(__capability void *oldmem, size_t s);
-static void    free(__capability void *p);
+void	memmgt_set_act(void *ref, void *id);
+__capability void *malloc_c(size_t n);
+__capability void *calloc_c(size_t n, size_t s);
+__capability void *realloc_c(__capability void *oldmem, size_t s);
+void    free_c(__capability void *p);
 
 /*
 enum mmap_prot

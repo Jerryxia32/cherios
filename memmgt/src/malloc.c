@@ -100,7 +100,7 @@ botch(char *s)
 #endif
 
 __capability void *
-malloc(size_t nbytes)
+malloc_c(size_t nbytes)
 {
 	__capability union overhead *op;
 	int bucket;
@@ -142,7 +142,7 @@ malloc(size_t nbytes)
 }
 
 __capability void *
-calloc(size_t num, size_t size)
+calloc_c(size_t num, size_t size)
 {
 	__capability void *ret;
 
@@ -151,7 +151,7 @@ calloc(size_t num, size_t size)
 		return (NULLCAP);
 	}
 
-	if ((ret = malloc(num * size)) != NULLCAP)
+	if ((ret = malloc_c(num * size)) != NULLCAP)
 		memset_c(ret, 0, num * size);
 
 	return (ret);
@@ -209,7 +209,7 @@ morecore(int bucket)
 }
 
 static __capability union overhead *
-find_overhead(void * cp)
+find_overhead(__capability void * cp)
 {
 	__capability union overhead *op;
 
@@ -217,7 +217,7 @@ find_overhead(void * cp)
 		return (NULLCAP);
 	op = __rederive_pointer(cp);
 	if (op == NULLCAP) {
-		printf("%s: no region found for %#p\n", __func__, cp);
+		printf("%s: no region found for %#p\n", __func__, (void *)(cheri_getbase(cp) + cheri_getoffset(cp)));
 		return (NULLCAP);
 	}
 	op--;
@@ -239,7 +239,7 @@ find_overhead(void * cp)
 }
 
 void
-free(__capability void *cp)
+free_c(__capability void *cp)
 {
 	int bucket;
 	__capability union overhead *op;
@@ -256,7 +256,7 @@ free(__capability void *cp)
 }
 
 __capability void *
-realloc(__capability void *cp, size_t nbytes)
+realloc_c(__capability void *cp, size_t nbytes)
 {
 #if 0
 	size_t cur_space;	/* Space in the current bucket */
@@ -302,8 +302,8 @@ realloc(__capability void *cp, size_t nbytes)
 	free(cp);
 	return (res);
 #endif
-    free(cp);
-    return malloc(nbytes);
+    free_c(cp);
+    return malloc_c(nbytes);
 }
 
 

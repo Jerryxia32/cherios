@@ -36,7 +36,7 @@
 extern	caddr_t	pagepool_start, pagepool_end;
 
 int	__morepages(int n);
-void	__init_heap(__capability void * heap, size_t length);
+void	__init_heap(__capability void * heap);
 __capability void	*__rederive_pointer(__capability void *ptr);
 void	init_pagebucket(void);
 

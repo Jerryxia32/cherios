@@ -36,7 +36,7 @@
 static void * memmgt_ref = NULL;
 static void * memmgt_id  = NULL;
 
-static __capability void *malloc(size_t length) {
+__capability void *malloc_c(size_t length) {
 	if(memmgt_ref == NULL) {
 		memmgt_ref = namespace_get_ref(3);
 		memmgt_id  = namespace_get_id(3);
@@ -44,7 +44,7 @@ static __capability void *malloc(size_t length) {
 	return ccall_r_c(memmgt_ref, memmgt_id, 0, length);
 }
 
-static __capability void *calloc(size_t items, size_t length) {
+__capability void *calloc_c(size_t items, size_t length) {
 	if(memmgt_ref == NULL) {
 		memmgt_ref = namespace_get_ref(3);
 		memmgt_id  = namespace_get_id(3);
@@ -52,7 +52,7 @@ static __capability void *calloc(size_t items, size_t length) {
 	return ccall_rr_c(memmgt_ref, memmgt_id, 1, items, length);
 }
 
-static __capability void *realloc(__capability void *ptr, size_t length) {
+__capability void *realloc_c(__capability void *ptr, size_t length) {
 	if(memmgt_ref == NULL) {
 		memmgt_ref = namespace_get_ref(3);
 		memmgt_id  = namespace_get_id(3);
@@ -60,7 +60,7 @@ static __capability void *realloc(__capability void *ptr, size_t length) {
 	return ccall_rc_c(memmgt_ref, memmgt_id, 2, length, ptr);
 }
 
-static void free(__capability void *ptr) {
+void free_c(__capability void *ptr) {
 	if(memmgt_ref == NULL) {
 		memmgt_ref = namespace_get_ref(3);
 		memmgt_id  = namespace_get_id(3);

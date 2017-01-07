@@ -80,7 +80,7 @@ static void * init_act_create(const char * name, __capability void * c0, __capab
 
 	void * ctrl = init_act_register(&frame, name);
 	CCALL(1, act_ctrl_get_ref(ctrl), act_ctrl_get_id(ctrl), 0,
-	      rarg, (register_t)carg, 0, (register_t)ctrl);
+	      rarg, (register_t)carg, (register_t)ctrl, NULLCAP, NULLCAP, NULLCAP);
 	return ctrl;
 }
 
@@ -151,7 +151,7 @@ static __capability void *init_memcpy(__capability void *dest, const __capabilit
 
 static void *make_aligned_data_addr(const char *start) {
 	size_t desired_ofs = ((size_t)start + PAGE_ALIGN);
-	desired_ofs &= ~ PAGE_ALIGN;
+	desired_ofs &= ~(PAGE_ALIGN-1);
 
 	char *cap = (char *)desired_ofs;
 	return cap;
@@ -169,7 +169,7 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 	};
 
 	__capability char *prgmp = elf_loader(&env, file, &allocsize, &entry);
-    printf("Module loaded at %p, entry: %lx\n", (void *)cheri_getbase(prgmp), entry);
+    printf("Module loaded at %p, entry: %lx, size: %lx\n", (void *)cheri_getbase(prgmp), entry, allocsize);
 	if(!prgmp) {
 		assert(0);
 		return NULL;
@@ -181,7 +181,8 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 
 	//prgmp += entry;
 
-	void * stack = make_aligned_data_addr((void *)allocsize);
+	void * stack = (void *)((size_t)make_aligned_data_addr((void *)allocsize) - cheri_getbase(prgmp) & 0x1f);
+    printf("Stack bottom at %p\n", stack);
 	__capability void * pcc = cheri_getpcc();
 	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), allocsize);
 	pcc = cheri_incoffset(pcc, entry);

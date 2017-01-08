@@ -12,6 +12,7 @@
 **  10/21/93 rdg  Fixed bug found by Jeff Dunlop
 */
 
+#include<cheric.h>
 #include<assert.h>
 #include<stddef.h>
 #include<string.h>
@@ -2766,12 +2767,14 @@ main()
 	//assert(u_id != NULL);
     int sent_a = 326;
     int sent_b = -21356;
-    int sent_c = 44;
-    int sent_d = -65536;
-    printf("Stringsearch sent a message to Qsort with args: %d, %d, %d, %d.\n", sent_a, sent_b, sent_c, sent_d);
+    __capability void *sent_c = cheri_getpcc();
+    __capability void *sent_d = cheri_getdefault();
+    printf("Stringsearch sent a message to Qsort with args: %d, %d and two capabilities.\n", sent_a, sent_b);
+    CHERI_PRINT_CAP(sent_c);
+    CHERI_PRINT_CAP(sent_d);
     /* Trying so hard to kill qsort */
     register_t ret;
-	while((ret = ccall_1(u_ref, u_id, 0, sent_a, sent_b, sent_c, sent_d)) == 1) {
+	while((ret = ccall_1(u_ref, u_id, 0, sent_a, sent_b, 0, sent_c, sent_d, NULLCAP)) == 1) {
     }
     printf("Stringsearch send success.\n");
 

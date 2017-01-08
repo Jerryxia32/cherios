@@ -297,3 +297,8 @@ register_t ccall_rrcc_r(void * cb, void * cs, int method_nb,
     return ret.rret;
 }
 
+register_t ccall_rccc_r(void * cb, void * cs, int method_nb,
+        register_t rarg1, __capability void *carg1, __capability void * carg2, const __capability void * carg3) {
+    ret_t ret = CCALLS(cb, cs, method_nb, rarg1, 0, 0, carg1, carg2, carg3);
+    return ret.rret;
+}

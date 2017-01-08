@@ -14,6 +14,7 @@
 **  10/21/93 rdg  Fixed bugs found by Jeff Dunlop
 */
 
+#include<cheric.h>
 #include<limits.h>
 #include<stdlib.h>
 #include<string.h>
@@ -31,7 +32,7 @@ static int patlen;              /* # chars in pattern               */
 static int skip[UCHAR_MAX+1];   /* skip-ahead count for test chars  */
 static int skip2;               /* skip-ahead after non-match with
                                 ** matching final character         */
-static uchar *pat = NULL;       /* uppercase copy of pattern        */
+static __capability uchar *pat = NULLCAP;       /* uppercase copy of pattern        */
 
 /*
 ** bmhi_init() is called prior to bmhi_search() to calculate the
@@ -46,7 +47,7 @@ void bmhi_init(const char *pattern)
 
       /* Make uppercase copy of pattern */
 
-      pat = realloc ((void*)pat, patlen);
+      pat = realloc_c(pat, patlen);
       if (!pat)
             exit(1);
       //else  atexit(bhmi_cleanup); XXX remember to put this back
@@ -102,5 +103,5 @@ char *bmhi_search(const char *string, const int stringlen)
 
 void bhmi_cleanup(void)
 {
-      free(pat);
+      free_c(pat);
 }

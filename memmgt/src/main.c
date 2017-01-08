@@ -52,7 +52,7 @@ int main(void) {
 
 	/* Get capability to heap */
 	__capability void * heap = act_get_cap();
-	//CHERI_PRINT_CAP(heap);
+	CHERI_PRINT_CAP(heap);
 	assert(heap != NULLCAP);
 
 	/*

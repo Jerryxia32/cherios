@@ -90,5 +90,7 @@ __capability void *  ccall_rrrc_c(void * cb, void * cs, int method_nb,
         register_t, register_t, register_t, __capability void * carg);
 register_t ccall_rrcc_r(void * cb, void * cs, int method_nb,
         register_t rarg1, register_t rarg2, __capability void * carg1, __capability void * carg2);
+register_t ccall_rccc_r(void * cb, void * cs, int method_nb,
+        register_t rarg1, __capability void *carg1, __capability void * carg2, const __capability void * carg3);
 
 #endif

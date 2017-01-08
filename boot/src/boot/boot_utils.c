@@ -106,7 +106,7 @@ err:
 }
 
 #define	INIT_STACK_SIZE	0x10000
-#define	PAGE_ALIGN	0x1000
+#define	PAGE_ALIGN	0x1000L
 
 static void *make_aligned_data_addr(const char *start) {
 	size_t desired_ofs = ((size_t)start + PAGE_ALIGN);
@@ -169,8 +169,8 @@ boot_info_t *load_init() {
 	caches_invalidate(&__init_load_virtaddr,
 	                  maxaddr - (size_t)(&__init_load_virtaddr));
 
-	/* set up a stack region just after the loaded executable */
-	void * stack = make_aligned_data_addr((void *)(cheri_getbase(prgmp) + maxaddr));
+    /* Make the stack pointer cap size aligned */
+	void * stack = (void *)((size_t)make_aligned_data_addr((void *)maxaddr) - (cheri_getbase(prgmp) & (_MIPS_SZCAP/8 - 1)));
 
 	/* free memory starts beyond this stack */
 	bi.start_free_mem = make_free_mem_addr((char *)stack + INIT_STACK_SIZE);

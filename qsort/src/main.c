@@ -4,12 +4,15 @@
 #include<misc.h> // for countof();
 #include<object.h>
 #include<namespace.h>
+#include<cheric.h> // for CHERI_PRINT_CAP();
 
 #define UNLIMIT
 #define MAXARRAY 5000 /* this number, if too large, will cause a seg. fault!! */
 
-int qsort_receive(int a, int b, int c, int d) {
-    printf("Qsort received a message! Four args are %d, %d, %d, %d.\n", a, b, c, d);
+int qsort_receive(int a, int b, __capability void *c, __capability void *d) {
+    printf("Qsort received a message! Four args are %d, %d and two capabilities.\n", a, b);
+    CHERI_PRINT_CAP(c);
+    CHERI_PRINT_CAP(d);
     act_ctrl_terminate(act_self_ctrl);
     return 888;
 }

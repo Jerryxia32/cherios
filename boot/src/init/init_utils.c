@@ -147,7 +147,7 @@ static __capability void *init_memcpy(__capability void *dest, const __capabilit
 	return memcpy_c(dest, src, n);
 }
 
-#define	PAGE_ALIGN	0x1000
+#define	PAGE_ALIGN	0x1000L
 
 static void *make_aligned_data_addr(const char *start) {
 	size_t desired_ofs = ((size_t)start + PAGE_ALIGN);
@@ -181,7 +181,8 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 
 	//prgmp += entry;
 
-	void * stack = (void *)((size_t)make_aligned_data_addr((void *)allocsize) - cheri_getbase(prgmp) & 0x1f);
+    /* Make the stack pointer cap size aligned */
+	void * stack = (void *)((size_t)make_aligned_data_addr((void *)allocsize) - (cheri_getbase(prgmp) & (_MIPS_SZCAP/8 - 1)));
     printf("Stack bottom at %p\n", stack);
 	__capability void * pcc = cheri_getpcc();
 	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), allocsize);

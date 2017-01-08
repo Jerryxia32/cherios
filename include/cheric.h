@@ -108,6 +108,9 @@
 #define	cheri_setbounds(x, y)	__builtin_memcap_bounds_set(		\
 				    __DECONST(__capability void *, (x)), (y))
 
+#define cheri_getddcoffset(cap) (cheri_getbase(cap) + cheri_getoffset(cap) \
+                    - cheri_getbase(cheri_getdefault()))
+
 /* Names for permission bits */
 #define CHERI_PERM_GLOBAL		(1 <<  0)
 #define CHERI_PERM_EXECUTE		(1 <<  1)
@@ -118,7 +121,7 @@
 #define CHERI_PERM_STORE_LOCAL_CAP	(1 <<  6)
 #define CHERI_PERM_SEAL			(1 <<  7)
 #define CHERI_PERM_ACCESS_SYS_REGS	(1 << 10)
-#if (_MIPS_SZCAP == 8)
+#if (_MIPS_SZCAP == 64)
 #define CHERI_PERM_SOFT_0		(1 << 11)
 #else
 #define CHERI_PERM_SOFT_0		(1 << 15)

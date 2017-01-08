@@ -127,7 +127,7 @@ void kernel_creturn(void) {
 	/* Ack creturn instruction */
 	kernel_skip_instr(kernel_curr_act);
 
-	uint64_t sync_token = kernel_exception_framep_ptr->mf_t2;
+	uint64_t sync_token = kernel_exception_framep_ptr->mf_s4;
 	if(sync_token == 0) {
 		/* Used by asynchronous primitives */
 		//act_wait(kernel_curr_act, 0);
@@ -153,6 +153,8 @@ void kernel_creturn(void) {
 	   kernel_exception_framep_ptr->mf_v0;
 	kernel_exception_framep[ccaller].mf_v1 =
 	   kernel_exception_framep_ptr->mf_v1;
+	kernel_exception_framep[ccaller].cf_c3 =
+	   kernel_exception_framep_ptr->cf_c3;
 
 	/* Try to set the callee in waiting mode */
 	act_wait(kernel_curr_act, ccaller);

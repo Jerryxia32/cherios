@@ -37,6 +37,7 @@
 /* which should return a file 'file2.c' identical to 'file.c'   */
 
 #include<mips.h>
+#include<cheric.h>
 #include<stdio.h>
 #include<stdlib.h>
 //#include<memory.h>
@@ -49,7 +50,7 @@
 
 #include"aes.h"
 
-int main_aes(byte *in, byte *out, int64_t length, char *givenKey);
+int main_aes(__capability byte *in, __capability byte *out, int64_t length, __capability char *givenKey);
 
 void (*msg_methods[]) = {main_aes};
 size_t msg_methods_nb = countof(msg_methods);
@@ -108,13 +109,15 @@ void fillrand(byte *buf, int len)
     }
 }    
 
-uint64_t encfile(byte *fin, byte *fout, aes *ctx, uint64_t length) {   
+uint64_t encfile(__capability byte *fin, __capability byte *fout, aes *ctx, uint64_t length) {   
     byte            inbuf[16], outbuf[16];
+    __capability byte *inbufcap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)inbuf), 16);
+    __capability byte *outbufcap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)outbuf), 16);
     uint64_t   i=0, l=0;
     uint64_t readbytes = 0, writebytes = 0;
 
     fillrand(outbuf, 16);           /* set an IV for CBC mode           */
-    memcpy(fout + writebytes, outbuf, 16);
+    memcpy_c(fout + writebytes, outbufcap, 16);
     writebytes += 16;
     fillrand(inbuf, 1);             /* make top 4 bits of a byte random */
     l = 15;                         /* and store the length of the last */
@@ -124,7 +127,7 @@ uint64_t encfile(byte *fin, byte *fout, aes *ctx, uint64_t length) {
     while(readbytes < length) {
         /* input 1st 16 bytes to buf[1..16] */
         i = length - readbytes;
-        memcpy(inbuf + 16 - l, fin + readbytes, (i<l)? i:l);
+        memcpy_c(inbufcap + 16 - l, fin + readbytes, (i<l)? i:l);
         readbytes += (i<l)? i:l;
         if(i < l) break;            /* if end of the input file reached */
 
@@ -133,7 +136,7 @@ uint64_t encfile(byte *fin, byte *fout, aes *ctx, uint64_t length) {
 
         encrypt(inbuf, outbuf, ctx);    /* and do the encryption        */
 
-        memcpy(fout + writebytes, outbuf, 16);
+        memcpy_c(fout + writebytes, outbufcap, 16);
         writebytes += 16;
                                     /* in all but first round read 16   */
         l = 16;                     /* bytes into the buffer            */
@@ -159,27 +162,32 @@ uint64_t encfile(byte *fin, byte *fout, aes *ctx, uint64_t length) {
 
         encrypt(inbuf, outbuf, ctx);    /* encrypt and output it        */
 
-        memcpy(fout + writebytes, outbuf, 16);
+        memcpy_c(fout + writebytes, outbufcap, 16);
         writebytes += 16;
     }
         
     return writebytes;
 }
 
-int decfile(byte *fin, byte *fout, aes *ctx, uint64_t length) {
-    byte    inbuf1[16], inbuf2[16], outbuf[16], *bp1, *bp2, *tp;
+int decfile(__capability byte *fin, __capability byte *fout, aes *ctx, uint64_t length) {
+    byte    inbuf1[16], inbuf2[16], outbuf[16];
+    byte    *bp1, *bp2, *tp;
+    __capability byte    *bp1cap, *bp2cap, *tpcap;
     uint64_t i, l, flen;
     uint64_t readbytes = 0, writebytes = 0;
+    __capability byte *inbuf1cap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)inbuf1), 16);
+    __capability byte *inbuf2cap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)inbuf2), 16);
+    __capability byte *outbufcap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)outbuf), 16);
 
     if(length < 32) {
         printf("File to be decrypt is corrupt\n");
         return -1;
     }
 
-    memcpy(inbuf1, fin + readbytes, 16);
+    memcpy_c(inbuf1cap, fin + readbytes, 16);
     readbytes += 16;
 
-    memcpy(inbuf2, fin + readbytes, 16);
+    memcpy_c(inbuf2cap, fin + readbytes, 16);
     readbytes += 16;
 
     decrypt(inbuf2, outbuf, ctx);   /* decrypt it                       */
@@ -189,20 +197,22 @@ int decfile(byte *fin, byte *fout, aes *ctx, uint64_t length) {
 
     flen = outbuf[0] & 15;  /* recover length of the last block and set */
     l = 15;                 /* the count of valid bytes in block to 15  */                              
-    bp1 = inbuf1;           /* set up pointers to two input buffers     */
+    bp1cap = inbuf1cap;           /* set up pointers to two input buffers     */
+    bp2cap = inbuf2cap;
+    bp1 = inbuf1;
     bp2 = inbuf2;
 
     while(1)
     {
         i = length - readbytes;
-        memcpy(bp1, fin + readbytes, (i<16)? i:16);
+        memcpy_c(bp1cap, fin + readbytes, (i<16)? i:16);
         readbytes += (i<16)? i:16;
         if(i < 16) break;
 
         /* if a block has been read the previous block must have been   */
         /* full lnegth so we can now write it out                       */
          
-        memcpy(fout + writebytes, outbuf + 16 - l, l);
+        memcpy_c(fout + writebytes, outbufcap + 16 - l, l);
         writebytes += l;
 
         decrypt(bp1, outbuf, ctx);  /* decrypt the new input block and  */
@@ -213,6 +223,9 @@ int decfile(byte *fin, byte *fout, aes *ctx, uint64_t length) {
         /* set byte count to 16 and swap buffer pointers                */
 
         l = i; tp = bp1, bp1 = bp2, bp2 = tp;
+        tpcap = bp1cap;
+        bp1cap = bp2cap;
+        bp2cap = tpcap;
     }
 
     /* we have now output 16 * n + 15 bytes of the file with any left   */
@@ -224,7 +237,7 @@ int decfile(byte *fin, byte *fout, aes *ctx, uint64_t length) {
     l = (l == 15 ? 1 : 0); flen += 1 - l;
 
     if(flen) {
-        memcpy(fout + writebytes, outbuf + l, flen);
+        memcpy_c(fout + writebytes, outbufcap + l, flen);
         writebytes += flen;
     }
 
@@ -232,8 +245,9 @@ int decfile(byte *fin, byte *fout, aes *ctx, uint64_t length) {
 }
 
 int
-main_aes(byte *in, byte *out, int64_t length, char *givenKey) {   
-    char    *cp, ch;
+main_aes(__capability byte *in, __capability byte *out, int64_t length, __capability char *givenKey) {
+    __capability char *cp;
+    char    ch;
     byte key[32];
     int     i=0, by=0, key_len=0, err = 0;
     aes     ctx[1];

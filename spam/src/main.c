@@ -38,7 +38,7 @@ main() {
     __capability uint8_t *encdec = (__capability uint8_t *)malloc_c((size_t)len + 32);
 
     const char *theKey = "0123456789ABCDEFFEDCBA98765432100123456789ABCDEFFEDCBA9876543210";
-    const __capability char *theKeyCap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)theKey), strlen(theKey));
+    const __capability char *theKeyCap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)theKey), strlen(theKey)+1);
 
     while((remain = len-encdecOffset) > EACH_BLOCK_SIZE) {
         encret = ccall_rccc_r(u_ref, u_id, 0, EACH_BLOCK_SIZE, (AES_data_cap + encdecOffset), enc, theKeyCap);

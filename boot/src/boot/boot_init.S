@@ -72,14 +72,14 @@ start:
 
 	# Implement W^X for pointers: trim store permissions from $pcc to
 	# prevent it from becoming writable in the future.
-	cgetpcc		$c9
+	cgetpcc		$c12
 	dli		$t0, ~((1<<3) | (1<<5))
-	candperm	$c9, $c9, $t0
+	candperm	$c12, $c12, $t0
 
 	# Jump to write-free $pcc.
 	dla		$t0, cherios_init_jump_target
-	csetoffset	$c9, $c9, $t0
-	cjr		$c9
+	csetoffset	$c12, $c12, $t0
+	cjr		$c12
 	nop
 cherios_init_jump_target:
 

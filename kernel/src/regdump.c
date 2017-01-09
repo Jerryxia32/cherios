@@ -100,9 +100,10 @@ void regdump(int reg_num) {
 
 	REG_DUMP_C(c1); REG_DUMP_C(c2); printf("\n");
 
-	REG_DUMP_C(c3); REG_DUMP_C(c4); REG_DUMP_C(c5); REG_DUMP_C(c6);  printf("\n");
-	REG_DUMP_C(c7); REG_DUMP_C(c8); REG_DUMP_C(c9); printf("\n");
+	REG_DUMP_C(c3); REG_DUMP_C(c4); REG_DUMP_C(c5);  printf("\n");
+	//REG_DUMP_C(c6); REG_DUMP_C(c7); REG_DUMP_C(c8); REG_DUMP_C(c9); printf("\n");
 
+	REG_DUMP_C(c11); REG_DUMP_C(c12); REG_DUMP_C(c17); printf("\n");
     /*
 	REG_DUMP_C(c10); REG_DUMP_C(c11); REG_DUMP_C(c12); REG_DUMP_C(c13);
 	REG_DUMP_C(c14); REG_DUMP_C(c15); printf("\n");

@@ -61,9 +61,10 @@ start:
 	# Expands to a list of the form
 	# csc	$creg, $0, offset*CAP_SIZE+MIPS_FRAME_SIZE($kr1c)
     foreachi csave, 0, $kr1c,					\
-        $kr2c, $c1, $c2, $c3, $c4, $c5, $c6, $c7, $c8, $c9,	\
-        $c10, $c11, $c12, $c13, $c14, $c15, $c16, $c17, $c18,	\
-        $c19, $c20, $c21, $c22, $c23, $c24, $c25, $c26, $c31
+        $kr2c, $c1, $c2, $c3, $c4, $c5, $c11, $c12, $c17	\
+        $c26, $c31
+#$c10, $c11, $c12, $c13, $c14, $c15, $c16, $c17, $c18,	\
+#$c19, $c20, $c21, $c22, $c23, $c24, $c25, $c26, $c31
 	# Expands to a list of the form
 	# csd	$greg, $0, offset*REG_SIZE($kr1c)
 	foreachi gsave, 0, $kr1c,					\
@@ -135,9 +136,10 @@ start:
 	# Expands to a list of the form
 	# clc	$creg, $0, offset*CAP_SIZE+MIPS_FRAME_SIZE($kr1c)
     foreachi crestore, 0, $kr1c,                    \
-        $kr2c, $c1, $c2, $c3, $c4, $c5, $c6, $c7, $c8, $c9, \
-        $c10, $c11, $c12, $c13, $c14, $c15, $c16, $c17, $c18,   \
-        $c19, $c20, $c21, $c22, $c23, $c24, $c25, $c26, $c31
+        $kr2c, $c1, $c2, $c3, $c4, $c5, $c11, $c12, $c17 \
+        $c26, $c31
+#$c10, $c11, $c12, $c13, $c14, $c15, $c16, $c17, $c18,   \
+#$c19, $c20, $c21, $c22, $c23, $c24, $c25, $c26, $c31
 	csetdefault	$kr2c
 
 	# Kernel init done
@@ -150,6 +152,6 @@ start_end:
 
 	.align 5
 kernel_init_save_frame:
-	.skip 32*CAP_SIZE + 32*REG_SIZE, 0 #Should be enough
+	.skip 16*CAP_SIZE + 32*REG_SIZE, 0 #Should be enough
 kernel_init_save_frame_end:
 	.size kernel_init_save_frame, kernel_init_save_frame_end - kernel_init_save_frame

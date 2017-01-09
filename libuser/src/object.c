@@ -280,6 +280,10 @@ void ccall_cc_n(void * cb, void * cs, int method_nb, __capability void * carg1, 
     CCALLS(cb, cs, method_nb, 0, 0, 0, carg1, carg2, NULLCAP);
 }
 
+void ccall_rcc_n(void * cb, void * cs, int method_nb, int rarg1, __capability void *carg1, __capability void * carg2) {
+    CCALLS(cb, cs, method_nb, rarg1, 0, 0, carg1, carg2, NULLCAP);
+}
+
 register_t ccall_rcc_r(void * cb, void * cs, int method_nb, register_t rarg, __capability void * carg1, __capability void * carg2) {
     ret_t ret = CCALLS(cb, cs, method_nb, rarg, 0, 0, carg1, carg2, NULLCAP);
     return ret.rret;

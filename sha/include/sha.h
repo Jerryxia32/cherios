@@ -20,11 +20,11 @@ typedef struct {
     LONG data[16];		/* SHA data buffer */
 } SHA_INFO;
 
-void sha_init(SHA_INFO *);
-void sha_update(SHA_INFO *, BYTE *, int);
-void sha_final(SHA_INFO *);
+void sha_init(__capability SHA_INFO *);
+void sha_update(__capability SHA_INFO *, __capability BYTE *, int);
+void sha_final(__capability SHA_INFO *);
 
-void sha_stream(SHA_INFO *, char *, size_t);
-void sha_print(SHA_INFO *);
+void sha_stream(__capability SHA_INFO *, __capability char *, size_t);
+void sha_print(__capability SHA_INFO *);
 
 #endif /* SHA_H */

@@ -22,14 +22,12 @@ main() {
 	assert(u_ref != NULL);
 	void * u_id  = namespace_get_id(5);
 
-    /*
 	void * sha_ref = namespace_get_ref(6);
 	assert(sha_ref != NULL);
 	void * sha_id  = namespace_get_id(6);
-     */
 
     size_t len = &__AES_end - &__AES_start;
-    __capability char *AES_data_cap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)&__AES_start), len);
+    __capability char *AES_data_cap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)&__AES_start), len+1);
     size_t encdecOffset = 0, totalDeced = 0, remain = 0;
     int64_t encret;
     uint64_t decret;
@@ -52,11 +50,9 @@ main() {
 
     printf("Size of the original: %ld, Total bytes decrypted: %ld\n", len, totalDeced);
 
-    /*
-    SHA_INFO theinfo;
-    ccall_rrr_n(sha_ref, sha_id, 0, (register_t)&theinfo, (register_t)&__AES_start, (size_t)len);
-    ccall_r_n(sha_ref, sha_id, 1, (register_t)&theinfo);
-     */
+    __capability SHA_INFO *theinfo = (__capability SHA_INFO *)malloc_c(sizeof(SHA_INFO)+1);
+    ccall_rcc_n(sha_ref, sha_id, 0, len, theinfo, AES_data_cap);
+    ccall_c_n(sha_ref, sha_id, 1, theinfo);
 
     return 0;
 }

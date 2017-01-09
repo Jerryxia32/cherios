@@ -124,6 +124,9 @@ memset_c(__capability void *dst0, int c0, size_t length)
 	u_int c;
 	__capability u_char *dst;
 
+    /* XXX for some reason ctoptr is not working well, a temporary hack */
+    size_t dst0DDCoffset = cheri_getbase(dst0) + cheri_getoffset(dst0) - cheri_getbase(cheri_getdefault());
+
 	dst = dst0;
 	/*
 	 * If not enough words, just fill bytes.  A length >= 2 words
@@ -156,7 +159,7 @@ memset_c(__capability void *dst0, int c0, size_t length)
 #endif
 	}
 	/* Align destination by filling in bytes. */
-	if ((t = (long)dst & wmask) != 0) {
+	if ((t = dst0DDCoffset & wmask) != 0) {
 		t = wsize - t;
 		length -= t;
 		do {
@@ -184,5 +187,5 @@ void
 bzero_c(__capability void *b, size_t s)
 {
 
-	(void)memset(b, 0, s);
+	(void)memset_c(b, 0, s);
 }

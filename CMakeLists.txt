@@ -121,7 +121,8 @@ include_directories(include)
 set(ASMC_COMPILER_FLAGS
     -mcpu=mips4
     #-mabi=sandbox
-    -mllvm -cheri128
+    -mllvm -cheri16
+    #-mllvm -cheri128
     -cheri-linker
     #-fpic
     -integrated-as

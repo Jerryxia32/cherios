@@ -72,7 +72,7 @@ static void * init_act_create(const char * name, __capability void * c0, __capab
     frame.cf_c0 = c0;
 
 	/* set cap */
-	frame.cf_c18	= act_cap;
+	frame.cf_c17	= act_cap;
 
 	/* set namespace */
 	frame.mf_s6	= (register_t)ns_ref;

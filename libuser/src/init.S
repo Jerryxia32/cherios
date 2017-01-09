@@ -69,7 +69,7 @@ start_common:
 	# Call object init.
 	move		$a0, $s2
     #move		$a1, $s5
-    cmove       $c3, $c18
+    cmove       $c3, $c17
 	move		$a1, $s6
 	move		$a2, $s7 # careful, s8 is used to remember pc for PIC
     dla     $t9, libuser_init

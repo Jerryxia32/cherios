@@ -166,7 +166,7 @@ void sha_final(__capability SHA_INFO *sha_info)
     lo_bit_count = sha_info->count_lo;
     hi_bit_count = sha_info->count_hi;
     count = (int) ((lo_bit_count >> 3) & 0x3f);
-    ((BYTE *) sha_info->data)[count++] = 0x80;
+    ((__capability BYTE *) sha_info->data)[count++] = 0x80;
     if (count > 56) {
 	memset_c((__capability BYTE *)sha_info->data + count, 0, 64 - count);
 #ifdef LITTLE_ENDIAN

@@ -189,6 +189,11 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 	pcc = cheri_incoffset(pcc, entry);
 	pcc = cheri_andperm(pcc, (CHERI_PERM_GLOBAL | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
 				  | CHERI_PERM_LOAD_CAP));
+    /* make sure the permission given to c0 of each module is bounded */
+    prgmp = cheri_andperm(prgmp, (CHERI_PERM_GLOBAL | CHERI_PERM_LOAD | CHERI_PERM_STORE
+                | CHERI_PERM_LOAD_CAP | CHERI_PERM_STORE_CAP
+                | CHERI_PERM_STORE_LOCAL_CAP | CHERI_PERM_SOFT_0));
+
 	void * ctrl = init_act_create(file, cheri_setoffset(prgmp, 0),
 				      pcc, stack, get_act_cap(type),
 				      ns_ref, ns_id, arg, carg);

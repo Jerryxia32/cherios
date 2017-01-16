@@ -131,6 +131,9 @@
 #endif
 
 #define CHERI_TB_WIDTH 8
+#if (_MIPS_SZCAP != 64)
+#define CHERI_OTYPE_WIDTH 24
+#endif
 #define	NULLCAP		((__capability void *)0)
 
 /*

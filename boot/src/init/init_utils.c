@@ -41,6 +41,8 @@
 #include "stdio.h"
 #include "elf.h"
 
+static uint32_t sealing_tool_no = 0;
+
 static void * init_act_register(reg_frame_t * frame, const char * name) {
 	void * ret;
 	__asm__ __volatile__ (
@@ -122,8 +124,19 @@ static __capability void * get_act_cap(module_t type) {
 		break;
          */
 	case m_namespace:
+        break;
 	case m_core:
 	case m_user:
+        /* return a capability with permit_seal permission of otype aid */
+        sealing_tool_no++;
+        if(sealing_tool_no == 1L<<CHERI_OTYPE_WIDTH) {
+            panic("Used all otypes");
+        }
+        cap = cheri_getdefault();
+        cap = cheri_setoffset(cap, sealing_tool_no);
+        cap = cheri_setbounds(cap, 1);
+        cap = cheri_andperm(cap, (CHERI_PERM_SEAL));
+        break;
 	case m_fence:
 	default:{}
 	}

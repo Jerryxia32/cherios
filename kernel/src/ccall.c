@@ -37,14 +37,18 @@
  */
 
 /* Creates a token for synchronous CCalls. This ensures the answer is unique. */
-static uint64_t get_sync_token(aid_t ccaller) {
+static __capability void *get_sync_token(aid_t ccaller) {
 	static uint32_t unique = 0;
 	unique++;
-    if(unique == 0) unique++;
 	kernel_acts[ccaller].sync_token.expected_reply  = unique;
 
 	uint64_t token_offset = (((u64)ccaller) << 32) + unique;
-	return token_offset;
+	__capability void *sync_token = cheri_andperm(cheri_getdefault(), 0);
+	#ifdef _CHERI256_
+	sync_token = cheri_setbounds(sync_token, 0);
+	#endif
+	sync_token = cheri_setoffset(sync_token, token_offset);
+	return kernel_seal(sync_token, 42000);
 }
 
 static void kernel_ccall_core(int cflags) {
@@ -59,7 +63,7 @@ static void kernel_ccall_core(int cflags) {
 		return;
 	}
 
-	uint64_t sync_token = 0;
+	__capability void *sync_token = NULLCAP;
 	if(cflags & 2) {
 		sync_token = get_sync_token(kernel_curr_act);
 	}
@@ -127,8 +131,8 @@ void kernel_creturn(void) {
 	/* Ack creturn instruction */
 	kernel_skip_instr(kernel_curr_act);
 
-	uint64_t sync_token = kernel_exception_framep_ptr->mf_s4;
-	if(sync_token == 0) {
+	__capability void *sync_token = kernel_exception_framep_ptr->cf_c1;
+	if(sync_token == NULLCAP) {
 		/* Used by asynchronous primitives */
 		//act_wait(kernel_curr_act, 0);
 		act_wait(kernel_curr_act, kernel_curr_act);
@@ -136,7 +140,8 @@ void kernel_creturn(void) {
 	}
 
 	/* Check if we expect this anwser */
-	size_t sync_offset = sync_token;
+	sync_token = kernel_unseal(sync_token, 42000);
+	size_t sync_offset = cheri_getoffset(sync_token);
 	aid_t ccaller = sync_offset >> 32;
 	uint64_t unique = sync_offset & 0xFFFFFFF;
 	if(kernel_acts[ccaller].sync_token.expected_reply != unique ) {
@@ -149,12 +154,12 @@ void kernel_creturn(void) {
 	sched_d2a(ccaller, sched_runnable);
 
 	/* Copy return values */
+	kernel_exception_framep[ccaller].cf_c3 =
+	   kernel_exception_framep_ptr->cf_c3;
 	kernel_exception_framep[ccaller].mf_v0 =
 	   kernel_exception_framep_ptr->mf_v0;
 	kernel_exception_framep[ccaller].mf_v1 =
 	   kernel_exception_framep_ptr->mf_v1;
-	kernel_exception_framep[ccaller].cf_c3 =
-	   kernel_exception_framep_ptr->cf_c3;
 
 	/* Try to set the callee in waiting mode */
 	act_wait(kernel_curr_act, ccaller);

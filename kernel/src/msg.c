@@ -50,7 +50,7 @@ static inline int empty(queue_t * queue) {
 	return queue->start == queue->end;
 }
 
-int msg_push(int dest, int src, void * identifier, uint64_t sync_token) {
+int msg_push(int dest, int src, void * identifier, __capability void *sync_token) {
 	queue_t * queue = msg_queues + dest;
 	msg_nb_t  qmask  = kernel_acts[dest].queue_mask;
 	kernel_assert(qmask > 0);
@@ -69,7 +69,7 @@ int msg_push(int dest, int src, void * identifier, uint64_t sync_token) {
 
 	queue->msg[next_slot].v0  = kernel_exception_framep[src].mf_v0;
 	queue->msg[next_slot].v1  = kernel_exception_framep[src].mf_v1;
-	queue->msg[next_slot].s4  = sync_token;
+	queue->msg[next_slot].c1  = sync_token;
 
 	queue->end = safe(queue->end+1, qmask);
 
@@ -98,7 +98,7 @@ void msg_pop(aid_t act) {
 
 	kernel_exception_framep[act].mf_v0  = queue->msg[start].v0;
 	kernel_exception_framep[act].mf_v1  = queue->msg[start].v1;
-	kernel_exception_framep[act].mf_s4  = queue->msg[start].s4;
+	kernel_exception_framep[act].cf_c1  = queue->msg[start].c1;
 
 	queue->start = safe(start+1, qmask);
 }

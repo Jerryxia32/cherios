@@ -95,7 +95,7 @@ void	kernel_freeze(void) __dead2;
 
 int	try_gc(void * p, void * pool);
 
-int	msg_push(int dest, int src, void *, uint64_t);
+int	msg_push(int dest, int src, void *, __capability void *sync_token);
 void	msg_pop(aid_t act);
 void	msg_queue_init(aid_t act);
 int	msg_queue_empty(aid_t act);

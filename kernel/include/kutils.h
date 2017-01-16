@@ -33,3 +33,13 @@
 /*
  * Various util functions
  */
+
+static inline __capability void *kernel_seal(const __capability void *p, uint64_t otype) {
+	__capability void *seal = cheri_setoffset(cheri_getdefault(), otype);
+	return cheri_seal(p, seal);
+}
+
+static inline __capability void *kernel_unseal(__capability void *p, uint64_t otype) {
+	__capability void *seal = cheri_setoffset(cheri_getdefault(), otype);
+	return cheri_unseal(p, seal);
+}

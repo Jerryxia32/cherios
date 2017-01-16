@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-#include "mips.h"
+#include "cheric.h"
 
-void *	sync_token = NULL;
+__capability void *	sync_token = NULLCAP;
 long	msg_enable = 0;

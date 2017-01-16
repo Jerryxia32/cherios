@@ -172,19 +172,19 @@ void kernel_exception_syscall(void)
 		break;
 	case 1001:
 		KERNEL_TRACE("exception", "(CCall1)Syscall %ld", sysn);
-        kernel_ccall(1);
+        kernel_ccall_fake(1);
 		break;
 	case 1002:
 		KERNEL_TRACE("exception", "(CCall2)Syscall %ld", sysn);
-        kernel_ccall(2);
+        kernel_ccall_fake(2);
 		break;
 	case 1004:
 		KERNEL_TRACE("exception", "(CCall4)Syscall %ld", sysn);
-        kernel_ccall(4);
+        kernel_ccall_fake(4);
 		break;
 	case 1010:
 		KERNEL_TRACE("exception", "(CReturn)Syscall %ld", sysn);
-        kernel_creturn();
+        kernel_creturn_fake();
 		break;
 	default:
 		KERNEL_ERROR("unknown syscall '%d'", sysn);
@@ -192,4 +192,137 @@ void kernel_exception_syscall(void)
 	}
 
 	kernel_skip_instr(kca);
+}
+
+/*
+ * Fake CCall/CReturn handler
+ */
+
+/* Creates a token for synchronous CCalls. This ensures the answer is unique. */
+static __capability void *get_sync_token(aid_t ccaller) {
+	static uint32_t unique = 0;
+	unique++;
+	kernel_acts[ccaller].sync_token.expected_reply  = unique;
+
+	uint64_t token_offset = (((u64)ccaller) << 32) + unique;
+	__capability void *sync_token = cheri_andperm(cheri_getdefault(), 0);
+	#ifdef _CHERI256_
+	sync_token = cheri_setbounds(sync_token, 0);
+	#endif
+	sync_token = cheri_setoffset(sync_token, token_offset);
+	return kernel_seal(sync_token, 42000);
+}
+
+static void kernel_ccall_core_fake(int cflags) {
+	/* Unseal CCall cs and cb */
+	/* cb is the activation and cs the identifier */
+	void * cs = (void *)kernel_exception_framep_ptr->mf_t1;
+	act_t * cb = (void *)kernel_exception_framep_ptr->mf_t0;
+
+	if(cb->status != status_alive) {
+		KERNEL_ERROR("Trying to CCall revoked activation %s-%d",
+		             cb->name, cb->aid);
+		return;
+	}
+
+	__capability void *sync_token = NULLCAP;
+	if(cflags & 2) {
+		sync_token = get_sync_token(kernel_curr_act);
+	}
+
+	/* Push the message on the queue */
+	if(msg_push(cb->aid, kernel_curr_act, cs, sync_token)) {
+		//KERNEL_ERROR("Queue full");
+		if(cflags & 2) {
+			kernel_panic("queue full (csync)");
+		}
+		kernel_exception_framep_ptr->mf_v0 = 1;
+	} else {
+		kernel_exception_framep_ptr->mf_v0 = 0;
+    }
+
+	if(cflags & 2) {
+		KERNEL_TRACE(__func__, "%s : sync-call %s",
+			     kernel_acts[kernel_curr_act].name,
+			     kernel_acts[cb->aid].name);
+		sched_a2d(kernel_curr_act, sched_sync_block);
+		sched_reschedule(cb->aid);
+	}
+	else if(cflags & 1) {
+		KERNEL_TRACE(__func__, "%s : send-switch %s",
+			     kernel_acts[kernel_curr_act].name,
+			     kernel_acts[cb->aid].name);
+
+		act_wait(kernel_curr_act, cb->aid);
+	}
+	else {
+		KERNEL_TRACE(__func__, "%s : send %s",
+			     kernel_acts[kernel_curr_act].name,
+			     kernel_acts[cb->aid].name);
+	}
+}
+
+void kernel_ccall_fake(register_t ccall_selector) {
+	KERNEL_TRACE(__func__, "in %s", kernel_acts[kernel_curr_act].name);
+
+	/* Ack ccall instruction */
+	kernel_skip_instr(kernel_curr_act);
+
+	int cflags;
+
+	switch(ccall_selector) {
+	case 1: /* send */
+		cflags = 0;
+		break;
+	case 2: /* send & switch */
+		cflags = 1;
+		break;
+	case 4: /* sync call */
+		cflags = 2;
+		break;
+	default:
+		KERNEL_ERROR("unknown ccall selector '%x'", ccall_selector);
+		return;
+	}
+	kernel_ccall_core_fake(cflags);
+}
+
+void kernel_creturn_fake(void) {
+  	KERNEL_TRACE(__func__, "in %s", kernel_acts[kernel_curr_act].name);
+
+	/* Ack creturn instruction */
+	kernel_skip_instr(kernel_curr_act);
+
+	__capability void *sync_token = kernel_exception_framep_ptr->cf_c1;
+	if(sync_token == NULLCAP) {
+		/* Used by asynchronous primitives */
+		//act_wait(kernel_curr_act, 0);
+		act_wait(kernel_curr_act, kernel_curr_act);
+		return;
+	}
+
+	/* Check if we expect this anwser */
+	sync_token = kernel_unseal(sync_token, 42000);
+	size_t sync_offset = cheri_getoffset(sync_token);
+	aid_t ccaller = sync_offset >> 32;
+	uint64_t unique = sync_offset & 0xFFFFFFF;
+	if(kernel_acts[ccaller].sync_token.expected_reply != unique ) {
+		KERNEL_ERROR("bad sync creturn");
+		kernel_freeze();
+	}
+
+	/* Make the caller runnable again */
+	kernel_assert(kernel_acts[ccaller].sched_status == sched_sync_block);
+	sched_d2a(ccaller, sched_runnable);
+
+	/* Copy return values */
+	kernel_exception_framep[ccaller].cf_c3 =
+	   kernel_exception_framep_ptr->cf_c3;
+	kernel_exception_framep[ccaller].mf_v0 =
+	   kernel_exception_framep_ptr->mf_v0;
+	kernel_exception_framep[ccaller].mf_v1 =
+	   kernel_exception_framep_ptr->mf_v1;
+
+	/* Try to set the callee in waiting mode */
+	act_wait(kernel_curr_act, ccaller);
 }

@@ -66,8 +66,10 @@
  * Kernel library routines.
  */
 void	kernel_skip_instr(aid_t act);
-void	kernel_ccall(register_t ccall_selector);
+void	kernel_ccall(void);
 void	kernel_creturn(void);
+void	kernel_ccall_fake(register_t ccall_selector);
+void	kernel_creturn_fake(void);
 void	kernel_exception_syscall(void);
 
 void	kernel_interrupts_init(int enable_timer);

@@ -12,6 +12,7 @@
 #include "conio.h"
 #include <limits.h>
 #include "bitops.h"
+#include<statcounters.h>
 
 #define FUNCS  7
 #define ITERATIONS 500000
@@ -20,6 +21,7 @@ static int CDECL bit_shifter(uint32_t x);
 
 int main()
 {
+    stats_init();
     printf("Bitcount hello world!.\n");
     uint32_t i, j, n, seed;
     uint32_t iterations;
@@ -53,6 +55,7 @@ int main()
             n += pBitCntFunc[i](seed);
         printf("Counting algorithm %s counts:\n    %d.\n", text[i], n);
     }
+    stats_display();
     return 0;
 }
 

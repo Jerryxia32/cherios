@@ -7,6 +7,7 @@
 #include<cheric.h>
 #include<assert.h>
 #include<sha_info.h>
+#include<statcounters.h>
 
 #define EACH_BLOCK_SIZE 256
 
@@ -14,6 +15,7 @@ extern char __AES_start, __AES_end;
 
 int
 main() {
+    stats_init();
     for(int i=0; i<8; i++) {
         printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
     }
@@ -53,6 +55,7 @@ main() {
     __capability SHA_INFO *theinfo = (__capability SHA_INFO *)malloc_c(sizeof(SHA_INFO)+1);
     ccall_rcc_n(sha_ref, sha_id, 0, len, theinfo, AES_data_cap);
     ccall_c_n(sha_ref, sha_id, 1, theinfo);
+    stats_display();
 
     return 0;
 }

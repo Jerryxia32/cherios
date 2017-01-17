@@ -173,4 +173,7 @@ static inline const char * getprogname(void) {
 	return "progname";
 }
 
+void stats_init(void);
+void stats_display(void);
+
 #endif

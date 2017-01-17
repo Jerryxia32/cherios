@@ -6,6 +6,7 @@
 #include<namespace.h>
 #include<cheric.h> // for CHERI_PRINT_CAP();
 #include<mibench_iter.h>
+#include<statcounters.h>
 
 #define UNLIMIT
 #define MAXARRAY 5000 /* this number, if too large, will cause a seg. fault!! */
@@ -5041,6 +5042,7 @@ int compare(const void *elem1, const void *elem2)
 
 int
 main() {
+    stats_init();
     int count=0, i;
   
     count = MAXARRAY;
@@ -5056,5 +5058,6 @@ main() {
     }
     printf("Qsort iteration: %d, The first element: %s\n The last element: %s\n", QSORT_ITER, qstring[0], qstring[MAXARRAY-1]);
 
+    stats_display();
     return 0;
 }

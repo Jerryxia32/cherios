@@ -302,8 +302,13 @@ realloc_c(__capability void *cp, size_t nbytes)
 	free(cp);
 	return (res);
 #endif
-    free_c(cp);
-    return malloc_c(nbytes);
+    __capability void *res;
+	if((res = malloc_c(nbytes)) == NULLCAP)
+		return (NULLCAP);
+	memcpy_c(res, cp, (nbytes <= cheri_getlen(cp)) ? nbytes : cheri_getlen(cp));
+	res = cheri_andperm(res, cheri_getperm(cp));
+	free_c(cp);
+	return(res);
 }
 
 

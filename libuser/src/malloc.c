@@ -68,6 +68,22 @@ void free_c(__capability void *ptr) {
 	return ccall_c_n(memmgt_ref, memmgt_id, 3, ptr);
 }
 
+__capability void *malloc_c_c(size_t length) {
+	if(memmgt_ref == NULL) {
+		memmgt_ref = namespace_get_ref(3);
+		memmgt_id  = namespace_get_id(3);
+	}
+	return ccall_r_c(memmgt_ref, memmgt_id, 4, length);
+}
+
+__capability void *calloc_c_c(size_t items, size_t length) {
+	if(memmgt_ref == NULL) {
+		memmgt_ref = namespace_get_ref(3);
+		memmgt_id  = namespace_get_id(3);
+	}
+	return ccall_rr_c(memmgt_ref, memmgt_id, 5, items, length);
+}
+
 void memmgt_set_act(void * ref, void * id) {
 	memmgt_ref = ref;
 	memmgt_id  = id;

@@ -32,7 +32,7 @@
 #include "malloc_heap.h"
 
 extern void msg_entry;
-void (*msg_methods[]) = {__malloc_c, __calloc_c, __realloc_c, __free_c};
+void (*msg_methods[]) = {__malloc_c, __calloc_c, __realloc_c, __free_c, __malloc_c_c, __calloc_c_c};
 size_t msg_methods_nb = countof(msg_methods);
 void (*ctrl_methods[]) = {NULL, ctor_null, dtor_null, register_ns};
 size_t ctrl_methods_nb = countof(ctrl_methods);

@@ -83,7 +83,7 @@ void init_alloc_enable_system(void * c_memmgt) {
 
 __capability void *init_alloc(size_t s) {
 	if(system_alloc == 1) {
-		__capability void * p = calloc_c(1, s);
+		__capability void * p = calloc_c_c(1, s);
 		if(!p) {
 			return NULLCAP;
 		}

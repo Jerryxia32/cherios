@@ -149,3 +149,114 @@ slow_memcpy_loop:                # byte-by-byte copy
 memcpy_c_end:
 .size memcpy_c, memcpy_c_end - memcpy_c
 .end memcpy_c
+
+# Use the capability memcpy for normal memcopies. (Not enabled yet)
+#if 0
+		.text
+		.global memcpy
+		.ent memcpy
+memcpy:
+	CFromPtr $c3, $c0, $a0       # dst ptr -> dst capability
+	CFromPtr $c4, $c0, $a1       # src ptr -> src capability
+          b        memcpy_c
+          move     $a0, $a3            # len -> first integer arg register (in delay slot)
+.end memcpy
+#endif
+
+		.text
+		.global memcpy_c_hack
+		.ent memcpy_c_hack
+memcpy_c_hack:
+	beq      $4, $zero, memcpy_c_hack_return  # Only bother if len != 0.  Unlikely to
+	                               # be taken, so we make it a forward branch
+	                               # to give the predictor a hint.
+	# Note: We use v0 to store the base linear address because memcpy() must
+	# return that value in v0, allowing memcpy_c() to be tail-called from
+	# memcpy().  This is in the delay slot, so it happens even if len == 0.
+	CGetBase $v0, $c3            # v0 = linear address of dst
+	CGetOffset $at, $c3
+	dadd     $v0, $v0, $at
+	CGetBase $v1, $c4            # v1 = linear address of src
+	CGetOffset $at, $c4
+	dadd     $v1, $v1, $at
+	andi     $12, $v0, 0x7 # t4 = dst % CAP_SIZE
+	CGetDefault $c5
+	CToPtr   $v0, $c5, $c3       # Return ptr in integer return
+	andi     $13, $v1, 0x7 # t5 = src % CAP_SIZE
+	daddi    $a1, $zero, 0       # Store 0 in $a1 - we'll use that for the
+	                             # offset later.
+
+	bne      $12, $13, slow_memcpy_hack_loop
+	                             # If src and dst have different alignments, we
+	                             # have to copy a byte at a time because we
+	                             # don't have any multi-byte load/store
+	                             # instruction pairs with different alignments.
+	                             # We could do something involving shifts, but
+	                             # this is probably a sufficiently uncommon
+	                             # case not to be worth optimising.
+	andi     $t8, $a0, 0x7      # t8 = len % CAP_SIZE
+
+fast_path_hack:                       # At this point, src and dst are known to have
+                                 # the same alignment.  They may not be capability
+                                 # aligned, however.
+	# FIXME: This logic can be simplified by using the power of algebra
+	dsub    $v1, $zero, $12
+	daddi   $v1, $v1, 0x8
+	andi    $v1, $v1, 0x7      # v1 = number of bytes we need to copy to
+	                            # become aligned
+	dsub    $a2, $a0, $v1
+	daddi   $a2, $a2, -8
+	bltz    $a2, slow_memcpy_hack_loop# If we are copying more bytes than the number
+	                             # required for alignment, plus at least one
+	                             # capability more, continue in the fast path
+	nop
+	beqzl   $v1, aligned_copy_hack    # If we have an aligned copy (which we probably
+	                             # do) then skip the slow part
+
+	dsub    $a2, $a0, $a1        # $12 = amount left to copy (delay slot, only
+	                             # executed if branch is taken)
+unaligned_start_hack:
+	clb      $a2, $a1, 0($c4)
+	daddi    $a1, $a1, 1
+	bne      $v1, $a1, unaligned_start_hack
+	csb      $a2, $a1, -1($c3)
+
+	dsub     $a2, $a0, $a1        # $12 = amount left to copy
+aligned_copy_hack:
+	addi    $at, $zero, -8
+	and     $a2, $a2, $at        # a2 = number of capability-aligned bytes to copy
+	dadd    $a2, $a2, $a1        # ...plus the number already copied.
+
+copy_caps_hack:
+	cld     $a3, $a1, 0($c4)
+	daddi   $a1, $a1, 8
+	bne     $a1, $a2, copy_caps_hack
+	csd     $a3, $a1, -8($c3)
+
+	dsub    $v1, $a0, $a2        # Subtract the number of bytes copied from the
+	                             # number to copy.  This should give the number
+	                             # of unaligned bytes that we still need to copy
+	beqzl   $v1, memcpy_c_hack_return # If we have an aligned copy (which we probably
+	                             # do) then return
+	nop
+	dadd    $v1, $a1, $v1
+unaligned_end_hack:
+	clb      $a2, $a1, 0($c4)
+	daddi    $a1, $a1, 1
+	bne      $v1, $a1, unaligned_end_hack
+	csb      $a2, $a1, -1($c3)
+
+memcpy_c_hack_return:
+	ret                          # Return value remains in c1
+	nop
+
+slow_memcpy_hack_loop:                # byte-by-byte copy
+	clb      $a2, $a1, 0($c4)
+	daddi    $a1, $a1, 1
+	bne      $a0, $a1, slow_memcpy_hack_loop
+	csb      $a2, $a1, -1($c3)
+	ret                          # Return value remains in c1
+	nop
+memcpy_c_hack_end:
+.size memcpy_c_hack, memcpy_c_hack_end - memcpy_c_hack
+.end memcpy_c_hack

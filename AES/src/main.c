@@ -1,4 +1,3 @@
-
  /*
    -----------------------------------------------------------------------
    Copyright (c) 2001 Dr Brian Gladman <brg@gladman.uk.net>, Worcester, UK
@@ -49,6 +48,8 @@
 #include<namespace.h>
 
 #include"aes.h"
+
+#define memcpy_c memcpy_c_hack
 
 int main_aes(__capability byte *in, __capability byte *out, int64_t length, __capability char *givenKey);
 

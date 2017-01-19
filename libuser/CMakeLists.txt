@@ -1,5 +1,6 @@
 set(LIB_SRCS
     ${CMAKE_SOURCE_DIR}/lib/memcpy_c.S
+    ${CMAKE_SOURCE_DIR}/lib/memcpy.c
     ${CMAKE_SOURCE_DIR}/lib/memset.c
     ${CMAKE_SOURCE_DIR}/lib/strlen.c
     ${CMAKE_SOURCE_DIR}/lib/subr_prf.c
@@ -21,7 +22,6 @@ set(LIBUSER_SRCS
     src/interrupt.c
     src/libuser.c
     src/malloc.c
-    src/memcpy.c
     #src/mmap.c
     src/msg.c
     src/msg_default.c

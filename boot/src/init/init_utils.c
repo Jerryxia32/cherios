@@ -182,7 +182,7 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 	};
 
 	__capability char *prgmp = elf_loader(&env, file, &allocsize, &entry);
-    printf(KWHT"Module loaded at %p, entry: %lx, size: %lx\n"KRST, (void *)cheri_getbase(prgmp), entry, allocsize);
+    printf(KWHT"Module loaded at %p, entry: %lx, size: %lx"KRST"\n", (void *)cheri_getbase(prgmp), entry, allocsize);
 	if(!prgmp) {
 		assert(0);
 		return NULL;
@@ -196,7 +196,7 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 
     /* Make the stack pointer cap size aligned */
 	void * stack = (void *)((size_t)make_aligned_data_addr((void *)allocsize) - (cheri_getbase(prgmp) & (_MIPS_SZCAP/8 - 1)));
-    printf(KWHT"Stack bottom at %p\n"KRST, stack);
+    printf(KWHT"Stack bottom at %p"KRST"\n", stack);
 	__capability void * pcc = cheri_getpcc();
 	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), allocsize);
 	pcc = cheri_incoffset(pcc, entry);

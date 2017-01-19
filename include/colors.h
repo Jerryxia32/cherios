@@ -34,7 +34,7 @@
 #endif
 
 #ifdef COLORS
-	#define KRST "\x1B[00m"
+	#define KRST "\x1B[0m"
 	#define KBLD "\x1B[1m"
 	#define KFNT "\x1B[2m"
 	#define KITC "\x1B[3m"

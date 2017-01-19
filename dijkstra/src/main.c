@@ -146,7 +146,7 @@ void print_path (NODE *rgnNodes_l, int chNode)
 
 void enqueue (int iNode_l, int iDist_l, int iPrev_l)
 {
-  __capability QITEM *qNew = (__capability QITEM *)malloc_c(sizeof(QITEM));
+  __capability QITEM *qNew = (__capability QITEM *)malloc_c_c(sizeof(QITEM));
   __capability QITEM *qLast = qHead;
   
   if (!qNew) 

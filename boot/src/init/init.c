@@ -129,9 +129,9 @@ static void load_modules(void) {
 			continue;
 		}
 		be->ctrl = load_module(be->type, be->name, be->arg, NULL);
-		printf("Loaded module %s\n", be->name);
+		printf(KWHT"Loaded module %s\n"KRST, be->name);
         if(strcmp(be->name, "dijkstra.elf") == 0) {
-            printf("dijkstra finished loading.\n");
+            printf(KWHT"dijkstra finished loading.\n"KRST);
             stats_display();
         }
 		switch(init_list[i].type) {

@@ -42,7 +42,6 @@
 #include "math.h"
 #include "sched.h"
 #include "string.h"
-#include "kutils.h"
 
 #ifdef __TRACE__
 	#define KERNEL_TRACE kernel_trace
@@ -83,7 +82,6 @@ void	kernel_timer(void);
 void	kernel_puts(const char *s);
 void	kernel_panic(const char *s) __dead2;
 #ifndef __LITE__
-#define printf kernel_printf
 int	kernel_printf(const char *fmt, ...);
 int	kernel_vprintf(const char *fmt, va_list ap);
 void	__kernel_assert(const char *, const char *, int, const char *) __dead2;
@@ -114,5 +112,15 @@ void *	act_seal_identifier(void * identifier);
 
 void	regdump(int reg_num);
 void	framedump(const struct reg_frame *frame);
+
+static inline __capability void *kernel_seal(const __capability void *p, uint64_t otype) {
+	__capability void *seal = cheri_setoffset(cheri_getdefault(), otype);
+	return cheri_seal(p, seal);
+}
+
+static inline __capability void *kernel_unseal(__capability void *p, uint64_t otype) {
+	__capability void *seal = cheri_setoffset(cheri_getdefault(), otype);
+	return cheri_unseal(p, seal);
+}
 
 #endif /* _CHERIOS_KLIB_H_ */

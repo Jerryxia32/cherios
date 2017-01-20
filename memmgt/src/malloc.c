@@ -317,7 +317,7 @@ realloc_c(__capability void *cp, size_t nbytes)
 	return (res);
 #endif
     __capability void *res;
-	if((res = malloc_c(nbytes)) == NULLCAP)
+	if((res = malloc_c_c(nbytes)) == NULLCAP)
 		return (NULLCAP);
 	memcpy_c(res, cp, (nbytes <= cheri_getlen(cp)) ? nbytes : cheri_getlen(cp));
 	res = cheri_andperm(res, cheri_getperm(cp));

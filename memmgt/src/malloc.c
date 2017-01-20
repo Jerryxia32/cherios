@@ -245,16 +245,19 @@ find_overhead(__capability void * cp)
 	 * should save all allocation ranges to allow us to find the
 	 * metadata.
 	 */
-	printf(
-	    "%s: Attempting to free or realloc unallocated memory\n",
-	    __func__);
 	CHERI_PRINT_PTR(cp);
+	panic(
+	    KRED"malloc: attempting to free or realloc unallocated memory!\n");
 	return (NULLCAP);
 }
 
 void
 free_c(__capability void *cp)
 {
+    if(!(cheri_getperm(cp) & CHERI_PERM_SOFT_0)) {
+        CHERI_PRINT_PTR(cp);
+        panic(KRED"malloc: capability permit free not set!\n");
+    }
 	int bucket;
 	__capability union overhead *op;
 

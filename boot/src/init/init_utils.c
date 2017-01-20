@@ -114,7 +114,7 @@ static __capability void * get_act_cap(module_t type) {
         heap = cheri_setbounds(heap, heaplen);
         cap = cheri_andperm(heap, (CHERI_PERM_GLOBAL | CHERI_PERM_LOAD | CHERI_PERM_STORE
                     | CHERI_PERM_LOAD_CAP | CHERI_PERM_STORE_CAP
-                    | CHERI_PERM_STORE_LOCAL_CAP | CHERI_PERM_SOFT_1));
+                    | CHERI_PERM_STORE_LOCAL_CAP | CHERI_PERM_SOFT_0));
 
 		break;
 	case m_fs:{}

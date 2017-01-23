@@ -265,9 +265,6 @@ static void kernel_ccall_core_fake(int cflags) {
 void kernel_ccall_fake(register_t ccall_selector) {
 	KERNEL_TRACE(__func__, "in %s", kernel_acts[kernel_curr_act].name);
 
-	/* Ack ccall instruction */
-	kernel_skip_instr(kernel_curr_act);
-
 	int cflags;
 
 	switch(ccall_selector) {
@@ -289,9 +286,6 @@ void kernel_ccall_fake(register_t ccall_selector) {
 
 void kernel_creturn_fake(void) {
   	KERNEL_TRACE(__func__, "in %s", kernel_acts[kernel_curr_act].name);
-
-	/* Ack creturn instruction */
-	kernel_skip_instr(kernel_curr_act);
 
 	__capability void *sync_token = kernel_exception_framep_ptr->cf_c1;
 	if(sync_token == NULLCAP) {

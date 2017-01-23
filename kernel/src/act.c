@@ -72,9 +72,11 @@ void act_init(boot_info_t *bi) {
 
 void kernel_skip_instr(aid_t act) {
 	kernel_exception_framep[act].mf_pc += 4; /* assumes no branch delay slot */
+    /*
 	__capability void * pcc = kernel_exception_framep[act].cf_pcc;
 	pcc = __builtin_memcap_offset_increment(pcc, 4);
 	kernel_exception_framep[act].cf_pcc = pcc;
+     */
 }
 
 static void * act_create_ref(aid_t aid) {

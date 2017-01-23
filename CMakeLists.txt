@@ -123,7 +123,8 @@ set(ASMC_COMPILER_FLAGS
     #-mabi=sandbox
     -mllvm -cheri128
     -cheri-linker
-    #-fpic
+    -fno-PIC
+    -mno-abicalls
     -integrated-as
     -msoft-float
     -fcolor-diagnostics

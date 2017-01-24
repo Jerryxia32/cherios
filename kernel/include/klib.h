@@ -67,7 +67,7 @@
 void	kernel_skip_instr(aid_t act);
 void	kernel_ccall(void);
 void	kernel_creturn(void);
-void	kernel_ccall_fake(register_t ccall_selector);
+void	kernel_ccall_fake(int ccall_selector);
 void	kernel_creturn_fake(void);
 void	kernel_exception_syscall(void);
 

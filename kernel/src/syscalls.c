@@ -213,7 +213,10 @@ static __capability void *get_sync_token(aid_t ccaller) {
 	return kernel_seal(sync_token, 42000);
 }
 
-static void kernel_ccall_core_fake(int cflags) {
+void kernel_ccall_fake(int cflags) {
+    if(!(cflags & 4) && !(cflags & 2) && !(cflags & 1))
+        KERNEL_ERROR(KRED"unknown fake ccall selector '%x'"KRST"\n", cflags);
+
 	/* Unseal CCall cs and cb */
 	/* cb is the activation and cs the identifier */
 	void * cs = (void *)kernel_exception_framep_ptr->mf_t1;
@@ -226,14 +229,14 @@ static void kernel_ccall_core_fake(int cflags) {
 	}
 
 	__capability void *sync_token = NULLCAP;
-	if(cflags & 2) {
+	if(cflags & 4) {
 		sync_token = get_sync_token(kernel_curr_act);
 	}
 
 	/* Push the message on the queue */
 	if(msg_push(cb->aid, kernel_curr_act, cs, sync_token)) {
 		//KERNEL_ERROR("Queue full");
-		if(cflags & 2) {
+		if(cflags & 4) {
 			kernel_panic("queue full (csync)");
 		}
 		kernel_exception_framep_ptr->mf_v0 = 1;
@@ -241,14 +244,14 @@ static void kernel_ccall_core_fake(int cflags) {
 		kernel_exception_framep_ptr->mf_v0 = 0;
     }
 
-	if(cflags & 2) {
+	if(cflags & 4) {
 		KERNEL_TRACE(__func__, "%s : sync-call %s",
 			     kernel_acts[kernel_curr_act].name,
 			     kernel_acts[cb->aid].name);
 		sched_a2d(kernel_curr_act, sched_sync_block);
 		sched_reschedule(cb->aid);
 	}
-	else if(cflags & 1) {
+	else if(cflags & 2) {
 		KERNEL_TRACE(__func__, "%s : send-switch %s",
 			     kernel_acts[kernel_curr_act].name,
 			     kernel_acts[cb->aid].name);
@@ -262,32 +265,10 @@ static void kernel_ccall_core_fake(int cflags) {
 	}
 }
 
-void kernel_ccall_fake(register_t ccall_selector) {
-	KERNEL_TRACE(__func__, "in %s", kernel_acts[kernel_curr_act].name);
-
-	int cflags;
-
-	switch(ccall_selector) {
-	case 1: /* send */
-		cflags = 0;
-		break;
-	case 2: /* send & switch */
-		cflags = 1;
-		break;
-	case 4: /* sync call */
-		cflags = 2;
-		break;
-	default:
-		KERNEL_ERROR("unknown ccall selector '%x'", ccall_selector);
-		return;
-	}
-	kernel_ccall_core_fake(cflags);
-}
-
 void kernel_creturn_fake(void) {
   	KERNEL_TRACE(__func__, "in %s", kernel_acts[kernel_curr_act].name);
 
-	__capability void *sync_token = kernel_exception_framep_ptr->cf_c1;
+	__capability void *sync_token = kernel_exception_framep_ptr->cf_c12;
 	if(sync_token == NULLCAP) {
 		/* Used by asynchronous primitives */
 		//act_wait(kernel_curr_act, 0);

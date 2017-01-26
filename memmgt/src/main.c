@@ -31,7 +31,10 @@
 #include "lib.h"
 #include "malloc_heap.h"
 
+__capability void *sealing_tool = NULLCAP;
+
 extern void msg_entry;
+extern char msg_entry_ccall;
 void (*msg_methods[]) = {__malloc_c, __calloc_c, __realloc_c, __free_c, __malloc_c_c, __calloc_c_c};
 size_t msg_methods_nb = countof(msg_methods);
 void (*ctrl_methods[]) = {NULL, ctor_null, dtor_null, register_ns};
@@ -41,7 +44,7 @@ size_t pagesz;			/* page size */
 
 void register_ns(void * ns_ref, void * ns_id) {
 	namespace_init(ns_ref, ns_id);
-	int ret = namespace_register(3, act_self_ref, act_self_id, NULLCAP, NULLCAP);
+	int ret = namespace_register(3, act_self_ref, act_self_id, act_self_PCC, act_self_IDC);
 	if(ret!=0) {
 		syscall_puts(KRED"Register failed\n");
 	}
@@ -51,9 +54,14 @@ int main(void) {
 	syscall_puts("memmgt Hello world\n");
 
 	/* Get capability to heap */
-	__capability void * heap = act_get_cap();
+	__capability void *heap = act_get_cap();
 	CHERI_PRINT_CAP(heap);
 	assert(heap != NULLCAP);
+    sealing_tool = *(__capability capability *)heap;
+	CHERI_PRINT_CAP(sealing_tool);
+    act_self_PCC = cheri_setoffset(act_self_PCC, (size_t)&msg_entry_ccall);
+    act_self_PCC = cheri_seal(act_self_PCC, sealing_tool);
+    act_self_IDC = cheri_seal(act_self_IDC, sealing_tool);
 
 	/*
 	 * setup memory and

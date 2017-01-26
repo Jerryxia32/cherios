@@ -54,11 +54,15 @@ msg_entry_ccall:
     /*
      * save the caller sealed PCC and IDC
      */
+    csetoffset  $c0, $c0, $0
     dla $t0, callerPCC
     csc $c11, $t0, 0($c0)
 
     dla $t0, callerIDC
     csc $c12, $t0, 0($c0)
+
+    cgetoffset $t0, $c2
+    move    $sp, $t0
 
 	bltz		$v0, control_ccall
 	nop

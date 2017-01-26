@@ -41,7 +41,7 @@
 #include "stdio.h"
 #include "elf.h"
 
-static uint32_t sealing_tool_no = 0;
+static uint32_t sealing_tool_no = 1;
 
 static void * init_act_register(reg_frame_t * frame, const char * name) {
 	void * ret;
@@ -115,6 +115,16 @@ static __capability void * get_act_cap(module_t type) {
         cap = cheri_andperm(heap, (CHERI_PERM_GLOBAL | CHERI_PERM_LOAD | CHERI_PERM_STORE
                     | CHERI_PERM_LOAD_CAP | CHERI_PERM_STORE_CAP
                     | CHERI_PERM_STORE_LOCAL_CAP | CHERI_PERM_SOFT_0));
+        sealing_tool_no++;
+        if(sealing_tool_no == 1L<<CHERI_OTYPE_WIDTH) {
+            panic("Used all otypes");
+        }
+        __capability void *mem_seal_tool = cheri_getdefault();
+        mem_seal_tool = cheri_setoffset(mem_seal_tool, sealing_tool_no);
+        mem_seal_tool = cheri_setbounds(mem_seal_tool, 1);
+        mem_seal_tool = cheri_andperm(mem_seal_tool, (CHERI_PERM_SEAL));
+        *(__capability capability *)cap = mem_seal_tool;
+        break;
 
 		break;
 	case m_fs:{}

@@ -90,7 +90,7 @@ __capability void * ns_get_PCC(int nb) {
 		return NULL;
 
 	/* If service not in use, will already return NULL */
-	printf(KWHT"%s: id request for port %d"KRST"\n", __func__, nb);
+	printf(KWHT"%s: PCC request for port %d"KRST"\n", __func__, nb);
 	return bind[nb].act_PCC;
 }
 
@@ -100,7 +100,7 @@ __capability void * ns_get_IDC(int nb) {
 		return NULL;
 
 	/* If service not in use, will already return NULL */
-	printf(KWHT"%s: id request for port %d"KRST"\n", __func__, nb);
+	printf(KWHT"%s: IDC request for port %d"KRST"\n", __func__, nb);
 	return bind[nb].act_IDC;
 }
 

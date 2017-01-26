@@ -220,10 +220,13 @@ kernel_cp2_ccall_handler:
         bne $k0, $k1, kernel_cp2_creturn
         nop
         cmove $c11, $epcc
-        cmove $c12, $idc
+        cmove   $c12, $c0
         cgettype    $k0, $idc
         csetoffset  $kdc, $kdc, $k0
         cseal $c11, $c11, $kdc
+        cgettype    $k0, $idc
+        csetoffset  $kdc, $kdc, $k0
+        cseal $c12, $c12, $kdc
         cgettype    $k0, $c1
         csetoffset  $kdc, $kdc, $k0
         cunseal $epcc, $c1, $kdc

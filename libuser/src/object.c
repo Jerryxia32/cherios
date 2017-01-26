@@ -38,13 +38,17 @@
 void * act_self_ctrl = NULL;
 void * act_self_ref  = NULL;
 void * act_self_id   = NULL;
+__capability void *act_self_PCC = NULLCAP;
+__capability void *act_self_IDC = NULLCAP;
 __capability void * act_self_cap   = NULLCAP;
 
-void object_init(void * self_ctrl, __capability void* self_cap) {
+void object_init(void * self_ctrl, __capability void* self_cap, __capability void *self_PCC, __capability void *self_IDC) {
 	assert(self_ctrl != NULL);
 	act_self_ctrl = self_ctrl;
 	act_self_ref  = act_ctrl_get_ref(self_ctrl);
 	act_self_id   = act_ctrl_get_id(self_ctrl);
+    act_self_PCC = self_PCC;
+    act_self_IDC = self_IDC;
 
 	act_self_cap = self_cap;
 }
@@ -205,4 +209,36 @@ ret_t ccall_4(void * cb, void * cs, int method_nb,
         CCALL_INSTR(1004)
     CCALL_BOTTOM
     return ret;
+}
+
+#define CCALL_REAL_ASM_CSCB "cmove $c1, %[cb] \n" "cmove $c2, %[cs] \n" "move $v0, %[method_nb] \n"
+#define CCALL_REAL_INSTR(n) "ccall $c1, $c2, " #n "\n"
+#define CCALL_REAL_INOPS [cb]"C" (cb), [cs]"C" (cs), [method_nb]"r" (method_nb)
+#define CCALL_REAL_CLOBS "$c1","$c2","$c3","$c4","$c5","v0","v1","a0","a1","a2"
+#define CCALL_REAL_TOP \
+	ret_t ret; \
+	__asm__ __volatile__ ( \
+		CCALL_REAL_ASM_CSCB \
+		"move  $a0, %[rarg1] \n" \
+		"move  $a1, %[rarg2] \n" \
+		"move  $a2, %[rarg3] \n" \
+		"cmove $c3, %[carg1] \n" \
+		"cmove $c4, %[carg2] \n" \
+		"cmove $c5, %[carg3] \n" \
+
+#define CCALL_REAL_BOTTOM \
+		"move  %[rret], $v0  \n" \
+		"cmove %[cret], $c3  \n" \
+		: [rret]"=r" (ret.rret), [cret]"=C" (ret.cret) \
+		: CCALL_REAL_INOPS, [rarg1]"r" (rarg1), [rarg2]"r" (rarg2), [rarg3]"r" (rarg3), \
+		               [carg1]"C" (carg1), [carg2]"C" (carg2), [carg3]"C" (carg3) \
+		: CCALL_REAL_CLOBS);
+
+ret_t ccall_real_4(__capability void * cb, __capability void * cs, int method_nb,
+		  register_t rarg1, register_t rarg2, register_t rarg3,
+                  const __capability void * carg1, const __capability void * carg2, const __capability void * carg3) {
+	CCALL_REAL_TOP
+		CCALL_REAL_INSTR(0)
+	CCALL_REAL_BOTTOM
+	return ret;
 }

@@ -32,7 +32,7 @@
 #include "object.h"
 #include "namespace.h"
 
-void libuser_init(void * self_ctrl, __capability void * self_cap, void * ns_ref, void * ns_id) {
-	object_init(self_ctrl, self_cap);
+void libuser_init(void * self_ctrl, __capability void * self_cap, void * ns_ref, void * ns_id, __capability void *self_PCC, __capability void *self_IDC) {
+	object_init(self_ctrl, self_cap, self_PCC, self_IDC);
 	namespace_init(ns_ref, ns_id);
 }

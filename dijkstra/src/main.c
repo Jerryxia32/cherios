@@ -2,10 +2,15 @@
 #include<stdlib.h>
 #include<cheric.h>
 #include<statcounters.h>
+#include<object.h>
+#include<namespace.h>
+#include<assert.h>
 
 #define NUM_NODES                          100
 #define NONE                               9999
 
+__capability void *memPCC = NULLCAP;
+__capability void *memIDC = NULLCAP;
 struct _NODE
 {
   int iDist;
@@ -146,7 +151,11 @@ void print_path (NODE *rgnNodes_l, int chNode)
 
 void enqueue (int iNode_l, int iDist_l, int iPrev_l)
 {
-  __capability QITEM *qNew = (__capability QITEM *)malloc_c_c(sizeof(QITEM));
+  //__capability QITEM *qNew = (__capability QITEM *)malloc_c_c(sizeof(QITEM));
+  __asm__ __volatile__ (
+          "cmove $idc, %[sealedPCC]"
+          ::[sealedPCC]"C" (cheri_seal(cheri_getpcc(), act_get_cap())):);
+  __capability QITEM *qNew = (__capability QITEM *)ccall_real_4(memPCC, memIDC, 4, sizeof(QITEM), 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
   __capability QITEM *qLast = qHead;
   
   if (!qNew) 
@@ -244,6 +253,10 @@ void dijkstra(int chStart, int chEnd)
 
 int main() {
   stats_init();
+  memPCC = namespace_get_PCC(3);
+  memIDC = namespace_get_IDC(3);
+  assert(memPCC != NULLCAP);
+  assert(memIDC != NULLCAP);
   int i_l,j,k;
   
   /* make a fully connected matrix */

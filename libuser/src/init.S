@@ -70,6 +70,11 @@ start_common:
 	move		$a0, $s2
     #move		$a1, $s5
     cmove       $c3, $c17
+    cgetpcc $c4
+    dla $t0, msg_entry_ccall
+    csetoffset $c4, $c4, $t0
+    cgetdefault $c5
+    csetoffset  $c5, $c5, $sp
 	move		$a1, $s6
 	move		$a2, $s7 # careful, s8 is used to remember pc for PIC
     dla     $t9, libuser_init

@@ -36,6 +36,8 @@
 extern void * act_self_ctrl;
 extern void * act_self_ref;
 extern void * act_self_id;
+extern __capability void *act_self_PCC;
+extern __capability void *act_self_IDC;
 extern __capability void * act_self_cap;
 void *	act_ctrl_get_ref(void * ctrl);
 void *	act_ctrl_get_id(void * ctrl);
@@ -50,7 +52,7 @@ typedef struct {
 }  ret_t;
 
 
-void	object_init(void * self_ctrl, __capability void * self_cap);
+void	object_init(void * self_ctrl, __capability void * self_cap, __capability void *self_PCC, __capability void *self_IDC);
 
 void	ctor_null(void);
 void	dtor_null(void);
@@ -76,4 +78,8 @@ register_t ccall_2(void * cb, void * cs, int method_nb,
 ret_t ccall_4(void * cb, void * cs, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
+
+ret_t ccall_real_4(__capability void * cb, __capability void * cs, int method_nb,
+		  register_t rarg1, register_t rarg2, register_t rarg3,
+                  const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
 #endif

@@ -29,6 +29,7 @@
  */
 
 #include "mips.h"
+#include"cheric.h"
 #include "assert.h"
 #include "colors.h"
 #include "ctype.h"

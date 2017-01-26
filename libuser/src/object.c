@@ -198,111 +198,11 @@ register_t ccall_2(void * cb, void * cs, int method_nb,
     return ret.rret;
 }
 
-inline ret_t ccall_4(void * cb, void * cs, int method_nb,
+ret_t ccall_4(void * cb, void * cs, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const __capability void * carg1, const __capability void * carg2, const __capability void * carg3) {
     CCALL_TOP
         CCALL_INSTR(1004)
     CCALL_BOTTOM
     return ret;
-}
-
-
-void ccall_c_n(void * cb, void * cs, int method_nb, const __capability void * carg) {
-    CCALLS(cb, cs, method_nb, 0, 0, 0, carg, NULLCAP, NULLCAP);
-}
-
-__capability void * ccall_n_c(void * cb, void * cs, int method_nb) {
-    ret_t ret = CCALLS(cb, cs, method_nb, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP);
-    return ret.cret;
-}
-
-__capability void * ccall_r_c(void * cb, void * cs, int method_nb, int rarg) {
-    ret_t ret = CCALLS(cb, cs, method_nb, rarg, 0, 0, NULLCAP, NULLCAP, NULLCAP);
-    return ret.cret;
-}
-
-__capability void * ccall_c_c(void * cb, void * cs, int method_nb, const __capability void * carg) {
-    ret_t ret = CCALLS(cb, cs, method_nb, 0, 0, 0, carg, NULLCAP, NULLCAP);
-    return ret.cret;
-}
-
-
-__capability void * ccall_rr_c(void * cb, void * cs, int method_nb, int rarg1, int rarg2) {
-    ret_t ret = CCALLS(cb, cs, method_nb, rarg1, rarg2, 0, NULLCAP, NULLCAP, NULLCAP);
-    return ret.cret;
-}
-
-register_t ccall_n_r(void * cb, void * cs, int method_nb) {
-    ret_t ret = CCALLS(cb, cs, method_nb, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP);
-    return ret.rret;
-}
-
-register_t ccall_r_r(void * cb, void * cs, int method_nb, int rarg) {
-    ret_t ret = CCALLS(cb, cs, method_nb, rarg, 0, 0, NULLCAP, NULLCAP, NULLCAP);
-    return ret.rret;
-}
-
-register_t ccall_c_r(void * cb, void * cs, int method_nb, __capability void * carg) {
-    ret_t ret = CCALLS(cb, cs, method_nb, 0, 0, 0, carg, NULLCAP, NULLCAP);
-    return ret.rret;
-}
-
-register_t ccall_rr_r(void * cb, void * cs, int method_nb, int rarg1, int rarg2) {
-    ret_t ret = CCALLS(cb, cs, method_nb, rarg1, rarg2, 0, NULLCAP, NULLCAP, NULLCAP);
-    return ret.rret;
-}
-
-register_t ccall_rrr_r(void * cb, void * cs, int method_nb, int rarg1, int rarg2, int rarg3) {
-    ret_t ret = CCALLS(cb, cs, method_nb, rarg1, rarg2, rarg3, NULLCAP, NULLCAP, NULLCAP);
-    return ret.rret;
-}
-
-register_t ccall_rc_r(void * cb, void * cs, int method_nb, int rarg, const __capability void * carg) {
-    ret_t ret = CCALLS(cb, cs, method_nb, rarg, 0, 0, carg, NULLCAP, NULLCAP);
-    return ret.rret;
-}
-
-__capability void *ccall_rc_c(void * cb, void * cs, int method_nb, int rarg, const __capability void * carg) {
-    ret_t ret = CCALLS(cb, cs, method_nb, rarg, 0, 0, carg, NULLCAP, NULLCAP);
-    return ret.cret;
-}
-
-void ccall_rc_n(void * cb, void * cs, int method_nb, int rarg, __capability void * carg) {
-    CCALLS(cb, cs, method_nb, rarg, 0, 0, carg, NULLCAP, NULLCAP);
-}
-
-void ccall_rr_n(void * cb, void * cs, int method_nb, int rarg, int rarg2) {
-    CCALLS(cb, cs, method_nb, rarg, rarg2, 0, NULLCAP, NULLCAP, NULLCAP);
-}
-
-void ccall_cc_n(void * cb, void * cs, int method_nb, __capability void * carg1, __capability void * carg2) {
-    CCALLS(cb, cs, method_nb, 0, 0, 0, carg1, carg2, NULLCAP);
-}
-
-void ccall_rcc_n(void * cb, void * cs, int method_nb, int rarg1, __capability void *carg1, __capability void * carg2) {
-    CCALLS(cb, cs, method_nb, rarg1, 0, 0, carg1, carg2, NULLCAP);
-}
-
-register_t ccall_rcc_r(void * cb, void * cs, int method_nb, register_t rarg, __capability void * carg1, __capability void * carg2) {
-    ret_t ret = CCALLS(cb, cs, method_nb, rarg, 0, 0, carg1, carg2, NULLCAP);
-    return ret.rret;
-}
-
-__capability void * ccall_rrrc_c(void * cb, void * cs, int method_nb,
-        register_t rarg1, register_t rarg2, register_t rarg3, __capability void * carg) {
-    ret_t ret = CCALLS(cb, cs, method_nb, rarg1, rarg2, rarg3, carg, NULLCAP, NULLCAP);
-    return ret.cret;
-}
-
-register_t ccall_rrcc_r(void * cb, void * cs, int method_nb,
-        register_t rarg1, register_t rarg2, __capability void * carg1, __capability void * carg2) {
-    ret_t ret = CCALLS(cb, cs, method_nb, rarg1, rarg2, 0, carg1, carg2, NULLCAP);
-    return ret.rret;
-}
-
-register_t ccall_rccc_r(void * cb, void * cs, int method_nb,
-        register_t rarg1, __capability void *carg1, __capability void * carg2, const __capability void * carg3) {
-    ret_t ret = CCALLS(cb, cs, method_nb, rarg1, 0, 0, carg1, carg2, carg3);
-    return ret.rret;
 }

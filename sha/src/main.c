@@ -6,6 +6,7 @@
 #include<misc.h>
 #include<object.h>
 #include<namespace.h>
+#include<cheric.h>
 #include "sha.h"
 
 void (*msg_methods[]) = {sha_stream, sha_print};
@@ -16,7 +17,7 @@ size_t ctrl_methods_nb = countof(ctrl_methods);
 int main()
 {
     printf("SHA Hello World.\n");
-    int ret = namespace_register(6, act_self_ref, act_self_id);
+    int ret = namespace_register(6, act_self_ref, act_self_id, NULLCAP, NULLCAP);
     if(ret!=0) {
         printf("SHA: register failed\n");
         return -1;

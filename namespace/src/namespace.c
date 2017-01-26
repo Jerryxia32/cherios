@@ -55,10 +55,10 @@ static int validate_act_caps(__capability void * act_PCC, __capability void * ac
 	if(cheri_gettype(act_PCC) !=
 	   cheri_gettype(act_IDC)) { return 0; }
     if(act_PCC != NULLCAP || act_IDC != NULLCAP) {
-        if(cheri_gettag(act_reference) == 0) { return 0; }
-        if(cheri_gettag(act_default_id) == 0) { return 0; }
-        if(cheri_getsealed(act_reference) == 0) { return 0; }
-        if(cheri_getsealed(act_default_id) == 0) { return 0; }
+        if(cheri_gettag(act_PCC) == 0) { return 0; }
+        if(cheri_gettag(act_IDC) == 0) { return 0; }
+        if(cheri_getsealed(act_PCC) == 0) { return 0; }
+        if(cheri_getsealed(act_IDC) == 0) { return 0; }
     }
 	/* todo: check otype range and permissions */
 	return 1;
@@ -85,7 +85,7 @@ void * ns_get_identifier(int nb) {
 }
 
 /* Get sealed PCC for service 'n' */
-void * ns_get_PCC(int nb) {
+__capability void * ns_get_PCC(int nb) {
 	if(!validate_idx(nb))
 		return NULL;
 
@@ -95,7 +95,7 @@ void * ns_get_PCC(int nb) {
 }
 
 /* Get sealed IDC for service 'n' */
-void * ns_get_IDC(int nb) {
+__capability void * ns_get_IDC(int nb) {
 	if(!validate_idx(nb))
 		return NULL;
 

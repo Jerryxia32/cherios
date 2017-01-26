@@ -41,7 +41,7 @@ size_t pagesz;			/* page size */
 
 void register_ns(void * ns_ref, void * ns_id) {
 	namespace_init(ns_ref, ns_id);
-	int ret = namespace_register(3, act_self_ref, act_self_id);
+	int ret = namespace_register(3, act_self_ref, act_self_id, NULLCAP, NULLCAP);
 	if(ret!=0) {
 		syscall_puts(KRED"Register failed\n");
 	}

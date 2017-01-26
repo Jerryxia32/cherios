@@ -303,7 +303,7 @@ exit:
 
 int main() {
     printf("AES Hello World.\n");
-    int ret = namespace_register(5, act_self_ref, act_self_id);
+    int ret = namespace_register(5, act_self_ref, act_self_id, NULLCAP, NULLCAP);
     if(ret!=0) {
         printf("AES: register failed\n");
         return -1;

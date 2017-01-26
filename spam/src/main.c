@@ -45,21 +45,21 @@ main() {
     const __capability char *theKeyCap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)theKey), strlen(theKey)+1);
 
     while((remain = len-encdecOffset) > EACH_BLOCK_SIZE) {
-        encret = ccall_rccc_r(u_ref, u_id, 0, EACH_BLOCK_SIZE, (AES_data_cap + encdecOffset), enc_out, theKeyCap);
-        decret = ccall_rccc_r(u_ref, u_id, 0, -encret, enc_out, encdec_out + totalDeced, theKeyCap);
+        encret = ccall_4(u_ref, u_id, 0, EACH_BLOCK_SIZE, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap).rret;
+        decret = ccall_4(u_ref, u_id, 0, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap).rret;
         encdecOffset += EACH_BLOCK_SIZE;
         totalDeced += decret;
     }
-    encret = ccall_rccc_r(u_ref, u_id, 0, remain, (AES_data_cap + encdecOffset), enc_out, theKeyCap);
-    decret = ccall_rccc_r(u_ref, u_id, 0, -encret, enc_out, encdec_out + totalDeced, theKeyCap);
+    encret = ccall_4(u_ref, u_id, 0, remain, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap).rret;
+    decret = ccall_4(u_ref, u_id, 0, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap).rret;
     totalDeced += decret;
 
     printf("Size of the original: %ld, Total bytes decrypted: %ld\n", len, totalDeced);
 
     __capability SHA_INFO *theinfo = (__capability SHA_INFO *)malloc_c(sizeof(SHA_INFO)+1);
     __capability uint8_t *theinfo_out = cheri_andperm(theinfo, ~CHERI_PERM_SOFT_0);
-    ccall_rcc_n(sha_ref, sha_id, 0, len, theinfo_out, AES_data_cap);
-    ccall_c_n(sha_ref, sha_id, 1, theinfo_out);
+    ccall_4(sha_ref, sha_id, 0, len, 0, 0, theinfo_out, AES_data_cap, NULLCAP);
+    ccall_4(sha_ref, sha_id, 1, 0, 0, 0, theinfo_out, NULLCAP, NULLCAP);
     stats_display();
 
     return 0;

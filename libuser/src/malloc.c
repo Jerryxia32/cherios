@@ -29,6 +29,7 @@
  * SUCH DAMAGE.
  */
 #include "mips.h"
+#include"cheric.h"
 #include "sys/mman.h"
 #include "object.h"
 #include "namespace.h"
@@ -41,7 +42,7 @@ __capability void *malloc_c(size_t length) {
 		memmgt_ref = namespace_get_ref(3);
 		memmgt_id  = namespace_get_id(3);
 	}
-	return ccall_r_c(memmgt_ref, memmgt_id, 0, length);
+	return ccall_4(memmgt_ref, memmgt_id, 0, length, 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }
 
 __capability void *calloc_c(size_t items, size_t length) {
@@ -49,7 +50,7 @@ __capability void *calloc_c(size_t items, size_t length) {
 		memmgt_ref = namespace_get_ref(3);
 		memmgt_id  = namespace_get_id(3);
 	}
-	return ccall_rr_c(memmgt_ref, memmgt_id, 1, items, length);
+	return ccall_4(memmgt_ref, memmgt_id, 1, items, length, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }
 
 __capability void *realloc_c(__capability void *ptr, size_t length) {
@@ -57,7 +58,7 @@ __capability void *realloc_c(__capability void *ptr, size_t length) {
 		memmgt_ref = namespace_get_ref(3);
 		memmgt_id  = namespace_get_id(3);
 	}
-	return ccall_rc_c(memmgt_ref, memmgt_id, 2, length, ptr);
+	return ccall_4(memmgt_ref, memmgt_id, 2, length, 0, 0, ptr, NULLCAP, NULLCAP).cret;
 }
 
 void free_c(__capability void *ptr) {
@@ -65,7 +66,7 @@ void free_c(__capability void *ptr) {
 		memmgt_ref = namespace_get_ref(3);
 		memmgt_id  = namespace_get_id(3);
 	}
-	return ccall_c_n(memmgt_ref, memmgt_id, 3, ptr);
+	ccall_4(memmgt_ref, memmgt_id, 3, 0, 0, 0, ptr, NULLCAP, NULLCAP);
 }
 
 __capability void *malloc_c_c(size_t length) {
@@ -73,7 +74,7 @@ __capability void *malloc_c_c(size_t length) {
 		memmgt_ref = namespace_get_ref(3);
 		memmgt_id  = namespace_get_id(3);
 	}
-	return ccall_r_c(memmgt_ref, memmgt_id, 4, length);
+	return ccall_4(memmgt_ref, memmgt_id, 4, length, 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }
 
 __capability void *calloc_c_c(size_t items, size_t length) {
@@ -81,7 +82,7 @@ __capability void *calloc_c_c(size_t items, size_t length) {
 		memmgt_ref = namespace_get_ref(3);
 		memmgt_id  = namespace_get_id(3);
 	}
-	return ccall_rr_c(memmgt_ref, memmgt_id, 5, items, length);
+	return ccall_4(memmgt_ref, memmgt_id, 5, items, length, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }
 
 void memmgt_set_act(void * ref, void * id) {

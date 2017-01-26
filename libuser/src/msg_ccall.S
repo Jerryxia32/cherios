@@ -54,11 +54,12 @@ msg_entry_ccall:
     /*
      * save the caller sealed PCC and IDC
      */
+    cgetdefault $c17
     dla $t0, callerPCC
-    csc $c11, $t0, 0($c0)
+    csc $c11, $t0, 0($c17)
 
     dla $t0, callerIDC
-    csc $c12, $t0, 0($c0)
+    csc $c12, $t0, 0($c17)
 
 	bltz		$v0, control_ccall
 	nop
@@ -108,10 +109,10 @@ end_ccall:
      * restore the caller sealed PCC and IDC
      */
     dla $t0, callerPCC
-    clc $c1, $t0, 0($c0)
+    clc $c1, $t0, 0($c17)
 
     dla $t0, callerIDC
-    clc $c2, $t0, 0($c0)
+    clc $c2, $t0, 0($c17)
 
     creturn
     nop

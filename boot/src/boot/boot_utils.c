@@ -122,31 +122,6 @@ static void *make_free_mem_addr(const char *start) {
 	return cap;
 }
 
-static __capability void *make_aligned_data_cap(const __capability char *start, size_t len) {
-	size_t desired_ofs = (cheri_getbase(start) + cheri_getoffset(start) + PAGE_ALIGN);
-	desired_ofs &= ~ PAGE_ALIGN;
-
-	__capability char *cap = (__capability char *)cheri_getdefault();
-	cap += desired_ofs - cheri_getbase(cap);
-
-	cap = cheri_setbounds(cap, len);
-	cap = cheri_andperm(cap, ~ CHERI_PERM_EXECUTE);
-	return cap;
-}
-
-static __capability void *make_free_mem_cap(const char *start) {
-	__capability char *cap  = (__capability char *)cheri_getdefault();
-	size_t len = cheri_getlen(cap);
-	size_t ofs = (size_t)start - cheri_getbase(cap);
-
-	cap += ofs;
-	len -= ofs;
-
-	cap = cheri_setbounds(cap, len);
-	cap = cheri_andperm(cap, ~ CHERI_PERM_EXECUTE);
-	return cap;
-}
-
 boot_info_t *load_init() {
 	extern u8 __init_elf_start, __init_elf_end;
 	size_t minaddr, maxaddr, entry;

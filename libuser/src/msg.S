@@ -73,7 +73,8 @@ call:
 
 	#Save sync_token
 	dla		$t1, sync_token
-	csc		$c12, $t1, 0($c0)
+    cgetdefault $c17
+	csc		$c12, $t1, 0($c17)
 
 	sll		$v0, $v0, REG_SIZE_BITS
 	add		$t0, $t0, $v0
@@ -97,7 +98,8 @@ overflow:
 end:
 	#Restore sync_token
 	dla		$t1, sync_token
-	clc		$c12, $t1, 0($c0)
+    cgetdefault $c17
+	clc		$c12, $t1, 0($c17)
 #jr  $ra
     li $v1, 1010
     syscall

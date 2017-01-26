@@ -255,7 +255,7 @@ int main() {
   memIDC = namespace_get_IDC(3);
   assert(memPCC != NULLCAP);
   assert(memIDC != NULLCAP);
-  int i_l,j,k;
+  int i_l,j;
   
   /* make a fully connected matrix */
   //for (i=0;i<NUM_NODES;i++) {

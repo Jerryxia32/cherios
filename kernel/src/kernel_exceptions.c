@@ -90,13 +90,11 @@ static void kernel_exception_capability(void) {
 	int cause = (capcause >> 8) & 0x1F;
 
 	if(cause == 5) { /* todo: give them their own handler */
-        //panic("CCall should not happen");
-		kernel_ccall();
+        panic("CCall should not happen in the normal exception handler.");
 		return;
 	}
 	if(cause == 6) {
-        //panic("CReturn should not happen");
-		kernel_creturn();
+        panic("CReturn should not happen in the normal exception handler.");
 		return;
 	}
 

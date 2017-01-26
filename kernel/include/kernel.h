@@ -49,5 +49,7 @@ extern char	__stop_heap;
 
 extern void	kernel_exception_trampoline;
 extern void	kernel_exception_trampoline_end;
+extern void	kernel_ccall_trampoline;
+extern void	kernel_ccall_trampoline_end;
 
 #endif /* !__KERNEL_H__ */

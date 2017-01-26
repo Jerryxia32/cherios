@@ -59,7 +59,9 @@ void	set_curr_cookie(void * cookie);
 
 void * get_cookie(void * cb, void * cs);
 
-extern void * sync_token;
+extern __capability void * sync_token;
+extern __capability void * callerPCC;
+extern __capability void * callerIDC;
 extern long msg_enable;
 
 #define CCALL(selector, ...) ccall_##selector(__VA_ARGS__)

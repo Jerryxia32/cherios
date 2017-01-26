@@ -40,7 +40,7 @@ void namespace_init(void *ns_ref, void *ns_id) {
 	namespace_id  = ns_id;
 }
 
-int namespace_register(int nb, void *ref, void *id) {
+int namespace_register(int nb, void *ref, void *id, __capability void *PCC, __capability void *IDC) {
 	return ccall_rrr_r(namespace_ref, namespace_id, 0, nb, (register_t)ref, (register_t)id);
 }
 

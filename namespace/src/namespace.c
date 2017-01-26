@@ -34,6 +34,8 @@
 typedef struct {
 	void * act_reference;
 	void * act_default_id;
+    __capability void *act_PCC;
+    __capability void *act_IDC;
 } bind_t;
 
 const int bind_len = 0x80;
@@ -49,14 +51,16 @@ static int validate_idx(int nb) {
 	return 1;
 }
 
-static int validate_act_caps(void * act_reference, void * act_default_id) {
-	//if(cheri_gettag(act_reference) == 0) { return 0; }
-	//if(cheri_gettag(act_default_id) == 0) { return 0; }
-	//if(cheri_getsealed(act_reference) == 0) { return 0; }
-	//if(cheri_getsealed(act_default_id) == 0) { return 0; }
-	//if(cheri_gettype(act_reference) !=
-	//   cheri_gettype(act_default_id)) { return 0; }
-	///* todo: check otype range and permissions */
+static int validate_act_caps(__capability void * act_PCC, __capability void * act_IDC) {
+	if(cheri_gettype(act_PCC) !=
+	   cheri_gettype(act_IDC)) { return 0; }
+    if(act_PCC != NULLCAP || act_IDC != NULLCAP) {
+        if(cheri_gettag(act_reference) == 0) { return 0; }
+        if(cheri_gettag(act_default_id) == 0) { return 0; }
+        if(cheri_getsealed(act_reference) == 0) { return 0; }
+        if(cheri_getsealed(act_default_id) == 0) { return 0; }
+    }
+	/* todo: check otype range and permissions */
 	return 1;
 }
 
@@ -80,9 +84,28 @@ void * ns_get_identifier(int nb) {
 	return bind[nb].act_default_id;
 }
 
+/* Get sealed PCC for service 'n' */
+void * ns_get_PCC(int nb) {
+	if(!validate_idx(nb))
+		return NULL;
+
+	/* If service not in use, will already return NULL */
+	printf(KWHT"%s: id request for port %d"KRST"\n", __func__, nb);
+	return bind[nb].act_PCC;
+}
+
+/* Get sealed IDC for service 'n' */
+void * ns_get_IDC(int nb) {
+	if(!validate_idx(nb))
+		return NULL;
+
+	/* If service not in use, will already return NULL */
+	printf(KWHT"%s: id request for port %d"KRST"\n", __func__, nb);
+	return bind[nb].act_IDC;
+}
 
 /* Register a module a service 'nb' */
-static int ns_register_core(int nb, void * act_reference, void * act_default_id) {
+static int ns_register_core(int nb, void * act_reference, void * act_default_id, __capability void *act_PCC, __capability void *act_IDC) {
 	if(bind[nb].act_reference != NULL) {
 		printf(KWHT"%s: port already in use"KRST"\n", __func__);
 		return -1;
@@ -90,13 +113,15 @@ static int ns_register_core(int nb, void * act_reference, void * act_default_id)
 
 	bind[nb].act_reference  = act_reference;
 	bind[nb].act_default_id = act_default_id;
+	bind[nb].act_PCC = act_PCC;
+	bind[nb].act_IDC = act_IDC;
 	printf(KWHT"%s: registered at port %d"KRST"\n", __func__, nb);
 	return 0;
 }
 
-int ns_register(int nb, void * act_reference, void * act_default_id) {
-	if(!validate_idx(nb) || !validate_act_caps(act_reference, act_default_id))
+int ns_register(int nb, void * act_reference, void * act_default_id, __capability void *act_PCC, __capability void *act_IDC) {
+	if(!validate_idx(nb) || !validate_act_caps(act_PCC, act_IDC))
 		return -1;
 
-	return ns_register_core(nb, act_reference, act_default_id);
+	return ns_register_core(nb, act_reference, act_default_id, act_PCC, act_IDC);
 }

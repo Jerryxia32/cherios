@@ -63,6 +63,19 @@ kernel_exception_trampoline_end:
 		.size kernel_exception_trampoline, kernel_exception_trampoline_end - kernel_exception_trampoline
 		.size kernel_exception_trampoline_end, 1 # 0 triggers capsizefix warning
 
+		.global kernel_ccall_trampoline
+		.ent kernel_ccall_trampoline
+kernel_ccall_trampoline:
+		dla	$k0, kernel_cp2_ccall_handler
+		jr	$k0
+		nop
+kernel_ccall_trampoline_end:
+		nop
+		.global kernel_ccall_trampoline_end
+		.end kernel_ccall_trampoline
+		.size kernel_ccall_trampoline, kernel_ccall_trampoline_end - kernel_ccall_trampoline
+		.size kernel_ccall_trampoline_end, 1 # 0 triggers capsizefix warning
+
 #
 # Assembly-level exception handler routine -- save context, invoke
 # kernel_exception() with a reference to the frame, then restore context and
@@ -84,6 +97,7 @@ kernel_cp2_exception_handler:
 		#
 		dla	$k0, kernel_exception_framep_ptr
         #clc	$kr1c, $k0, 0($kdc)
+        csetoffset  $kdc, $kdc, $0
         cld	$k0, $k0, 0($kdc)
         cmove $kr1c, $kdc
         csetoffset $kr1c, $kr1c, $k0
@@ -191,3 +205,51 @@ kernel_cp2_exception_handler:
 kernel_cp2_exception_handler_end:
 		.size kernel_cp2_exception_handler, kernel_cp2_exception_handler_end - kernel_cp2_exception_handler
 		.end kernel_cp2_exception_handler
+
+		.text
+		.global kernel_cp2_ccall_handler
+		.ent kernel_cp2_ccall_handler
+kernel_cp2_ccall_handler:
+		#
+		# On general principle, flush the contents of $k0 and $k1
+		# before returning to "userspace".
+		#
+        cgetcause   $k0
+        srl $k0, $k0, 8
+        li  $k1, 5
+        bne $k0, $k1, kernel_cp2_creturn
+        nop
+        cmove $c11, $epcc
+        cmove $c12, $idc
+        cgettype    $k0, $idc
+        csetoffset  $kdc, $kdc, $k0
+        cseal $c11, $c11, $kdc
+        cgettype    $k0, $c1
+        csetoffset  $kdc, $kdc, $k0
+        cunseal $epcc, $c1, $kdc
+        cgettype    $k0, $c2
+        csetoffset  $kdc, $kdc, $k0
+        cunseal $c0, $c2, $kdc
+        cgetoffset  $k0, $epcc
+		dmtc0	$k0, $14		# EPC
+		move	$k0, $zero
+		move	$k1, $zero
+		eret
+
+kernel_cp2_creturn:
+        cgettype    $k0, $c1
+        csetoffset  $kdc, $kdc, $k0
+        cunseal $epcc, $c1, $kdc
+        cgettype    $k0, $c2
+        csetoffset  $kdc, $kdc, $k0
+        cunseal $c0, $c2, $kdc
+        cgetoffset  $k0, $epcc
+        daddiu  $k0, $k0, 4
+		dmtc0	$k0, $14		# EPC
+		move	$k0, $zero
+		move	$k1, $zero
+		eret
+
+kernel_cp2_ccall_handler_end:
+		.size kernel_cp2_ccall_handler, kernel_cp2_ccall_handler_end - kernel_cp2_ccall_handler
+		.end kernel_cp2_ccall_handler

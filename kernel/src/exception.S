@@ -221,11 +221,11 @@ kernel_cp2_ccall_handler:
         nop
         cmove $c11, $epcc
         cmove   $c12, $c0
+        # put the stack pointer in the offset of c12, which is saved by callee
+        csetoffset  $c12, $c12, $sp
         cgettype    $k0, $idc
         csetoffset  $kdc, $kdc, $k0
         cseal $c11, $c11, $kdc
-        cgettype    $k0, $idc
-        csetoffset  $kdc, $kdc, $k0
         cseal $c12, $c12, $kdc
         cgettype    $k0, $c1
         csetoffset  $kdc, $kdc, $k0
@@ -233,6 +233,9 @@ kernel_cp2_ccall_handler:
         cgettype    $k0, $c2
         csetoffset  $kdc, $kdc, $k0
         cunseal $c0, $c2, $kdc
+        cgetoffset  $sp, $c0
+        # extract the stack pointer of the callee
+        csetoffset  $c0, $c0, $0
         cgetoffset  $k0, $epcc
 		dmtc0	$k0, $14		# EPC
 		move	$k0, $zero
@@ -246,6 +249,9 @@ kernel_cp2_creturn:
         cgettype    $k0, $c2
         csetoffset  $kdc, $kdc, $k0
         cunseal $c0, $c2, $kdc
+        # extract the stack pointer of the caller
+        cgetoffset  $sp, $c0
+        csetoffset  $c0, $c0, $0
         cgetoffset  $k0, $epcc
         daddiu  $k0, $k0, 4
 		dmtc0	$k0, $14		# EPC

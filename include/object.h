@@ -79,7 +79,13 @@ ret_t ccall_4(void * cb, void * cs, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
 
-ret_t ccall_real_4(__capability void * cb, __capability void * cs, int method_nb,
+void ccall_real_4_first(__capability void * cb, __capability void * cs, __capability void *sealedThing);
+
+register_t ccall_real_4_second_r(int method_nb,
+		  register_t rarg1, register_t rarg2, register_t rarg3,
+                  const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
+
+__capability void *ccall_real_4_second_c(int method_nb,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
                   const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
 #endif

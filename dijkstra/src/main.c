@@ -152,10 +152,8 @@ void print_path (NODE *rgnNodes_l, int chNode)
 void enqueue (int iNode_l, int iDist_l, int iPrev_l)
 {
   //__capability QITEM *qNew = (__capability QITEM *)malloc_c_c(sizeof(QITEM));
-  __asm__ __volatile__ (
-          "cmove $idc, %[sealedPCC]"
-          ::[sealedPCC]"C" (cheri_seal(cheri_getpcc(), act_get_cap())):);
-  __capability QITEM *qNew = (__capability QITEM *)ccall_real_4(memPCC, memIDC, 4, sizeof(QITEM), 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
+  ccall_real_4_first(memPCC, memIDC, cheri_seal(cheri_getpcc(), act_get_cap()));
+  __capability QITEM *qNew = (__capability QITEM *)ccall_real_4_second_c(4, sizeof(QITEM), 0, 0, NULLCAP, NULLCAP, NULLCAP);
   __capability QITEM *qLast = qHead;
   
   if (!qNew) 

@@ -54,15 +54,11 @@ msg_entry_ccall:
     /*
      * save the caller sealed PCC and IDC
      */
-    csetoffset  $c0, $c0, $0
     dla $t0, callerPCC
     csc $c11, $t0, 0($c0)
 
     dla $t0, callerIDC
     csc $c12, $t0, 0($c0)
-
-    cgetoffset $t0, $c2
-    move    $sp, $t0
 
 	bltz		$v0, control_ccall
 	nop
@@ -87,9 +83,13 @@ call_ccall:
 	sll		$v0, $v0, REG_SIZE_BITS
 	add		$t0, $t0, $v0
 	ld		$t9, 0($t0)
+    daddiu  $sp, -32
+    sd  $ra, 0($sp)
 	jalr    $t9
 	nop
 #b		end
+    ld  $ra, 0($sp)
+    daddiu  $sp, 32
     dla $t9, end_ccall
     jr  $t9
 	nop

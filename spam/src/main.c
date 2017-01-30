@@ -28,6 +28,11 @@ main() {
 	assert(sha_ref != NULL);
 	void * sha_id  = namespace_get_id(6);
 
+	__capability void * aes_PCC = namespace_get_PCC(5);
+	assert(aes_PCC != NULLCAP);
+	__capability void * aes_IDC = namespace_get_IDC(5);
+	assert(aes_IDC != NULLCAP);
+
     size_t len = &__AES_end - &__AES_start;
     __capability char *AES_data_cap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)&__AES_start), len+1);
     size_t encdecOffset = 0, totalDeced = 0, remain = 0;
@@ -45,13 +50,17 @@ main() {
     const __capability char *theKeyCap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)theKey), strlen(theKey)+1);
 
     while((remain = len-encdecOffset) > EACH_BLOCK_SIZE) {
-        encret = ccall_4(u_ref, u_id, 0, EACH_BLOCK_SIZE, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap).rret;
-        decret = ccall_4(u_ref, u_id, 0, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap).rret;
+        ccall_real_4_first(aes_PCC, aes_IDC, cheri_seal(cheri_getpcc(), act_self_cap));
+        encret = ccall_real_4_second_r(0, EACH_BLOCK_SIZE, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap);
+        ccall_real_4_first(aes_PCC, aes_IDC, cheri_seal(cheri_getpcc(), act_self_cap));
+        decret = ccall_real_4_second_r(0, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap);
         encdecOffset += EACH_BLOCK_SIZE;
         totalDeced += decret;
     }
-    encret = ccall_4(u_ref, u_id, 0, remain, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap).rret;
-    decret = ccall_4(u_ref, u_id, 0, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap).rret;
+    ccall_real_4_first(aes_PCC, aes_IDC, cheri_seal(cheri_getpcc(), act_self_cap));
+    encret = ccall_real_4_second_r(0, remain, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap);
+    ccall_real_4_first(aes_PCC, aes_IDC, cheri_seal(cheri_getpcc(), act_self_cap));
+    decret = ccall_real_4_second_r(0, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap);
     totalDeced += decret;
 
     printf("Size of the original: %ld, Total bytes decrypted: %ld\n", len, totalDeced);

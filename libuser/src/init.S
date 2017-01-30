@@ -107,7 +107,7 @@ start_common:
 
 to_msg:
 	# CReturn to go in waiting state.
-	move    $v0, $0
+    cfromptr    $c12, $c12, $0
 #jr  $ra
     li $v1, 1010
     syscall

@@ -88,4 +88,12 @@ register_t ccall_real_4_second_r(int method_nb,
 __capability void *ccall_real_4_second_c(int method_nb,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
                   const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
+
+register_t ccall_real_4_second_strong_r(int method_nb,
+		  register_t rarg1, register_t rarg2, register_t rarg3,
+                  const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
+
+__capability void *ccall_real_4_second_strong_c(int method_nb,
+		  register_t rarg1, register_t rarg2, register_t rarg3,
+                  const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
 #endif

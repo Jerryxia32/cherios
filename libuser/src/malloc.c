@@ -37,6 +37,9 @@
 static void * memmgt_ref = NULL;
 static void * memmgt_id  = NULL;
 
+#define MALLOC_FASTPATH
+
+#ifndef MALLOC_FASTPATH
 __capability void *malloc_c(size_t length) {
 	if(memmgt_ref == NULL) {
 		memmgt_ref = namespace_get_ref(3);
@@ -85,7 +88,82 @@ __capability void *calloc_c_c(size_t items, size_t length) {
 	return ccall_4(memmgt_ref, memmgt_id, 5, items, length, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }
 
+#else /* ifdef MALLOC_FASTPATH */
+static __capability void * memmgt_PCC = NULLCAP;
+static __capability void * memmgt_IDC = NULLCAP;
+
+__capability void *malloc_c(size_t length) {
+	if(memmgt_PCC == NULLCAP || memmgt_IDC == NULLCAP) {
+		memmgt_PCC = namespace_get_PCC(3);
+		memmgt_IDC  = namespace_get_IDC(3);
+	}
+	ccall_real_4_first(memmgt_PCC, memmgt_IDC, cheri_seal(cheri_getpcc(), act_get_cap()));
+	return ccall_real_4_second_c(0, length, 0, 0, NULLCAP, NULLCAP, NULLCAP);
+}
+
+__capability void *calloc_c(size_t items, size_t length) {
+	if(memmgt_PCC == NULLCAP || memmgt_IDC == NULLCAP) {
+		memmgt_PCC = namespace_get_PCC(3);
+		memmgt_IDC  = namespace_get_IDC(3);
+	}
+	ccall_real_4_first(memmgt_PCC, memmgt_IDC, cheri_seal(cheri_getpcc(), act_get_cap()));
+	return ccall_real_4_second_c(1, items, length, 0, NULLCAP, NULLCAP, NULLCAP);
+}
+
+__capability void *realloc_c(__capability void *ptr, size_t length) {
+	if(memmgt_PCC == NULLCAP || memmgt_IDC == NULLCAP) {
+		memmgt_PCC = namespace_get_PCC(3);
+		memmgt_IDC  = namespace_get_IDC(3);
+	}
+	ccall_real_4_first(memmgt_PCC, memmgt_IDC, cheri_seal(cheri_getpcc(), act_get_cap()));
+	return ccall_real_4_second_c(2, length, 0, 0, ptr, NULLCAP, NULLCAP);
+}
+
+void free_c(__capability void *ptr) {
+	if(memmgt_PCC == NULLCAP || memmgt_IDC == NULLCAP) {
+		memmgt_PCC = namespace_get_PCC(3);
+		memmgt_IDC  = namespace_get_IDC(3);
+	}
+	ccall_real_4_first(memmgt_PCC, memmgt_IDC, cheri_seal(cheri_getpcc(), act_get_cap()));
+	ccall_real_4_second_c(3, 0, 0, 0, ptr, NULLCAP, NULLCAP);
+}
+
+__capability void *malloc_c_c(size_t length) {
+	if(memmgt_PCC == NULLCAP || memmgt_IDC == NULLCAP) {
+		memmgt_PCC = namespace_get_PCC(3);
+		memmgt_IDC  = namespace_get_IDC(3);
+	}
+	ccall_real_4_first(memmgt_PCC, memmgt_IDC, cheri_seal(cheri_getpcc(), act_get_cap()));
+	return ccall_real_4_second_c(4, length, 0, 0, NULLCAP, NULLCAP, NULLCAP);
+}
+
+__capability void *calloc_c_c(size_t items, size_t length) {
+	if(memmgt_PCC == NULLCAP || memmgt_IDC == NULLCAP) {
+		memmgt_PCC = namespace_get_PCC(3);
+		memmgt_IDC  = namespace_get_IDC(3);
+	}
+	ccall_real_4_first(memmgt_PCC, memmgt_IDC, cheri_seal(cheri_getpcc(), act_get_cap()));
+	return ccall_real_4_second_c(5, items, length, 0, NULLCAP, NULLCAP, NULLCAP);
+}
+#endif /* MALLOC_FASTPATH */
+
 void memmgt_set_act(void * ref, void * id) {
 	memmgt_ref = ref;
 	memmgt_id  = id;
+}
+
+__capability void *calloc_core(size_t items, size_t length) {
+	if(memmgt_ref == NULL) {
+		memmgt_ref = namespace_get_ref(3);
+		memmgt_id  = namespace_get_id(3);
+	}
+	return ccall_4(memmgt_ref, memmgt_id, 5, items, length, 0, NULLCAP, NULLCAP, NULLCAP).cret;
+}
+
+void free_core(__capability void *ptr) {
+	if(memmgt_ref == NULL) {
+		memmgt_ref = namespace_get_ref(3);
+		memmgt_id  = namespace_get_id(3);
+	}
+	ccall_4(memmgt_ref, memmgt_id, 3, 0, 0, 0, ptr, NULLCAP, NULLCAP);
 }

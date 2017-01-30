@@ -78,12 +78,12 @@ void init_alloc_init(void) {
 void init_alloc_enable_system(void * c_memmgt) {
 	memmgt_set_act(act_ctrl_get_ref(c_memmgt), act_ctrl_get_id(c_memmgt));
 	system_alloc = 1;
-    printf("System alloc (mmap) enabled.\n");
+    printf("System alloc (memmgt module) enabled.\n");
 }
 
 __capability void *init_alloc(size_t s) {
 	if(system_alloc == 1) {
-		__capability void * p = calloc_c_c(1, s);
+		__capability void * p = calloc_core(1, s);
 		if(!p) {
 			return NULLCAP;
 		}
@@ -94,7 +94,7 @@ __capability void *init_alloc(size_t s) {
 
 void init_free(__capability void * p) {
 	if(system_alloc == 1) {
-        free_c(p);
+        free_core(p);
 	}
 	/* init alloc has no free */
 }

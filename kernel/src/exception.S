@@ -230,13 +230,11 @@ kernel_cp2_ccall_handler:
         cgettype    $k0, $c1
         csetoffset  $kdc, $kdc, $k0
         cunseal $epcc, $c1, $kdc
-        cgettype    $k0, $c2
-        csetoffset  $kdc, $kdc, $k0
-        cunseal $c17, $c2, $kdc
-        cgetoffset  $sp, $c17
+        cunseal $c2, $c2, $kdc
+        cgetoffset  $sp, $c2
         # extract the stack pointer of the callee
-        csetoffset  $c17, $c17, $0
-        csetdefault $c17
+        csetoffset  $c2, $c2, $0
+        csetdefault $c2
         cgetoffset  $k0, $epcc
 		dmtc0	$k0, $14		# EPC
 		move	$k0, $zero
@@ -244,21 +242,29 @@ kernel_cp2_ccall_handler:
 		eret
 
 kernel_cp2_creturn:
+
+    /* the callee should never trust the caller, as the callee can be called
+     * by anyone. However, I think the caller should be able to choose whether
+     * to trust the callee, as he knows who he is going to call. Therefore,
+     * callee should always clear registers, except for callee saved ones and
+     * return values.
+     */
+    clearlo 0xfff3 // keep v0, v1 for return values
+    clearhi 0x0f00 // clear t8, t9, k0, k1
+    cclearlo 0xfff1 // keep c1, c2, c3
+    cclearhi 0x1ffd // don't clear c17 as it's callee save, don't clear kernel
+
         cgettype    $k0, $c1
         csetoffset  $kdc, $kdc, $k0
         cunseal $epcc, $c1, $kdc
-        cgettype    $k0, $c2
-        csetoffset  $kdc, $kdc, $k0
-        cunseal $c17, $c2, $kdc
+        cunseal $c2, $c2, $kdc
         # extract the stack pointer of the caller
-        cgetoffset  $sp, $c17
-        csetoffset  $c17, $c17, $0
-        csetdefault $c17
+        cgetoffset  $sp, $c2
+        csetoffset  $c2, $c2, $0
+        csetdefault $c2
         cgetoffset  $k0, $epcc
         daddiu  $k0, $k0, 4
 		dmtc0	$k0, $14		# EPC
-		move	$k0, $zero
-		move	$k1, $zero
 		eret
 
 kernel_cp2_ccall_handler_end:

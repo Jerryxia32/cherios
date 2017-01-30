@@ -31,6 +31,7 @@
  * SUCH DAMAGE.
  */
 
+#include"cheric.h"
 #include "plat.h"
 #include "misc.h"
 #include "init.h"
@@ -152,6 +153,10 @@ static void load_modules(void) {
 
 int init_main() {
   	stats_init();
+
+    act_self_cap = cheri_setoffset(cheri_getdefault(), 1);
+    act_self_cap = cheri_setbounds(act_self_cap, 1);
+    act_self_cap = cheri_andperm(act_self_cap, CHERI_PERM_SEAL);
 
 	printf("Init loaded\n");
 	printf("__init_fs_start: %p, __init_fs_stop: %p\n", (void *)__init_fs_start, (void *)__init_fs_stop);

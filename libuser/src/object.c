@@ -231,7 +231,7 @@ ret_t ccall_4(void * cb, void * cs, int method_nb,
 		"cmove %[cret], $c3  \n" \
 		: [rret]"=r" (ret.rret), [cret]"=C" (ret.cret) \
         : [method_nb]"r" (method_nb), [rarg1]"r" (rarg1), [rarg2]"r" (rarg2), [rarg3]"r" (rarg3), \
-		               [carg1]"C" (carg1), [carg2]"C" (carg2), [carg3]"C" (carg3) \
+            [carg1]"C" (carg1), [carg2]"C" (carg2), [carg3]"C" (carg3) \
 		: CCALL_REAL_CLOBS);
 
 void ccall_real_4_first(__capability void * cb, __capability void * cs, __capability void *sealedThing) {

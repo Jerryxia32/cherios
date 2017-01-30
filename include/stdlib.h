@@ -37,8 +37,10 @@ __capability void *	malloc_c(size_t n);
 __capability void *	calloc_c(size_t n, size_t s);
 __capability void *	malloc_c_c(size_t n);
 __capability void *	calloc_c_c(size_t n, size_t s);
+__capability void *	calloc_core(size_t n, size_t s);
 __capability void *	realloc_c(__capability void *oldmem, size_t s);
 void 	free_c(__capability void * p);
+void 	free_core(__capability void * p);
 
 void 	abort(void);
 void	exit(int status);

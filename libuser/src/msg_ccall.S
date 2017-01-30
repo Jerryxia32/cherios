@@ -66,9 +66,7 @@ msg_entry_ccall:
 
 	dla		$t0, msg_methods
 	dla		$t1, msg_methods_nb
-#b		call
-    dla $t9, call_ccall
-    jr  $t9
+    b   call_ccall
 	nop
 
 control_ccall:
@@ -88,20 +86,16 @@ call_ccall:
     sd  $ra, 0($sp)
 	jalr    $t9
 	nop
-#b		end
     ld  $ra, 0($sp)
     daddiu  $sp, 32
-    dla $t9, end_ccall
-    jr  $t9
+    b   end_ccall
 	nop
 
 overflow_ccall:
 	move		$v0, $0
 	move		$v1, $0
-#	cfromptr	$c3, $c3, $0
-#b		end
-    dla $t9, end_ccall
-    jr  $t9
+    cfromptr	$c3, $c3, $0
+    b   end_ccall
 	nop
 
 end_ccall:

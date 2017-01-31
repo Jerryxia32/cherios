@@ -148,6 +148,10 @@ ccall_real_4_second_strong:
     move $a0, $a1
     move $a1, $a2
     move $a2, $a3
+    clearlo 0xff0b # keep four mips arg regs and v0
+    clearhi 0xffff
+    cclearlo 0xffc0 # keep c0-c5
+    cclearhi 0x03ff # keep kernel cap regs and IDC
     ccall   $c1, $c2, 0
 
 	# Load register frame

@@ -50,17 +50,17 @@ main() {
     const __capability char *theKeyCap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)theKey), strlen(theKey)+1);
 
     while((remain = len-encdecOffset) > EACH_BLOCK_SIZE) {
-        ccall_real_4_first(aes_PCC, aes_IDC, cheri_seal(cheri_getpcc(), act_self_cap));
-        encret = ccall_real_4_second_r(0, EACH_BLOCK_SIZE, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap);
-        ccall_real_4_first(aes_PCC, aes_IDC, cheri_seal(cheri_getpcc(), act_self_cap));
-        decret = ccall_real_4_second_r(0, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap);
+        ccall_real_4_first(aes_PCC, aes_IDC, act_self_cap);
+        encret = ccall_real_4_second_strong_r(0, EACH_BLOCK_SIZE, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap);
+        ccall_real_4_first(aes_PCC, aes_IDC, act_self_cap);
+        decret = ccall_real_4_second_strong_r(0, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap);
         encdecOffset += EACH_BLOCK_SIZE;
         totalDeced += decret;
     }
-    ccall_real_4_first(aes_PCC, aes_IDC, cheri_seal(cheri_getpcc(), act_self_cap));
-    encret = ccall_real_4_second_r(0, remain, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap);
-    ccall_real_4_first(aes_PCC, aes_IDC, cheri_seal(cheri_getpcc(), act_self_cap));
-    decret = ccall_real_4_second_r(0, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap);
+    ccall_real_4_first(aes_PCC, aes_IDC, act_self_cap);
+    encret = ccall_real_4_second_strong_r(0, remain, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap);
+    ccall_real_4_first(aes_PCC, aes_IDC, act_self_cap);
+    decret = ccall_real_4_second_strong_r(0, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap);
     totalDeced += decret;
 
     printf("Size of the original: %ld, Total bytes decrypted: %ld\n", len, totalDeced);

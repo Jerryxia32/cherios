@@ -223,10 +223,10 @@ kernel_cp2_ccall_handler:
         cgetdefault   $c12
         # put the stack pointer in the offset of c12, which is saved by callee
         csetoffset  $c12, $c12, $sp
-        cgettype    $k0, $idc
-        csetoffset  $kdc, $kdc, $k0
-        cseal $c11, $c11, $kdc
-        cseal $c12, $c12, $kdc
+        cseal $c11, $c11, $idc
+        cseal $c12, $c12, $idc
+        # immediately clear idc after using it
+        cfromptr    $idc, $idc, $0
         cgettype    $k0, $c1
         csetoffset  $kdc, $kdc, $k0
         cunseal $epcc, $c1, $kdc

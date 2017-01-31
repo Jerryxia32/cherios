@@ -12,7 +12,7 @@ set(LIBUSER_ASM_SRCS
     src/init.S
     src/msg.S
     src/msg_ccall.S
-    src/regpushpop.S
+    src/object.S
 )
 
 set(LIBUSER_SRCS

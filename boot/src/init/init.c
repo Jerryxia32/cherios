@@ -68,6 +68,7 @@ init_elem_t init_list[] = {
 	B_PENTRY(m_user,	"qsort.elf",		0, 	B_MI)
 	B_PENTRY(m_user,	"spam.elf",		0, 	B_MI)
 	B_PENTRY(m_user,	"CRC32.elf",		0, 	B_MI)
+	B_PENTRY(m_user,	"spam.elf",		0, 	B_MI)
 	B_PENTRY(m_user,	"stringsearch.elf",		0, 	B_MI)
 	B_PENTRY(m_user,	"bitcount.elf",		0, 	B_MI)
     B_PENTRY(m_user,	"dijkstra.elf",		0, 	B_MI)

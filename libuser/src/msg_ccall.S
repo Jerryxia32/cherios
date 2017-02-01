@@ -51,6 +51,15 @@
 	.global msg_entry_ccall
 	.ent msg_entry_ccall
 msg_entry_ccall:
+    dla $t0, mutex
+mutex_loop:
+    ll  $t1, 0($t0)
+    bne $t1, $0, mutex_loop
+    li  $t2, 1
+    sc  $t2, 0($t0)
+    beq $t2, $0, mutex_loop
+    nop
+
     /*
      * save the caller sealed PCC and IDC
      */
@@ -93,10 +102,9 @@ call_ccall:
 
 overflow_ccall:
 	move		$v0, $0
-	move		$v1, $0
     cfromptr	$c3, $c3, $0
     b   end_ccall
-	nop
+	move		$v1, $0
 
 end_ccall:
     /*
@@ -108,6 +116,9 @@ end_ccall:
 
     dla $t0, callerIDC
     clc $c2, $t0, 0($c11)
+
+    dla $t0, mutex
+    sd  $0, 0($t0)
 
     creturn
     nop

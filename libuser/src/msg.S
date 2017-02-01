@@ -51,14 +51,21 @@
 	.global msg_entry
 	.ent msg_entry
 msg_entry:
+    dla $t0, mutex
+mutex_loop:
+    ll  $t1, 0($t0)
+    bne $t1, $0, mutex_loop
+    li  $t2, 1
+    sc  $t2, 0($t0)
+    beq $t2, $0, mutex_loop
+    nop
+
 	bltz		$v0, control
 	nop
 
 	dla		$t0, msg_methods
 	dla		$t1, msg_methods_nb
-#b		call
-    dla $t9, call
-    jr  $t9
+    b		call
 	nop
 
 control:
@@ -73,43 +80,47 @@ call:
 
 	#Save sync_token
 	dla		$t1, sync_token
-    cgetdefault $c17
-	csc		$c12, $t1, 0($c17)
+    cgetdefault $c11
+	csc		$c12, $t1, 0($c11)
 
 	sll		$v0, $v0, REG_SIZE_BITS
 	add		$t0, $t0, $v0
 	ld		$t9, 0($t0)
 	jalr    $t9
 	nop
-#b		end
-    dla $t9, end
-    jr  $t9
+    b		end
 	nop
 
 overflow:
 	move		$v0, $0
+    cfromptr	$c3, $c3, $0
+    b		end
 	move		$v1, $0
-#	cfromptr	$c3, $c3, $0
-#b		end
-    dla $t9, end
-    jr  $t9
-	nop
 
 end:
 	#Restore sync_token
 	dla		$t1, sync_token
-    cgetdefault $c17
-	clc		$c12, $t1, 0($c17)
-#jr  $ra
+    cgetdefault $c11
+	clc		$c12, $t1, 0($c11)
+
+    # release lock
+    dla $t0, mutex
+    sd  $0, 0($t0)
+
     li $v1, 1010
     syscall
     nop
 
 	#We are scheduled again: new message
-#b msg_entry
-    dla $t9, msg_entry
-    jr  $t9
+    b msg_entry
 	nop
 msg_entry_end:
 	.end msg_entry
 	.size msg_entry, msg_entry_end - msg_entry
+
+    .data
+    .global mutex
+mutex:
+    .skip (1<<REG_SIZE_BITS), 0
+mutex_end:
+    .size mutex, mutex_end - mutex

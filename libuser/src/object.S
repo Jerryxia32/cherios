@@ -132,17 +132,15 @@ ccall_real_4_second_c_end:
 ccall_real_4_second_strong:
 	# Save register frame
 	dla	$t0, obj_save_frame
-    csc $c17, $t0, C17_OFFSET($c0)
-    cgetdefault $c17
-	csetoffset $c17, $c17, $t0
+    cgetdefault $c25
+	csetoffset $c25, $c25, $t0
 
 	# Expands to a list of the form
 	# csd	$greg, $0, offset*REG_SIZE($kr1c)
-	foreachi gsave, 0, $c17,					\
+	foreachi gsave, 0, $c25,					\
 		$s0, $s1, $s2, $s3, $s4, $s5, $s6,	\
 		$s7, $gp, $sp, $fp, $ra
-
-    clc $c17, $t0, C17_OFFSET($c0)
+    csc $c17, $t0, C17_OFFSET($c25)
 
     move $v0, $a0
     move $a0, $a1
@@ -156,17 +154,16 @@ ccall_real_4_second_strong:
 
 	# Load register frame
 	dla	$t0, obj_save_frame
-    cgetdefault $c17
-	csetoffset $c17, $c17, $t0
+    cgetdefault $c25
+	csetoffset $c25, $c25, $t0
 
 	# Expands to a list of the form
 	# csd	$greg, $0, offset*REG_SIZE($kr1c)
-	foreachi grestore, 0, $c17,					\
+	foreachi grestore, 0, $c25,					\
 		$s0, $s1, $s2, $s3, $s4, $s5, $s6,	\
 		$s7, $gp, $sp, $fp, $ra
+    clc $c17, $t0, C17_OFFSET($c25)
 
-	dla	$t0, obj_save_frame
-    clc $c17, $t0, C17_OFFSET($c0)
     jr  $ra
     nop
 ccall_real_4_second_strong_end:

@@ -12,10 +12,19 @@ CheriOS-microkernel is still in a very early state.
 
 ### Building CheriOS
 
-You need a Cheri SDK ([LLVM] and [Clang]) to build CheriOS.
+You need a Cheri SDK ([LLVM] and [Clang]) to build CheriOS. Note that this IoT version uses less capability registers, and you need to hack LLVM to support this:
+
+* C0: default data capability
+* C1, C2: ccall capability, not used for general purpose capabilities.
+* C3 - C5: capability argument registers.
+* C11, C12: temporaries, caller save.
+* C17: callee save.
+* C25: exception handling
+* IDC: the capability to put the sealing tool before a ccall.
+* KR1C, KCC, KDC, EPCC: kernel capability registers.
 
 256-bit Cheri SDK works out of the box.
-128-bit Cheri SDK is not officially supported yet (it works with minor tweaks).
+128-bit Cheri SDK is supported, but requires sealed capabilities to support at least CAP\_SIZE granularity.
 
 The following snipset will build CheriOS for a 256-bit SDK targetting [cheri-qemu] (defaults).
 ```sh
@@ -36,9 +45,7 @@ The target can be choosen by setting xxx in `CMakelists.txt`
 
 The following snipset shows how to run CheriOS on [cheri-qemu]:
 ```sh
-$ dd if=/dev/zero of=disk.img bs=1M count=1
-$ qemu-system-cheri -M malta -kernel cherios.elf -nographic -no-reboot -m 2048 \
-   -drive if=none,file=disk.img,id=drv,format=raw -device virtio-blk-device,drive=drv
+$ qemu-system-cheri -M malta -kernel cherios.elf -nographic -no-reboot -m 2048
 ```
 
 ### Code organisation
@@ -47,23 +54,16 @@ CheriOS code is organized as follow:
 
 * __kernel__: kernel (the interesting part)
 * __boot__: boot code
-* __fatfs__: simple FAT filesystem module
-* __hello__: Hello World module
 * __include__: generic includes used by several modules
 * __ldscripts__: link scripts user by modules
 * __libuser__: all modules are linked againt it. Provides several libc function as well as cherios-related functions
 * __memmgt__: provides the system-wide mmap
 * __namespace__: provides a directory of registered activations
-* __prga__: test program
-* __socket__: module providing a minimalistic implementation of sockets
 * __uart__: module providing print services
-* __virtio-blk__: VirtIO over MMIO module
-* __zlib__: zlib module
-* __zlib_test__: test/benchmark for the zlib module
+* __qsort, AES, stringsearch, dijkstra, spam, sha, CRC32, bitcount__: MiBench benchmarks
 
 
    [cheri-qemu]: <https://github.com/CTSRD-CHERI/qemu>
    [LLVM]: <http://github.com/CTSRD-CHERI/llvm>
    [Clang]: <https://github.com/CTSRD-CHERI/clang>
-
 

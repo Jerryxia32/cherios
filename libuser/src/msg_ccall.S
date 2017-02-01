@@ -53,6 +53,8 @@
 msg_entry_ccall:
     dla $t0, mutex
 mutex_loop:
+    # mutex to prevent module from receiving another message while still
+    # processing the previous one
     ll  $t1, 0($t0)
     bne $t1, $0, mutex_loop
     li  $t2, 1
@@ -117,6 +119,7 @@ end_ccall:
     dla $t0, callerIDC
     clc $c2, $t0, 0($c11)
 
+    # release lock
     dla $t0, mutex
     sd  $0, 0($t0)
 

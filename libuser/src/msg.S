@@ -53,6 +53,8 @@
 msg_entry:
     dla $t0, mutex
 mutex_loop:
+    # mutex to prevent module from receiving another message while still
+    # processing the previous one
     ll  $t1, 0($t0)
     bne $t1, $0, mutex_loop
     li  $t2, 1
@@ -121,6 +123,6 @@ msg_entry_end:
     .data
     .global mutex
 mutex:
-    .skip (1<<REG_SIZE_BITS), 0
+    .skip (1<<(REG_SIZE_BITS-1)), 0
 mutex_end:
     .size mutex, mutex_end - mutex

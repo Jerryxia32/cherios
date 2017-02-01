@@ -49,15 +49,10 @@ start:
     dla $t2, __init_fs_stop
     sd  $t1, 0($t2)
 
-	# Jump to write-free $pcc.
-	dla		$t0, cherios_init_jump_target
-	jr		$t0
-	nop
 cherios_init_jump_target:
 	# Set up a stack using memory allocated by the linker;
 	# assume that $c0 is a sensible starting capability for this.
-	dla		$t0, __stop_init_stack
-	move		$sp, $t0
+	dla		$sp, __stop_init_stack
 
 	# Initialise BSS and globals before running C constructors, so that C
 	# constructors can take them (and other aspects of the conventional C

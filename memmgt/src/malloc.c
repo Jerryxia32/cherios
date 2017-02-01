@@ -99,8 +99,8 @@ botch(char *s)
 #define	ASSERT(p)
 #endif
 
-__capability void *
-malloc_c_c(size_t nbytes)
+inline __capability void *
+malloc_core(size_t nbytes)
 {
 	__capability union overhead *op;
 	int bucket;
@@ -138,14 +138,36 @@ malloc_c_c(size_t nbytes)
 	nextf[bucket] = op->ov_next;
 	op->ov_magic = MAGIC;
 	op->ov_index = bucket;
-	return (cheri_setbounds(op + 1, nbytes));
+	return cheri_setbounds(op + 1, nbytes);
+}
+
+__capability void *
+malloc_c_c(size_t nbytes) {
+    __capability void *ret = malloc_core(nbytes);
+    return(cheri_andperm(ret, ~CHERI_PERM_STORE_LOCAL_CAP));
 }
 
 __capability void *
 malloc_c(size_t nbytes) {
     __capability void *ret = malloc_c_c(nbytes);
-    ret = cheri_andperm(ret, cheri_getperm(ret) & ~CHERI_PERM_LOAD_CAP & ~CHERI_PERM_STORE_CAP & ~CHERI_PERM_STORE_LOCAL_CAP);
+    ret = cheri_andperm(ret, cheri_getperm(ret) & ~CHERI_PERM_LOAD_CAP & ~CHERI_PERM_STORE_CAP);
     return ret;
+}
+
+__capability void *
+calloc_core(size_t num, size_t size)
+{
+	__capability void *ret;
+
+	if (size != 0 && (num * size) / size != num) {
+		/* size_t overflow. */
+		return (NULLCAP);
+	}
+
+	if ((ret = malloc_core(num * size)) != NULLCAP)
+		memset_c(ret, 0, num * size);
+
+	return (ret);
 }
 
 __capability void *
@@ -167,7 +189,7 @@ calloc_c_c(size_t num, size_t size)
 __capability void *
 calloc_c(size_t num, size_t nbytes) {
     __capability void *ret = calloc_c_c(num, nbytes);
-    ret = cheri_andperm(ret, cheri_getperm(ret) & ~CHERI_PERM_LOAD_CAP & ~CHERI_PERM_STORE_CAP & ~CHERI_PERM_STORE_LOCAL_CAP);
+    ret = cheri_andperm(ret, cheri_getperm(ret) & ~CHERI_PERM_LOAD_CAP & ~CHERI_PERM_STORE_CAP);
     return ret;
 }
 

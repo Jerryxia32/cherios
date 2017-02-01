@@ -157,7 +157,7 @@ __capability void *calloc_core(size_t items, size_t length) {
 		memmgt_ref = namespace_get_ref(3);
 		memmgt_id  = namespace_get_id(3);
 	}
-	return ccall_4(memmgt_ref, memmgt_id, 5, items, length, 0, NULLCAP, NULLCAP, NULLCAP).cret;
+	return ccall_4(memmgt_ref, memmgt_id, 6, items, length, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }
 
 void free_core(__capability void *ptr) {

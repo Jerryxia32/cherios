@@ -35,7 +35,7 @@ __capability void *sealing_tool = NULLCAP;
 
 extern void msg_entry;
 extern char msg_entry_ccall;
-void (*msg_methods[]) = {__malloc_c, __calloc_c, __realloc_c, __free_c, __malloc_c_c, __calloc_c_c};
+void (*msg_methods[]) = {__malloc_c, __calloc_c, __realloc_c, __free_c, __malloc_c_c, __calloc_c_c, __calloc_core};
 size_t msg_methods_nb = countof(msg_methods);
 void (*ctrl_methods[]) = {NULL, ctor_null, dtor_null, register_ns};
 size_t ctrl_methods_nb = countof(ctrl_methods);

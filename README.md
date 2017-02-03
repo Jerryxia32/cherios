@@ -21,7 +21,8 @@ You need a Cheri SDK ([LLVM] and [Clang]) to build CheriOS. Note that this IoT v
 * C17: callee save.
 * C25: exception handling
 * IDC: the capability to put the sealing tool before a ccall.
-* KR1C, KCC, KDC, EPCC: kernel capability registers.
+* KR1C: Trusted stack register.
+* KCC, KDC, EPCC: kernel capability registers.
 
 256-bit Cheri SDK works out of the box.
 128-bit Cheri SDK is supported, but requires sealed capabilities to support at least CAP\_SIZE granularity.

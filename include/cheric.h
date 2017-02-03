@@ -350,7 +350,7 @@ typedef struct reg_frame {
 	 * Special-purpose capability registers that must be preserved on a
 	 * user context switch.  Note that kernel registers are omitted.
 	 */
-	capability	cf_idc;
+	capability	cf_idc, cf_kr1c;
 
 	/* Program counter capability. */
 	capability	cf_pcc;

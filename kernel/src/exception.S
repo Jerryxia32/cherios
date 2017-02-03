@@ -41,7 +41,7 @@
 # the kernel so that KCC describes only code, and KDC describes only data, but
 # we don't yet do this.
 #
-# Exception code can safely use $k0, $k1, $kr1c, $kr2c, $kcc and $kdc to
+# Exception code can safely use $k0, $k1, $kcc and $kdc to
 # perform its context switch.  PC and PCC are both implicitly used, with
 # pre-exception values preserved in EPC and EPCC respectively.
 #
@@ -96,23 +96,20 @@ kernel_cp2_exception_handler:
 		# move on to general-purpose registers.
 		#
 		dla	$k0, kernel_exception_framep_ptr
-        #clc	$kr1c, $k0, 0($kdc)
         csetoffset  $kdc, $kdc, $0
         cld	$k0, $k0, 0($kdc)
         csetoffset $kdc, $kdc, $k0
-        #sub	$k0, $k1, $k0
-        #csetbounds $kr1c, $kr1c, $k0
 
 		# Notice correspondence to the layout of struct reg_frame.
 		# Notice also that KCC and KDC are not preserved.
 		#
-		cgetdefault	$kr1c
+#cgetdefault	$kr1c
 		# Expands to a list of the form
-		# csc	$creg, $0, offset*CAP_SIZE+MIPS_FRAME_SIZE($kr1c)
+		# csc	$creg, $0, offset*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
 
         foreachi csave, 0, $kdc,					\
-            $kr1c, $c1, $c2, $c3, $c4, $c5, $c11, $c12, $c17, \
-            $c25, $c26, $c31		
+            $c0, $c1, $c2, $c3, $c4, $c5, $c11, $c12, $c17, \
+            $c25, $c26, $c27, $c31		
 
 		#
 		# Context switch save; step all over k0 and k1 as is usual
@@ -120,7 +117,7 @@ kernel_cp2_exception_handler:
 		# layout of struct reg_frame.
 		#
 		# Expands to a list of the form
-		# csd	$greg, $0, offset*REG_SIZE($kr1c)
+		# csd	$greg, $0, offset*REG_SIZE($kdc)
 		foreachi gsave, 0, $kdc,					\
 			$at, $v0, $v1, $a0, $a1, $a2, $a3, $a4, $a5, $a6, $a7,	\
 			$t0, $t1, $t2, $t3, $s0, $s1, $s2, $s3, $s4, $s5, $s6,	\
@@ -158,14 +155,11 @@ kernel_cp2_exception_handler:
 		# to the layout of struct reg_frame.
 		#
 		dla	$k0, kernel_exception_framep_ptr
-        #clc	$kr1c, $k0, 0($kdc)
         cld	$k0, $k0, 0($kdc)
         csetoffset $kdc, $kdc, $k0
-        #sub	$k0, $k1, $k0
-        #csetbounds $kr1c, $kr1c, $k0
 
 		# Expands to a list of the form
-		# cld	$greg, $0, offset*REG_SIZE($kr1c)
+		# cld	$greg, $0, offset*REG_SIZE($kdc)
 		foreachi grestore, 0, $kdc,					\
 			$at, $v0, $v1, $a0, $a1, $a2, $a3, $a4, $a5, $a6, $a7,	\
 			$t0, $t1, $t2, $t3, $s0, $s1, $s2, $s3, $s4, $s5, $s6,	\
@@ -186,11 +180,10 @@ kernel_cp2_exception_handler:
 		# Notice correspondence to the layout of struct reg_frame.
 		#
 		# Expands to a list of the form
-		# clc	$creg, $0, offset*CAP_SIZE+MIPS_FRAME_SIZE($kr1c)
+		# clc	$creg, $0, offset*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         foreachi crestore, 0, $kdc,					\
-            $kr1c, $c1, $c2, $c3, $c4, $c5, $c11, $c12, $c17,	\
-            $c25, $c26, $c31
-        csetdefault $kr1c
+            $c0, $c1, $c2, $c3, $c4, $c5, $c11, $c12, $c17,	\
+            $c25, $c26, $c27, $c31
 
 		#
 		# On general principle, flush the contents of $k0 and $k1

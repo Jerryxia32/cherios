@@ -136,7 +136,7 @@ ccall_real_4_second_strong:
 	csetoffset $c25, $c25, $t0
 
 	# Expands to a list of the form
-	# csd	$greg, $0, offset*REG_SIZE($kr1c)
+	# csd	$greg, $0, offset*REG_SIZE($c25)
 	foreachi gsave, 0, $c25,					\
 		$s0, $s1, $s2, $s3, $s4, $s5, $s6,	\
 		$s7, $gp, $sp, $fp, $ra
@@ -158,7 +158,7 @@ ccall_real_4_second_strong:
 	csetoffset $c25, $c25, $t0
 
 	# Expands to a list of the form
-	# csd	$greg, $0, offset*REG_SIZE($kr1c)
+	# csd	$greg, $0, offset*REG_SIZE($c25)
 	foreachi grestore, 0, $c25,					\
 		$s0, $s1, $s2, $s3, $s4, $s5, $s6,	\
 		$s7, $gp, $sp, $fp, $ra

@@ -10,6 +10,7 @@
 #include<statcounters.h>
 
 #define EACH_BLOCK_SIZE 256
+#define DOMAIN_TIMES 100000
 
 extern char __AES_start, __AES_end;
 
@@ -71,5 +72,27 @@ main() {
     ccall_4(sha_ref, sha_id, 1, 0, 0, 0, theinfo_out, NULLCAP, NULLCAP);
     stats_display();
 
+    printf("Cross domain (ccall safe) for %d times.\n", DOMAIN_TIMES);
+    stats_init();
+    for(int i=0; i<DOMAIN_TIMES; i++) {
+        ccall_real_4_first(aes_PCC, aes_IDC, act_self_cap);
+        ccall_real_4_second_strong_r(1, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP);
+    }
+    stats_display();
+
+    printf("Cross domain (ccall unsafe) for %d times.\n", DOMAIN_TIMES);
+    stats_init();
+    for(int i=0; i<DOMAIN_TIMES; i++) {
+        ccall_real_4_first(aes_PCC, aes_IDC, act_self_cap);
+        ccall_real_4_second_r(1, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP);
+    }
+    stats_display();
+
+    printf("Cross domain (kernel msg queue) for %d times.\n", DOMAIN_TIMES);
+    stats_init();
+    for(int i=0; i<DOMAIN_TIMES; i++) {
+        ccall_4(u_ref, u_id, 1, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP);
+    }
+    stats_display();
     return 0;
 }

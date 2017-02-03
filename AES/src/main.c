@@ -53,7 +53,10 @@
 
 int main_aes(__capability byte *in, __capability byte *out, int64_t length, __capability char *givenKey);
 
-void (*msg_methods[]) = {main_aes};
+void empty_entry() {
+}
+
+void (*msg_methods[]) = {main_aes, empty_entry};
 size_t msg_methods_nb = countof(msg_methods);
 void (*ctrl_methods[]) = {NULL};
 size_t ctrl_methods_nb = countof(ctrl_methods);

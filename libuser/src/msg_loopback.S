@@ -44,83 +44,71 @@
 #.endif
 
 .set REG_SIZE_BITS, 3
-.set CAP_SIZE, _MIPS_SZCAP/8
 
 # Dispatch CCalls
 
 	.text
-	.global msg_entry_ccall
-	.ent msg_entry_ccall
-msg_entry_ccall:
+	.global msg_entry_loopback
+	.ent msg_entry_loopback
+msg_entry_loopback:
+    move    $v0, $a0
+    move    $a0, $a1
+    move    $a1, $a2
+    move    $a2, $a3
     dla $t0, mutex
-mutex_loop:
+mutex_loop_loopback:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
     ll  $t1, 0($t0)
-    bne $t1, $0, mutex_loop
+    bne $t1, $0, mutex_loop_loopback
     li  $t2, 1
     sc  $t2, 0($t0)
-    beq $t2, $0, mutex_loop
+    beq $t2, $0, mutex_loop_loopback
+    nop
 
-    /*
-     * save the caller sealed PCC and IDC
-     */
-    cgetdefault $c1 # in branch delay slot
-    daddiu  $sp, $sp, -2*CAP_SIZE
-    csc $c11, $sp, 0($c1)
-    csc $c12, $sp, CAP_SIZE($c1)
-
-	bltz		$v0, control_ccall
+	bltz		$v0, control_loopback
 	nop
 
 	dla		$t0, msg_methods
 	dla		$t1, msg_methods_nb
-    b   call_ccall
+    b		call_loopback
 	nop
 
-control_ccall:
+control_loopback:
 	dla		$t0, ctrl_methods
 	dla		$t1, ctrl_methods_nb
 	sub		$v0, $0, $v0
-call_ccall:
+call_loopback:
 	ld		$t1, 0($t1)
 	sub		$t1, $t1, $v0
-	blez		$t1, overflow_ccall
+	blez		$t1, overflow_loopback
 	nop
 
+    daddiu  $sp, $sp, -32
+    sd  $ra, 0($sp)
 	sll		$v0, $v0, REG_SIZE_BITS
 	add		$t0, $t0, $v0
 	ld		$t9, 0($t0)
-    daddiu  $sp, -32
-    sd  $ra, 0($sp)
 	jalr    $t9
 	nop
-    ld  $ra, 0($sp)
-    daddiu  $sp, 32
-    b   end_ccall
+    b		end_loopback
 	nop
 
-overflow_ccall:
+overflow_loopback:
 	move		$v0, $0
     cfromptr	$c3, $c3, $0
-    b   end_ccall
+    b		end_loopback
 	move		$v1, $0
 
-end_ccall:
-    /*
-     * restore the caller sealed PCC and IDC
-     */
-    cgetdefault $c11
-    clc $c1, $sp, 0($c11)
-    clc $c2, $sp, CAP_SIZE($c11)
+end_loopback:
 
     # release lock
+    ld  $ra, 0($sp)
     dla $t0, mutex
     sw  $0, 0($t0)
-    daddiu  $sp, $sp, 2*CAP_SIZE
+    jr  $ra
+    daddiu  $sp, $sp, 32
 
-    creturn
-
-msg_entry_ccall_end:
-	.end msg_entry_ccall
-	.size msg_entry_ccall, msg_entry_ccall_end - msg_entry_ccall
+msg_entry_end_loopback:
+	.end msg_entry_loopback
+	.size msg_entry_loopback, msg_entry_end_loopback - msg_entry_loopback

@@ -46,6 +46,7 @@
 #include<misc.h> // for countof();
 #include<object.h>
 #include<namespace.h>
+#include<statcounters.h>
 
 #include"aes.h"
 
@@ -306,6 +307,14 @@ exit:
 
 int main() {
     printf("AES Hello World.\n");
+    printf("AES Loopback test.\n");
+    stats_init();
+    for(int i=0; i<100000; i++) {
+        msg_entry_loopback(1, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP);
+    }
+    stats_display();
+    printf("AES Loopback test finished!\n");
+    
     act_self_PCC = cheri_seal(act_self_PCC, act_self_cap);
     act_self_IDC = cheri_seal(act_self_IDC, act_self_cap);
     int ret = namespace_register(5, act_self_ref, act_self_id, act_self_PCC, act_self_IDC);

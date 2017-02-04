@@ -62,8 +62,6 @@ void	set_curr_cookie(void * cookie);
 void * get_cookie(void * cb, void * cs);
 
 extern __capability void * sync_token;
-extern __capability void * callerPCC;
-extern __capability void * callerIDC;
 extern long msg_enable;
 
 #define CCALL(selector, ...) ccall_##selector(__VA_ARGS__)
@@ -94,6 +92,10 @@ register_t ccall_real_4_second_strong_r(int method_nb,
                   const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
 
 __capability void *ccall_real_4_second_strong_c(int method_nb,
+		  register_t rarg1, register_t rarg2, register_t rarg3,
+                  const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
+
+void msg_entry_loopback(int method_nb,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
                   const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
 #endif

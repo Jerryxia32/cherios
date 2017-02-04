@@ -107,7 +107,7 @@ end:
 
     # release lock
     dla $t0, mutex
-    sd  $0, 0($t0)
+    sw  $0, 0($t0)
 
     li $v1, 1010
     syscall

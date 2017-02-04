@@ -31,6 +31,4 @@
 #include "cheric.h"
 
 __capability void *	sync_token = NULLCAP;
-__capability void *callerPCC = NULLCAP;
-__capability void *callerIDC = NULLCAP;
 long	msg_enable = 0;

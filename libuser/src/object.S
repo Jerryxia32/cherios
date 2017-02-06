@@ -122,7 +122,7 @@ ccall_real_4_strong:
     clc $c18, $sp, (C17_OFFSET+CAP_SIZE)($c25)
 
     jr  $ra
-    daddiu  $sp, $sp, 128
+    daddiu  $sp, $sp, 160
 ccall_real_4_strong_end:
 	.size ccall_real_4_strong, ccall_real_4_strong_end - ccall_real_4_strong
 	.end ccall_real_4_strong
@@ -132,7 +132,7 @@ ccall_real_4_strong_end:
 	.ent ccall_real_4_strong_r
 ccall_real_4_strong_r:
     j ccall_real_4_strong
-    daddiu  $sp, $sp, -128
+    daddiu  $sp, $sp, -160
 ccall_real_4_strong_r_end:
 	.size ccall_real_4_strong_r, ccall_real_4_strong_r_end - ccall_real_4_strong_r
 	.end ccall_real_4_strong_r
@@ -142,7 +142,7 @@ ccall_real_4_strong_r_end:
 	.ent ccall_real_4_strong_c
 ccall_real_4_strong_c:
     j ccall_real_4_strong
-    daddiu  $sp, $sp, -128
+    daddiu  $sp, $sp, -160
 ccall_real_4_strong_c_end:
 	.size ccall_real_4_strong_c, ccall_real_4_strong_c_end - ccall_real_4_strong_c
 	.end ccall_real_4_strong_c

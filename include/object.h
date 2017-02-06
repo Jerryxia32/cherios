@@ -77,23 +77,21 @@ ret_t ccall_4(void * cb, void * cs, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
 
-void ccall_real_4_first(__capability void * cb, __capability void * cs, __capability void *sealedThing);
-
-register_t ccall_real_4_second_r(int method_nb,
+register_t ccall_real_4_r(int method_nb,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
-                  const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
+                  const __capability void * carg1, const __capability void * carg2, const __capability void * carg3, __capability void *PCC, __capability void *IDC, __capability void *sealing_tool);
 
-__capability void *ccall_real_4_second_c(int method_nb,
+__capability void *ccall_real_4_c(int method_nb,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
-                  const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
+                  const __capability void * carg1, const __capability void * carg2, const __capability void * carg3, __capability void *PCC, __capability void *IDC, __capability void *sealing_tool);
 
-register_t ccall_real_4_second_strong_r(int method_nb,
+register_t ccall_real_4_strong_r(int method_nb,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
-                  const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
+                  const __capability void * carg1, const __capability void * carg2, const __capability void * carg3, __capability void *PCC, __capability void *IDC, __capability void *sealing_tool);
 
-__capability void *ccall_real_4_second_strong_c(int method_nb,
+__capability void *ccall_real_4_strong_c(int method_nb,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
-                  const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
+                  const __capability void * carg1, const __capability void * carg2, const __capability void * carg3, __capability void *PCC, __capability void *IDC, __capability void *sealing_tool);
 
 void msg_entry_loopback(int method_nb,
 		  register_t rarg1, register_t rarg2, register_t rarg3,

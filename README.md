@@ -15,12 +15,9 @@ CheriOS-microkernel is still in a very early state.
 You need a Cheri SDK ([LLVM] and [Clang]) to build CheriOS. Note that this IoT version uses less capability registers, and you need to hack LLVM to support this:
 
 * C0: default data capability
-* C1, C2: ccall capability, not used for general purpose capabilities.
-* C3 - C5: capability argument registers.
-* C11, C12: temporaries, caller save.
-* C17: callee save.
+* C1 - C8: capability argument registers. C6 - C8 are used as PCC, IDC and sealing tool. C1, C2 store caller PCC and IDC.
+* C17, C18: callee save.
 * C25: exception handling
-* IDC: the capability to put the sealing tool before a ccall.
 * KR1C: Trusted stack register.
 * KCC, KDC, EPCC: kernel capability registers.
 

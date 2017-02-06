@@ -108,8 +108,8 @@ kernel_cp2_exception_handler:
 		# csc	$creg, $0, offset*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
 
         foreachi csave, 0, $kdc,					\
-            $c0, $c1, $c2, $c3, $c4, $c5, $c11, $c12, $c17, \
-            $c25, $c26, $c27, $c31		
+            $c0, $c1, $c2, $c3, $c4, $c5, $c6, $c7, $c8, $c17, $c18, \
+            $c25, $c27, $c31
 
 		#
 		# Context switch save; step all over k0 and k1 as is usual
@@ -182,8 +182,8 @@ kernel_cp2_exception_handler:
 		# Expands to a list of the form
 		# clc	$creg, $0, offset*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         foreachi crestore, 0, $kdc,					\
-            $c0, $c1, $c2, $c3, $c4, $c5, $c11, $c12, $c17,	\
-            $c25, $c26, $c27, $c31
+            $c0, $c1, $c2, $c3, $c4, $c5, $c6, $c7, $c8, $c17, $c18, \
+            $c25, $c27, $c31
 
 		#
 		# On general principle, flush the contents of $k0 and $k1
@@ -211,22 +211,22 @@ kernel_cp2_ccall_handler:
         li  $k1, 5
         bne $k0, $k1, kernel_cp2_creturn
         nop
-        cmove $c11, $epcc
-        cgetdefault   $c12
+        cmove $c1, $epcc
+        cgetdefault   $c2
         # put the stack pointer in the offset of c12, which is saved by callee
-        csetoffset  $c12, $c12, $sp
-        cseal $c11, $c11, $idc
-        cseal $c12, $c12, $idc
-        # immediately clear idc after using it
-        cfromptr    $idc, $idc, $0
-        cgettype    $k0, $c1
+        csetoffset  $c2, $c2, $sp
+        cseal $c1, $c1, $c8 # c8 is the sealing tool
+        cseal $c2, $c2, $c8
+        # immediately clear c8 after using it
+        cfromptr    $c8, $c8, $0
+        cgettype    $k0, $c6
         csetoffset  $kdc, $kdc, $k0
-        cunseal $epcc, $c1, $kdc
-        cunseal $c2, $c2, $kdc
-        cgetoffset  $sp, $c2
+        cunseal $epcc, $c6, $kdc
+        cunseal $c7, $c7, $kdc
+        cgetoffset  $sp, $c7
         # extract the stack pointer of the callee
-        csetoffset  $c2, $c2, $0
-        csetdefault $c2
+        csetoffset  $c7, $c7, $0
+        csetdefault $c7
         cgetoffset  $k0, $epcc
 		dmtc0	$k0, $14		# EPC
 		move	$k0, $zero
@@ -243,17 +243,17 @@ kernel_cp2_creturn:
      */
     clearlo 0xfff3 // keep v0, v1 for return values
     clearhi 0x0f00 // clear t8, t9, k0, k1
-    cclearlo 0xfff1 // keep c1, c2, c3
-    cclearhi 0x1ffd // don't clear c17 as it's callee save, don't clear kernel
+    cclearlo 0xff37 // keep c3, c6, c7
+    cclearhi 0x1ff9 // don't clear c17, c18 as it's callee save, don't clear kernel
 
-        cgettype    $k0, $c1
+        cgettype    $k0, $c6
         csetoffset  $kdc, $kdc, $k0
-        cunseal $epcc, $c1, $kdc
-        cunseal $c2, $c2, $kdc
+        cunseal $epcc, $c6, $kdc
+        cunseal $c7, $c7, $kdc
         # extract the stack pointer of the caller
-        cgetoffset  $sp, $c2
-        csetoffset  $c2, $c2, $0
-        csetdefault $c2
+        cgetoffset  $sp, $c7
+        csetoffset  $c7, $c7, $0
+        csetdefault $c7
         cgetoffset  $k0, $epcc
         daddiu  $k0, $k0, 4
 		dmtc0	$k0, $14		# EPC

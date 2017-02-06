@@ -82,8 +82,8 @@ call:
 
 	#Save sync_token
 	dla		$t1, sync_token
-    cgetdefault $c11
-	csc		$c12, $t1, 0($c11)
+    cgetdefault $c1
+	csc		$c2, $t1, 0($c1)
 
 	sll		$v0, $v0, REG_SIZE_BITS
 	add		$t0, $t0, $v0
@@ -102,8 +102,8 @@ overflow:
 end:
 	#Restore sync_token
 	dla		$t1, sync_token
-    cgetdefault $c11
-	clc		$c12, $t1, 0($c11)
+    cgetdefault $c1
+	clc		$c2, $t1, 0($c1)
 
     # release lock
     dla $t0, mutex

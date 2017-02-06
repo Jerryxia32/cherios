@@ -41,58 +41,43 @@
 .set noat
 
 	.text
-	.global ccall_real_4_first
-	.ent ccall_real_4_first
-ccall_real_4_first:
-    cmove   $c1, $c3
-    cmove   $c2, $c4
-    cmove   $idc, $c5
-    jr  $ra
-    nop
-ccall_real_4_first_end:
-	.size ccall_real_4_first, ccall_real_4_first_end - ccall_real_4_first
-	.end ccall_real_4_first
-
-	.text
-	.ent ccall_real_4_second
-ccall_real_4_second:
-    move $v0, $a0
+	.ent ccall_real_4
+ccall_real_4:
     move $a0, $a1
     move $a1, $a2
     move $a2, $a3
-    ccall   $c1, $c2, 0
+    ccall   $c6, $c7, 0
     jr  $ra
     nop
-ccall_real_4_second_end:
-	.size ccall_real_4_second, ccall_real_4_second_end - ccall_real_4_second
-	.end ccall_real_4_second
+ccall_real_4_end:
+	.size ccall_real_4, ccall_real_4_end - ccall_real_4
+	.end ccall_real_4
 
 	.text
-	.global ccall_real_4_second_r
-	.ent ccall_real_4_second_r
-ccall_real_4_second_r:
-    j ccall_real_4_second
-    nop
-ccall_real_4_second_r_end:
-	.size ccall_real_4_second_r, ccall_real_4_second_r_end - ccall_real_4_second_r
-	.end ccall_real_4_second_r
+	.global ccall_real_4_r
+	.ent ccall_real_4_r
+ccall_real_4_r:
+    j ccall_real_4
+    move $v0, $a0
+ccall_real_4_r_end:
+	.size ccall_real_4_r, ccall_real_4_r_end - ccall_real_4_r
+	.end ccall_real_4_r
 
 	.text
-	.global ccall_real_4_second_c
-	.ent ccall_real_4_second_c
-ccall_real_4_second_c:
-    j ccall_real_4_second
-    nop
-ccall_real_4_second_c_end:
-	.size ccall_real_4_second_c, ccall_real_4_second_c_end - ccall_real_4_second_c
-	.end ccall_real_4_second_c
+	.global ccall_real_4_c
+	.ent ccall_real_4_c
+ccall_real_4_c:
+    j ccall_real_4
+    move $v0, $a0
+ccall_real_4_c_end:
+	.size ccall_real_4_c, ccall_real_4_c_end - ccall_real_4_c
+	.end ccall_real_4_c
 
 	.text
-	.global ccall_real_4_second_strong
-	.ent ccall_real_4_second_strong
-ccall_real_4_second_strong:
+	.global ccall_real_4_strong
+	.ent ccall_real_4_strong
+ccall_real_4_strong:
 	# Save register frame
-    daddiu  $sp, $sp, -128
     cgetdefault $c25
     sd $s0, 0($sp)
     sd $s1, 8($sp)
@@ -107,6 +92,7 @@ ccall_real_4_second_strong:
     sd $fp, 80($sp)
     sd $ra, 88($sp)
     csc $c17, $sp, C17_OFFSET($c25)
+    csc $c18, $sp, (C17_OFFSET+CAP_SIZE)($c25)
 
     move $v0, $a0
     move $a0, $a1
@@ -114,9 +100,9 @@ ccall_real_4_second_strong:
     move $a2, $a3
     clearlo 0xff0b # keep four mips arg regs and v0
     clearhi 0xdfff # keep $sp for seal
-    cclearlo 0xffc0 # keep c0-c5
-    cclearhi 0x03ff # keep kernel cap regs and IDC
-    ccall   $c1, $c2, 0
+    cclearlo 0xfe06 # keep c0 c3-c8
+    cclearhi 0x07ff # keep kernel cap regs and IDC
+    ccall   $c6, $c7, 0
 
 	# Load register frame
     cgetdefault $c25
@@ -133,29 +119,30 @@ ccall_real_4_second_strong:
     ld $fp, 80($sp)
     ld $ra, 88($sp)
     clc $c17, $sp, C17_OFFSET($c25)
+    clc $c18, $sp, (C17_OFFSET+CAP_SIZE)($c25)
 
     jr  $ra
     daddiu  $sp, $sp, 128
-ccall_real_4_second_strong_end:
-	.size ccall_real_4_second_strong, ccall_real_4_second_strong_end - ccall_real_4_second_strong
-	.end ccall_real_4_second_strong
+ccall_real_4_strong_end:
+	.size ccall_real_4_strong, ccall_real_4_strong_end - ccall_real_4_strong
+	.end ccall_real_4_strong
 
 	.text
-	.global ccall_real_4_second_strong_r
-	.ent ccall_real_4_second_strong_r
-ccall_real_4_second_strong_r:
-    j ccall_real_4_second_strong
-    nop
-ccall_real_4_second_strong_r_end:
-	.size ccall_real_4_second_strong_r, ccall_real_4_second_strong_r_end - ccall_real_4_second_strong_r
-	.end ccall_real_4_second_strong_r
+	.global ccall_real_4_strong_r
+	.ent ccall_real_4_strong_r
+ccall_real_4_strong_r:
+    j ccall_real_4_strong
+    daddiu  $sp, $sp, -128
+ccall_real_4_strong_r_end:
+	.size ccall_real_4_strong_r, ccall_real_4_strong_r_end - ccall_real_4_strong_r
+	.end ccall_real_4_strong_r
 
 	.text
-	.global ccall_real_4_second_strong_c
-	.ent ccall_real_4_second_strong_c
-ccall_real_4_second_strong_c:
-    j ccall_real_4_second_strong
-    nop
-ccall_real_4_second_strong_c_end:
-	.size ccall_real_4_second_strong_c, ccall_real_4_second_strong_c_end - ccall_real_4_second_strong_c
-	.end ccall_real_4_second_strong_c
+	.global ccall_real_4_strong_c
+	.ent ccall_real_4_strong_c
+ccall_real_4_strong_c:
+    j ccall_real_4_strong
+    daddiu  $sp, $sp, -128
+ccall_real_4_strong_c_end:
+	.size ccall_real_4_strong_c, ccall_real_4_strong_c_end - ccall_real_4_strong_c
+	.end ccall_real_4_strong_c

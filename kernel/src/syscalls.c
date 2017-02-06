@@ -268,7 +268,7 @@ void kernel_ccall_fake(int cflags) {
 void kernel_creturn_fake(void) {
   	KERNEL_TRACE(__func__, "in %s", kernel_acts[kernel_curr_act].name);
 
-	__capability void *sync_token = kernel_exception_framep_ptr->cf_c12;
+	__capability void *sync_token = kernel_exception_framep_ptr->cf_c2;
 	if(sync_token == NULLCAP) {
 		/* Used by asynchronous primitives */
 		//act_wait(kernel_curr_act, 0);

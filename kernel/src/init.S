@@ -57,8 +57,8 @@ start:
 	# Expands to a list of the form
 	# csc	$creg, $0, offset*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     foreachi csave, 0, $kdc,					\
-        $c0, $c1, $c2, $c3, $c4, $c5, $c11, $c12, $c17,	\
-        $c25, $c26, $c27, $c31
+        $c0, $c1, $c2, $c3, $c4, $c5, $c6, $c7, $c8, $c17, $c18, \
+        $c25, $c27, $c31
 #$c10, $c11, $c12, $c13, $c14, $c15, $c16, $c17, $c18,	\
 #$c19, $c20, $c21, $c22, $c23, $c24, $c25, $c26, $c31
 	# Expands to a list of the form
@@ -128,8 +128,8 @@ start:
 	# Expands to a list of the form
 	# clc	$creg, $0, offset*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     foreachi crestore, 0, $kdc,                    \
-        $c0, $c1, $c2, $c3, $c4, $c5, $c11, $c12, $c17, \
-        $c25, $c26, $c27, $c31
+        $c0, $c1, $c2, $c3, $c4, $c5, $c6, $c7, $c8, $c17, $c18, \
+        $c25, $c27, $c31
 #$c10, $c11, $c12, $c13, $c14, $c15, $c16, $c17, $c18,   \
 #$c19, $c20, $c21, $c22, $c23, $c24, $c25, $c26, $c31
 

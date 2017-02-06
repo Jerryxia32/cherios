@@ -14,7 +14,7 @@ typedef struct
 
 	register_t v0;  /* method nb */
 	register_t v1;  /* syscall nb */
-	__capability void *c12;  /* token nb */
+	__capability void *c2;  /* token nb */
 	//void *     idc; /* identifier */
 }  msg_t;
 

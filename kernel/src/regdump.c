@@ -100,10 +100,11 @@ void regdump(int reg_num) {
 
 	REG_DUMP_C(c1); REG_DUMP_C(c2); kernel_printf("\n");
 
-	REG_DUMP_C(c3); REG_DUMP_C(c4); REG_DUMP_C(c5);  kernel_printf("\n");
-	//REG_DUMP_C(c6); REG_DUMP_C(c7); REG_DUMP_C(c8); REG_DUMP_C(c9); printf("\n");
+	REG_DUMP_C(c3); REG_DUMP_C(c4); REG_DUMP_C(c5);
+	REG_DUMP_C(c6); REG_DUMP_C(c7); REG_DUMP_C(c8); kernel_printf("\n");
+    //REG_DUMP_C(c9); printf("\n");
 
-	REG_DUMP_C(c11); REG_DUMP_C(c12); REG_DUMP_C(c17); kernel_printf("\n");
+	REG_DUMP_C(c17); REG_DUMP_C(c18); kernel_printf("\n");
     /*
 	REG_DUMP_C(c10); REG_DUMP_C(c11); REG_DUMP_C(c12); REG_DUMP_C(c13);
 	REG_DUMP_C(c14); REG_DUMP_C(c15); printf("\n");
@@ -114,7 +115,7 @@ void regdump(int reg_num) {
 	REG_DUMP_C(c22); REG_DUMP_C(c23); REG_DUMP_C(c24); REG_DUMP_C(c25); kernel_printf("\n");
      */
 
-	REG_DUMP_C(idc); creg = 31; REG_DUMP_C(pcc); kernel_printf("\n");
+	REG_DUMP_C(c25); creg = 31; REG_DUMP_C(pcc); kernel_printf("\n");
 }
 
 #else

@@ -70,6 +70,17 @@ enum {
     CAP_WRITE   = 9
 };
 
+/* Master counters */
+enum
+{
+    READ_REQ       = 0,
+    WRITE_REQ      = 1,
+    WRITE_REQ_FLIT = 2,
+    READ_RSP       = 3,
+    READ_RSP_FLIT  = 4,
+    WRITE_RSP      = 5
+};
+
 /* Assembly primitives to access the hardware counters */
 
 /* TODO the itlbmiss/dtlbmiss/cycle/inst counters are not reset with that */
@@ -135,6 +146,18 @@ DECLARE_GET_STAT_COUNTER(tagcache_write_miss,12,1);
 DECLARE_GET_STAT_COUNTER(tagcache_read_hit,12,2);
 DECLARE_GET_STAT_COUNTER(tagcache_read_miss,12,3);
 DECLARE_GET_STAT_COUNTER(tagcache_evict,12,6);
+DECLARE_GET_STAT_COUNTER(l2cachemaster_read_req,13,0);
+DECLARE_GET_STAT_COUNTER(l2cachemaster_write_req,13,1);
+DECLARE_GET_STAT_COUNTER(l2cachemaster_write_req_flit,13,2);
+DECLARE_GET_STAT_COUNTER(l2cachemaster_read_rsp,13,3);
+DECLARE_GET_STAT_COUNTER(l2cachemaster_read_rsp_flit,13,4);
+DECLARE_GET_STAT_COUNTER(l2cachemaster_write_rsp,13,5);
+DECLARE_GET_STAT_COUNTER(tagcachemaster_read_req,14,0);
+DECLARE_GET_STAT_COUNTER(tagcachemaster_write_req,14,1);
+DECLARE_GET_STAT_COUNTER(tagcachemaster_write_req_flit,14,2);
+DECLARE_GET_STAT_COUNTER(tagcachemaster_read_rsp,14,3);
+DECLARE_GET_STAT_COUNTER(tagcachemaster_read_rsp_flit,14,4);
+DECLARE_GET_STAT_COUNTER(tagcachemaster_write_rsp,14,5);
 
 /* statcounters_bank */
 #define MAX_MOD_CNT 10
@@ -149,6 +172,8 @@ typedef struct statcounters_bank
     uint64_t l2cache[MAX_MOD_CNT];
     uint64_t mipsmem[MAX_MOD_CNT];
     uint64_t tagcache[MAX_MOD_CNT];
+    uint64_t l2cachemaster[MAX_MOD_CNT];
+    uint64_t tagcachemaster[MAX_MOD_CNT];
 } statcounters_bank_t;
 
 // reset statcounters XXX this literally resets the hardware counters (allowed

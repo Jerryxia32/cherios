@@ -32,6 +32,8 @@
 .set MIPS_SZCAP, _MIPS_SZCAP
 .include "asm.S"
 
+.set CAP_SIZE, _MIPS_SZCAP/8
+
 #
 # Capability-aware exception handler.
 #
@@ -211,14 +213,14 @@ kernel_cp2_ccall_handler:
         li  $k1, 5
         bne $k0, $k1, kernel_cp2_creturn
         nop
-        cmove $c1, $epcc
         cgetdefault   $c2
-        # put the stack pointer in the offset of c12, which is saved by callee
         csetoffset  $c2, $c2, $sp
-        cseal $c1, $c1, $c8 # c8 is the sealing tool
-        cseal $c2, $c2, $c8
-        # immediately clear c8 after using it
-        cfromptr    $c8, $c8, $0
+        csc $epcc, $0, 0($kr1c)
+        csc $c2, $0, CAP_SIZE($kr1c)
+        cfromptr    $c2, $c2, $0
+        li  $k0, 3*CAP_SIZE
+        cincoffset  $kr1c, $kr1c, $k0
+
         cgettype    $k0, $c6
         csetoffset  $kdc, $kdc, $k0
         cunseal $epcc, $c6, $kdc
@@ -243,13 +245,13 @@ kernel_cp2_creturn:
      */
     clearlo 0xfff3 // keep v0, v1 for return values
     clearhi 0x0f00 // clear t8, t9, k0, k1
-    cclearlo 0xff37 // keep c3, c6, c7
-    cclearhi 0x1ff9 // don't clear c17, c18 as it's callee save, don't clear kernel
+    cclearlo 0xfff7 // keep c3
+    cclearhi 0x17f9 // don't clear c17, c18 as it's callee save, don't clear kernel and kr1c
 
-        cgettype    $k0, $c6
-        csetoffset  $kdc, $kdc, $k0
-        cunseal $epcc, $c6, $kdc
-        cunseal $c7, $c7, $kdc
+        li  $k0, -3*CAP_SIZE
+        cincoffset  $kr1c, $kr1c, $k0
+        clc $epcc, $0, 0($kr1c)
+        clc $c7, $0, CAP_SIZE($kr1c)
         # extract the stack pointer of the caller
         cgetoffset  $sp, $c7
         csetoffset  $c7, $c7, $0

@@ -61,17 +61,10 @@ mutex_loop:
     li  $t2, 1
     sc  $t2, 0($t0)
     beq $t2, $0, mutex_loop
-
-    /*
-     * save the caller sealed PCC and IDC
-     */
-    cgetdefault $c6 # in branch delay slot
-    daddiu  $sp, $sp, -3*CAP_SIZE
-    csc $c1, $sp, 0($c6)
-    csc $c2, $sp, CAP_SIZE($c6)
+    nop
 
 	bltz		$v0, control_ccall
-	nop
+    daddiu  $sp, $sp, -CAP_SIZE
 
 	dla		$t0, msg_methods
 	dla		$t1, msg_methods_nb
@@ -88,13 +81,13 @@ call_ccall:
 	blez		$t1, overflow_ccall
 	nop
 
-    sd  $ra, 2*CAP_SIZE($sp)
+    sd  $ra, 0($sp)
 	sll		$v0, $v0, REG_SIZE_BITS
 	add		$t0, $t0, $v0
 	ld		$t9, 0($t0)
 	jalr    $t9
 	nop
-    ld  $ra, 2*CAP_SIZE($sp)
+    ld  $ra, 0($sp)
     b   end_ccall
 	nop
 
@@ -105,17 +98,10 @@ overflow_ccall:
 	move		$v1, $0
 
 end_ccall:
-    /*
-     * restore the caller sealed PCC and IDC
-     */
-    cgetdefault $c1
-    clc $c6, $sp, 0($c1)
-    clc $c7, $sp, CAP_SIZE($c1)
-
     # release lock
     dla $t0, mutex
     sw  $0, 0($t0)
-    daddiu  $sp, $sp, 3*CAP_SIZE
+    daddiu  $sp, $sp, CAP_SIZE
 
     creturn
 

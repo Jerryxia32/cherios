@@ -70,8 +70,11 @@ static void * init_act_create(const char * name, __capability void * c0, __capab
 	/* set stack */
 	frame.mf_sp	= (size_t)stack + 0x10000;
 
+    /* set up per activation trusted stack */
+    frame.cf_kr1c = cheri_setbounds(cheri_setoffset(c0, frame.mf_sp), 0x1000);
+
 	/* set c0 */
-    frame.cf_c0 = c0;
+    frame.cf_c0 = cheri_setbounds(c0, frame.mf_sp);
 
 	/* set cap */
 	frame.cf_c17	= act_cap;

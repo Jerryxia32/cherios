@@ -101,7 +101,7 @@ ccall_real_4_strong:
     clearlo 0xff0b # keep four mips arg regs and v0
     clearhi 0xdfff # keep $sp for seal
     cclearlo 0xfe06 # keep c0 c3-c8
-    cclearhi 0x07ff # keep kernel cap regs and IDC
+    cclearhi 0x07ff # keep kernel cap regs
     ccall   $c6, $c7, 0
 
 	# Load register frame

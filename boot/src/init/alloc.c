@@ -62,8 +62,8 @@ static __capability void *init_alloc_core(size_t s) {
 	}
     __capability void *p = cheri_getdefault();
     p = cheri_setoffset(p, (size_t)pool_next);
-    p = cheri_setbounds(p, s);
 	pool_next = align_upwards(pool_next+s, 4096);
+    p = cheri_setbounds(p, (size_t)pool_next - cheri_getoffset(p));
 	return p;
 }
 

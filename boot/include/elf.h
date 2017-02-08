@@ -107,4 +107,4 @@ typedef struct {
    image.  if provided, it also sets the min and max addresses touched
    by the loader, and the entry point.
  */
-__capability void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, size_t *entry);
+__capability void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, size_t *entry, int kernelMode);

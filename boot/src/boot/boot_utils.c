@@ -72,7 +72,7 @@ void load_kernel() {
 	extern u8 __kernel_elf_start, __kernel_elf_end;
 	size_t minaddr, maxaddr, entry;
 	__capability char *prgmp = elf_loader_mem(&env, &__kernel_elf_start,
-				     &minaddr, &maxaddr, &entry);
+				     &minaddr, &maxaddr, &entry, 1);
 
 	if(!prgmp) {
 		boot_printf(KRED"Could not load kernel file"KRST"\n");
@@ -106,7 +106,6 @@ err:
 }
 
 #define	INIT_STACK_SIZE	0x10000
-#define	PAGE_ALIGN	0x1000L
 
 static void *make_aligned_data_addr(const char *start) {
 	size_t desired_ofs = ((size_t)start + PAGE_ALIGN);
@@ -128,7 +127,7 @@ boot_info_t *load_init() {
 
 	// FIXME: init is direct mapped for now
 	__capability char *prgmp = elf_loader_mem(&env, &__init_elf_start,
-				     &minaddr, &maxaddr, &entry);
+				     &minaddr, &maxaddr, &entry, 1);
 
 	if(!prgmp) {
 		boot_printf(KRED"Could not load init file"KRST"\n");

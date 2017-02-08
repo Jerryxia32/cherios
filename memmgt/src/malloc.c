@@ -138,7 +138,10 @@ malloc_core(size_t nbytes)
 	nextf[bucket] = op->ov_next;
 	op->ov_magic = MAGIC;
 	op->ov_index = bucket;
-	return cheri_setbounds(op + 1, nbytes);
+	//return cheri_setbounds(op + 1, nbytes);
+    op += 1;
+	void __capability *ret = cheri_setbounds(op, (1<<(bucket+3)) - MALLOC_HEADER_SIZE);
+    return ret;
 }
 
 __capability void *

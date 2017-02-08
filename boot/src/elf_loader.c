@@ -137,7 +137,7 @@ static inline Elf64_Phdr *elf_segment(Elf64_Ehdr *hdr, int idx) {
 
 /* not secure */
 
-__capability void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, size_t *entry) {
+__capability void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, size_t *entry, int kernelMode) {
 	//char *addr = (char *)p;
     __capability char *addr = cheri_getdefault();
     addr = cheri_setoffset(addr, (size_t)p);
@@ -171,11 +171,27 @@ __capability void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t
 		}
 	}
 
-	__capability char *prgmp = env->alloc(allocsize + 0x12000); //over provision for a 64KiB stack
-	if(!prgmp) {
-		ERROR("alloc failed");
-		return NULL;
-	}
+    char __capability *prgmp;
+    if(kernelMode == 0) {
+        prgmp = env->alloc(allocsize + MODULE_STACK_SIZE + 2*PAGE_ALIGN); //over provision for a 64KiB stack and a 4KiB trusted stack
+
+        /*
+         * bump to the next page alignment so that pcc and idc could be page aligned
+         */
+        size_t thePointer = cheri_getbase(prgmp) + cheri_getoffset(prgmp);
+        thePointer += PAGE_ALIGN;
+        thePointer &= ~(PAGE_ALIGN - 1);
+        thePointer -= cheri_getbase(prgmp);
+        prgmp = cheri_setoffset(prgmp, thePointer);
+        size_t newBound = cheri_getlen(prgmp) - cheri_getoffset(prgmp);
+        prgmp = cheri_setbounds(prgmp, newBound);
+    } else {
+        prgmp = env->alloc(allocsize);
+    }
+    if(!prgmp) {
+        ERROR("alloc failed");
+        return NULL;
+    }
 
 	TRACE("Allocated %lx bytes of target memory", allocsize);
 
@@ -189,7 +205,7 @@ __capability void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t
 			      seg->p_filesz);
 		}
 	}
-	env->free(addr);
+	//env->free(addr);
 
 	if(minaddr)	*minaddr = lowaddr;
 	if(maxaddr)	*maxaddr = allocsize;

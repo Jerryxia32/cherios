@@ -68,13 +68,16 @@ static void * init_act_create(const char * name, __capability void * c0, __capab
 	frame.mf_pc	= cheri_getoffset(pcc);
 
 	/* set stack */
-	frame.mf_sp	= (size_t)stack + 0x10000;
+	frame.mf_sp	= (size_t)stack;
 
     /* set up per activation trusted stack */
-    frame.cf_kr1c = cheri_setbounds(cheri_setoffset(c0, frame.mf_sp), 0x1000);
+    void __capability *temp = cheri_getdefault();
+    temp = cheri_andperm(temp, cheri_getperm(c0));
+    temp = cheri_setoffset(temp, cheri_getbase(c0) - PAGE_ALIGN + MALLOC_HEADER_SIZE);
+    frame.cf_kr1c = cheri_setbounds(temp, PAGE_ALIGN - MALLOC_HEADER_SIZE);
 
 	/* set c0 */
-    frame.cf_c0 = cheri_setbounds(c0, frame.mf_sp);
+    frame.cf_c0 = c0;
 
 	/* set cap */
 	frame.cf_c17	= act_cap;
@@ -166,14 +169,12 @@ static __capability void * elf_loader(Elf_Env *env, const char * file, size_t *m
 		printf("Could not read file %s", file);
 		return NULLCAP;
 	}
-	return elf_loader_mem(env, addr, NULL, maxaddr, entry);
+	return elf_loader_mem(env, addr, NULL, maxaddr, entry, 0);
 }
 
 static __capability void *init_memcpy(__capability void *dest, const __capability void *src, size_t n) {
 	return memcpy_c(dest, src, n);
 }
-
-#define	PAGE_ALIGN	0x1000L
 
 static void *make_aligned_data_addr(const char *start) {
 	size_t desired_ofs = ((size_t)start + PAGE_ALIGN);
@@ -208,10 +209,10 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 	//prgmp += entry;
 
     /* Make the stack pointer cap size aligned */
-	void * stack = (void *)((size_t)make_aligned_data_addr((void *)allocsize) - (cheri_getbase(prgmp) & (_MIPS_SZCAP/8 - 1)));
+	void * stack = (void *)(cheri_getlen(prgmp) - 2*_MIPS_SZCAP/8);
     printf(KWHT"Stack bottom at %p"KRST"\n", stack);
 	__capability void * pcc = cheri_getpcc();
-	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), allocsize);
+	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), (allocsize + PAGE_ALIGN) & ~(PAGE_ALIGN-1));
 	pcc = cheri_incoffset(pcc, entry);
 	pcc = cheri_andperm(pcc, (CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
 				  | CHERI_PERM_LOAD_CAP));

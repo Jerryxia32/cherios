@@ -44,6 +44,8 @@
 #.endif
 
 .set REG_SIZE_BITS, 3
+.set CAP_SIZE, _MIPS_SZCAP/8
+.set MUTEX_ADDR, 0x100
 
 # Dispatch CCalls
 
@@ -51,7 +53,7 @@
 	.global msg_entry
 	.ent msg_entry
 msg_entry:
-    dla $t0, mutex
+    li $t0, MUTEX_ADDR
 mutex_loop:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
@@ -106,7 +108,7 @@ end:
 	clc		$c2, $t1, 0($c1)
 
     # release lock
-    dla $t0, mutex
+    li $t0, MUTEX_ADDR
     sw  $0, 0($t0)
 
     li $v1, 1010
@@ -120,9 +122,135 @@ msg_entry_end:
 	.end msg_entry
 	.size msg_entry, msg_entry_end - msg_entry
 
-    .data
-    .global mutex
-mutex:
-    .skip (1<<(REG_SIZE_BITS-1)), 0
-mutex_end:
-    .size mutex, mutex_end - mutex
+#    .data
+#    .global mutex
+#mutex:
+#    .skip (1<<(REG_SIZE_BITS-1)), 0
+#mutex_end:
+#    .size mutex, mutex_end - mutex
+
+	.text
+	.global msg_entry_loopback
+	.ent msg_entry_loopback
+msg_entry_loopback:
+    move    $v0, $a0
+    move    $a0, $a1
+    move    $a1, $a2
+    move    $a2, $a3
+    li $t0, MUTEX_ADDR
+mutex_loop_loopback:
+    # mutex to prevent module from receiving another message while still
+    # processing the previous one
+    ll  $t1, 0($t0)
+    bne $t1, $0, mutex_loop_loopback
+    li  $t2, 1
+    sc  $t2, 0($t0)
+    beq $t2, $0, mutex_loop_loopback
+    nop
+
+	bltz		$v0, control_loopback
+	nop
+
+	dla		$t0, msg_methods
+	dla		$t1, msg_methods_nb
+    b		call_loopback
+	nop
+
+control_loopback:
+	dla		$t0, ctrl_methods
+	dla		$t1, ctrl_methods_nb
+	sub		$v0, $0, $v0
+call_loopback:
+	ld		$t1, 0($t1)
+	sub		$t1, $t1, $v0
+	blez		$t1, overflow_loopback
+	nop
+
+    daddiu  $sp, $sp, -32
+    sd  $ra, 0($sp)
+	sll		$v0, $v0, REG_SIZE_BITS
+	add		$t0, $t0, $v0
+	ld		$t9, 0($t0)
+	jalr    $t9
+	nop
+    b		end_loopback
+	nop
+
+overflow_loopback:
+	move		$v0, $0
+    cfromptr	$c3, $c3, $0
+    b		end_loopback
+	move		$v1, $0
+
+end_loopback:
+    # release lock
+    ld  $ra, 0($sp)
+    li $t0, MUTEX_ADDR
+    sw  $0, 0($t0)
+    jr  $ra
+    daddiu  $sp, $sp, 32
+
+msg_entry_end_loopback:
+	.end msg_entry_loopback
+	.size msg_entry_loopback, msg_entry_end_loopback - msg_entry_loopback
+
+	.text
+	.global msg_entry_ccall
+	.ent msg_entry_ccall
+msg_entry_ccall:
+    li $t0, MUTEX_ADDR
+mutex_loop_ccall:
+    # mutex to prevent module from receiving another message while still
+    # processing the previous one
+    ll  $t1, 0($t0)
+    bne $t1, $0, mutex_loop_ccall
+    li  $t2, 1
+    sc  $t2, 0($t0)
+    beq $t2, $0, mutex_loop_ccall
+    nop
+
+	bltz		$v0, control_ccall
+    daddiu  $sp, $sp, -CAP_SIZE
+
+	dla		$t0, msg_methods
+	dla		$t1, msg_methods_nb
+    b   call_ccall
+	nop
+
+control_ccall:
+	dla		$t0, ctrl_methods
+	dla		$t1, ctrl_methods_nb
+	sub		$v0, $0, $v0
+call_ccall:
+	ld		$t1, 0($t1)
+	sub		$t1, $t1, $v0
+	blez		$t1, overflow_ccall
+	nop
+
+    sd  $ra, 0($sp)
+	sll		$v0, $v0, REG_SIZE_BITS
+	add		$t0, $t0, $v0
+	ld		$t9, 0($t0)
+	jalr    $t9
+	nop
+    ld  $ra, 0($sp)
+    b   end_ccall
+	nop
+
+overflow_ccall:
+	move		$v0, $0
+    cfromptr	$c3, $c3, $0
+    b   end_ccall
+	move		$v1, $0
+
+end_ccall:
+    # release lock
+    li $t0, MUTEX_ADDR
+    sw  $0, 0($t0)
+    daddiu  $sp, $sp, CAP_SIZE
+
+    creturn
+
+msg_entry_ccall_end:
+	.end msg_entry_ccall
+	.size msg_entry_ccall, msg_entry_ccall_end - msg_entry_ccall

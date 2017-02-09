@@ -11,8 +11,6 @@ set(LIB_SRCS
 set(LIBUSER_ASM_SRCS
     src/init.S
     src/msg.S
-    src/msg_ccall.S
-    src/msg_loopback.S
     src/object.S
 )
 

@@ -98,7 +98,7 @@ static aid_t sched_picknext(void) {
 	return squeue_a[squeue_a_idx];
 }
 
-void sched_reschedule(aid_t hint) {
+aid_t sched_reschedule(aid_t hint) {
 	#ifdef __TRACE__
 	size_t old_kernel_curr_act = kernel_curr_act;
 	#endif
@@ -123,4 +123,6 @@ void sched_reschedule(aid_t hint) {
 	KERNEL_TRACE("sched", "Reschedule from task '%s-%ld' to task '%s-%ld'",
 	        kernel_acts[old_kernel_curr_act].name, old_kernel_curr_act,
 	        kernel_acts[kernel_curr_act].name, kernel_curr_act);
+
+    return hint;
 }

@@ -58,7 +58,21 @@ void kernel_timer(void)
 	/*
 	 * Forced context switch of user process.
 	 */
-	sched_reschedule(0);
+	aid_t hint = sched_reschedule(0);
+    
+    /*
+     * Scan the context's trusted stack to check for expired ccalls.
+     * hint 1 is init which doesn't need a trusted stack
+     */
+    if(hint > 1) {
+        void __capability *tStack;
+        __asm__ __volatile__ ("cmove %0, $kr1c" : "=C" (tStack));
+
+        // scan and pop the stack
+
+        // reinstall kr1c
+        __asm__ __volatile__ ("cmove $kr1c, %0" : : "C" (tStack));
+    }
 
 	/*
 	 * Reschedule timer for a future date -- if we've almost missed a

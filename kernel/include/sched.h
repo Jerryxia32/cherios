@@ -32,7 +32,7 @@
 #ifndef _CHERIOS_SCHED_H_
 #define	_CHERIOS_SCHED_H_
 
-void	sched_reschedule(aid_t hint);
+aid_t	sched_reschedule(aid_t hint);
 
 void	sched_create(aid_t act);
 void	sched_delete(aid_t act);

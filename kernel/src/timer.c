@@ -65,8 +65,7 @@ void kernel_timer(void)
      * hint 1 is init which doesn't need a trusted stack
      */
     if(hint > 1) {
-        void __capability *tStack;
-        __asm__ __volatile__ ("cmove %0, $kr1c" : "=C" (tStack));
+        void __capability *tStack = cheri_getkr1c();
 
         // scan and pop the stack
 
@@ -88,6 +87,6 @@ void kernel_timer(void)
 
 	kernel_last_timer = next_timer;
      */
-	kernel_last_timer = TMOD(kernel_last_timer + TIMER_INTERVAL);
+	kernel_last_timer = TMOD(cp0_count_get() + TIMER_INTERVAL);
 	cp0_compare_set(kernel_last_timer);	//Also clears pending interrupt.
 }

@@ -33,6 +33,7 @@
 .set REG_SIZE, 64/8
 .set MIPS_FRAME_SIZE, 32*REG_SIZE
 .set noat
+.set noreorder
 
 #
 # Capability-aware exception handler.
@@ -55,10 +56,9 @@
 		.global kernel_exception_trampoline
 		.ent kernel_exception_trampoline
 kernel_exception_trampoline:
-        csetoffset  $kdc, $kdc, $0
 		dla	$k0, kernel_cp2_exception_handler
 		jr	$k0
-        nop
+        csetoffset  $kdc, $kdc, $0
 kernel_exception_trampoline_end:
 		nop
 		.global kernel_exception_trampoline_end
@@ -71,7 +71,7 @@ kernel_exception_trampoline_end:
 kernel_ccall_trampoline:
 		dla	$k0, kernel_cp2_ccall_handler
 		jr	$k0
-        nop
+        li  $k1, 5
 kernel_ccall_trampoline_end:
 		nop
 		.global kernel_ccall_trampoline_end
@@ -253,7 +253,6 @@ kernel_cp2_ccall_handler:
 		#
         cgetcause   $k0
         srl $k0, $k0, 8
-        li  $k1, 5
         bne $k0, $k1, kernel_cp2_creturn
         nop
         cgetdefault   $c2

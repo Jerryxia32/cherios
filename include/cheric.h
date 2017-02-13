@@ -95,8 +95,8 @@
 
 #define	cheri_getdefault()	__builtin_cheri_get_global_data_cap()
 #define	cheri_getidc()		__builtin_cheri_get_invoke_data_cap()
-#define	cheri_getkr0c()		__builtin_cheri_get_kernel_cap1()
-#define	cheri_getkr1c()		__builtin_cheri_get_kernel_cap2()
+#define	cheri_getkr1c()		__builtin_cheri_get_kernel_cap1()
+#define	cheri_getkr2c()		__builtin_cheri_get_kernel_cap2()
 #define	cheri_getkcc()		__builtin_cheri_get_kernel_code_cap()
 #define	cheri_getkdc()		__builtin_cheri_get_kernel_data_cap()
 #define	cheri_getepcc()		__builtin_cheri_get_exception_program_counter_cap()

@@ -72,17 +72,18 @@ start:
 
 	# Implement W^X for pointers: trim store permissions from $pcc to
 	# prevent it from becoming writable in the future.
-	cgetpcc		$c12
+	cgetpcc		$c3
 	dli		$t0, ~((1<<3) | (1<<5))
-	candperm	$c12, $c12, $t0
+	candperm	$c3, $c3, $t0
 
 	# Jump to write-free $pcc.
 	dla		$t0, cherios_init_jump_target
-	csetoffset	$c12, $c12, $t0
-	cjr		$c12
-	nop
+	csetoffset	$c3, $c3, $t0
+	cjr		$c3
+    nop
 cherios_init_jump_target:
 
+    cfromptr    $c3, $c3, $0 # clear c3 after the previous jump
 	# Populate exception registers: $kdc and $kcc
     cgetpcc		$c29
     cgetdefault	$c30

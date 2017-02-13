@@ -132,7 +132,6 @@ set(ASMC_COMPILER_FLAGS
 )
 set(ASM_COMPILER_FLAGS
     ${ASMC_COMPILER_FLAGS}
-    -mllvm -asm-macro-max-nesting-depth=100
 )
 set(C_COMPILER_FLAGS
     ${ASMC_COMPILER_FLAGS}

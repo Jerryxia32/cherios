@@ -31,7 +31,7 @@
 INCLUDE "mips.ld"
 
 __kernel_load_physaddr =   0x080000;
-__init_load_physaddr   =   0x0c0000;
+__init_load_physaddr   =   0x0d0000;
 __boot_load_physaddr   =   0x100000;
 
 __kernel_load_virtaddr = __cached_base + __kernel_load_physaddr;

@@ -97,7 +97,7 @@ __capability void *malloc_c(size_t length) {
 		memmgt_PCC = namespace_get_PCC(3);
 		memmgt_IDC  = namespace_get_IDC(3);
 	}
-	return ccall_real_4_c(0, length, 0, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, act_self_cap);
+	return ccall_real_4_c(0, length, 0, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, NULLCAP);
 }
 
 __capability void *calloc_c(size_t items, size_t length) {
@@ -105,7 +105,7 @@ __capability void *calloc_c(size_t items, size_t length) {
 		memmgt_PCC = namespace_get_PCC(3);
 		memmgt_IDC  = namespace_get_IDC(3);
 	}
-	return ccall_real_4_c(1, items, length, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, act_self_cap);
+	return ccall_real_4_c(1, items, length, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, NULLCAP);
 }
 
 __capability void *realloc_c(__capability void *ptr, size_t length) {
@@ -113,7 +113,7 @@ __capability void *realloc_c(__capability void *ptr, size_t length) {
 		memmgt_PCC = namespace_get_PCC(3);
 		memmgt_IDC  = namespace_get_IDC(3);
 	}
-	return ccall_real_4_c(2, length, 0, 0, ptr, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, act_self_cap);
+	return ccall_real_4_c(2, length, 0, 0, ptr, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, NULLCAP);
 }
 
 void free_c(__capability void *ptr) {
@@ -121,7 +121,7 @@ void free_c(__capability void *ptr) {
 		memmgt_PCC = namespace_get_PCC(3);
 		memmgt_IDC  = namespace_get_IDC(3);
 	}
-	ccall_real_4_c(3, 0, 0, 0, ptr, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, act_self_cap);
+	ccall_real_4_c(3, 0, 0, 0, ptr, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, NULLCAP);
 }
 
 __capability void *malloc_c_c(size_t length) {
@@ -129,7 +129,7 @@ __capability void *malloc_c_c(size_t length) {
 		memmgt_PCC = namespace_get_PCC(3);
 		memmgt_IDC  = namespace_get_IDC(3);
 	}
-	return ccall_real_4_c(4, length, 0, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, act_self_cap);
+	return ccall_real_4_c(4, length, 0, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, NULLCAP);
 }
 
 __capability void *calloc_c_c(size_t items, size_t length) {
@@ -137,7 +137,7 @@ __capability void *calloc_c_c(size_t items, size_t length) {
 		memmgt_PCC = namespace_get_PCC(3);
 		memmgt_IDC  = namespace_get_IDC(3);
 	}
-	return ccall_real_4_c(5, items, length, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, act_self_cap);
+	return ccall_real_4_c(5, items, length, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, NULLCAP);
 }
 #endif /* MALLOC_FASTPATH */
 

@@ -41,10 +41,13 @@
 
 #if _MIPS_SZCAP == 256
 	#define _CHERI256_
+    #define CAP_SIZE 32
 #elif _MIPS_SZCAP == 128
 	#define _CHERI128_
+    #define CAP_SIZE 16
 #elif _MIPS_SZCAP == 64
 	#define _CHERI64_
+    #define CAP_SIZE 8
 #else
 	#error Unknown capability size
 #endif

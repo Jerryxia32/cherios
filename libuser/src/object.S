@@ -43,9 +43,10 @@
 	.text
 	.ent ccall_real_4
 ccall_real_4:
-    move $a0, $a1
-    move $a1, $a2
-    move $a2, $a3
+    move $v1, $a1
+    move $a0, $a2
+    move $a1, $a3
+    move $a2, $a4
     ccall   $c6, $c7, 0
     jr  $ra
     nop
@@ -95,10 +96,11 @@ ccall_real_4_strong:
     csc $c18, $sp, (C17_OFFSET+CAP_SIZE)($c25)
 
     move $v0, $a0
-    move $a0, $a1
-    move $a1, $a2
-    move $a2, $a3
-    clearlo 0xff0b # keep four mips arg regs and v0
+    move $v1, $a1
+    move $a0, $a2
+    move $a1, $a3
+    move $a2, $a4
+    clearlo 0xff03 # keep four mips arg regs and v0, v1
     clearhi 0xdfff # keep $sp for seal
     cclearlo 0xfe06 # keep c0 c3-c8
     cclearhi 0x07ff # keep kernel cap regs

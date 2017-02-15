@@ -59,18 +59,50 @@ void kernel_timer(void)
 	 * Forced context switch of user process.
 	 */
 	aid_t hint = sched_reschedule(0);
-    
+
     /*
      * Scan the context's trusted stack to check for expired ccalls.
      * hint 1 is init which doesn't need a trusted stack
      */
     if(hint > 1) {
-        void __capability *tStack = cheri_getkr1c();
+        capability __capability *oriStack = kernel_exception_framep_ptr->cf_kr1c;
+        capability __capability *tStack = cheri_setoffset(oriStack, 0);
 
         // scan and pop the stack
+        while(tStack < oriStack) {
+            //check if the current frame expires
+            int32_t __capability *lastTimep = (int32_t __capability *)((char __capability *)tStack + 2*CAP_SIZE + sizeof(register_t));
+            int64_t __capability *remainTimep = (int64_t __capability *)((char __capability *)tStack + 2*CAP_SIZE);
+            int32_t elapsed = cp0_count_get() - *lastTimep;
+            *lastTimep += elapsed;
+            *remainTimep -= elapsed;
+
+            // timeout reached, force return
+            if(*remainTimep <= 0) {
+                //kernel_printf(KRED"CCall expired in %s, force pop."KRST"\n", kernel_acts[hint].name);
+
+                // first, release the current callee mutex
+                *((int __capability *)kernel_exception_framep_ptr->cf_c0 + 0x100/sizeof(int)) = 0;
+
+                kernel_exception_framep_ptr->cf_pcc = *tStack;
+                kernel_exception_framep_ptr->mf_pc = cheri_getoffset(*tStack);
+                void __capability *theC0 = *(tStack + 1);
+                kernel_exception_framep_ptr->mf_sp = cheri_getoffset(theC0);
+                kernel_exception_framep_ptr->cf_c0 = cheri_setoffset(theC0, 0);
+                
+                // release all held mutexes
+                for(size_t theOffset = 3; tStack + theOffset < oriStack; theOffset += 3) {
+                    *(int __capability *)cheri_setoffset(*(tStack + theOffset + 1), 0x100) = 0;
+                }
+                break;
+            }
+
+            //check the next
+            tStack += 3;
+        }
 
         // reinstall kr1c
-        __asm__ __volatile__ ("cmove $kr1c, %0" : : "C" (tStack));
+        kernel_exception_framep_ptr->cf_kr1c = tStack;
     }
 
 	/*

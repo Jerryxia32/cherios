@@ -45,8 +45,26 @@ void	cp0_status_im_disable(int mask);
 register_t	cp0_cause_excode_get(void);
 register_t	cp0_cause_ipending_get(void);
 void		cp0_cause_set(register_t cause);
-register_t	cp0_count_get(void);
-void	cp0_compare_set(register_t compare);
+/*
+ * Routines for managing the CP0 count and compare registers, used to
+ * implement cycle counting and timers.
+ */
+inline register_t
+cp0_count_get(void)
+{
+	register_t count;
+
+	__asm__ __volatile__ ("dmfc0 %0, $9" : "=r" (count));
+	return (count & 0xFFFFFFFF);
+}
+
+inline void
+cp0_compare_set(register_t compare)
+{
+
+	__asm__ __volatile__ ("dmtc0 %0, $11" : : "r" (compare));
+}
+
 
 static inline register_t
 cp0_status_get(void)

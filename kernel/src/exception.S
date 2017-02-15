@@ -257,8 +257,13 @@ kernel_cp2_ccall_handler:
         nop
         cgetdefault   $c2
         csetoffset  $c2, $c2, $sp
+        li  $k0, 4
+        cincoffset  $epcc, $epcc, $k0
         csc $epcc, $0, 0($kr1c)
         csc $c2, $0, CAP_SIZE($kr1c)
+        dmfc0   $k0, $9 # read the current count register
+        csd $v1, $0, 2*CAP_SIZE($kr1c)
+        csw $k0, $0, 2*CAP_SIZE+REG_SIZE($kr1c)
         cfromptr    $c2, $c2, $0
         li  $k0, 3*CAP_SIZE
         cincoffset  $kr1c, $kr1c, $k0
@@ -299,7 +304,6 @@ kernel_cp2_creturn:
         csetoffset  $c7, $c7, $0
         csetdefault $c7
         cgetoffset  $k0, $epcc
-        daddiu  $k0, $k0, 4
 		dmtc0	$k0, $14		# EPC
 		eret
 

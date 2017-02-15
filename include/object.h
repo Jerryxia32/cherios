@@ -77,19 +77,19 @@ ret_t ccall_4(void * cb, void * cs, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const __capability void * carg1, const __capability void * carg2, const __capability void * carg3);
 
-register_t ccall_real_4_r(int method_nb,
+register_t ccall_real_4_r(int method_nb, int64_t timeoutCycle,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
                   const __capability void * carg1, const __capability void * carg2, const __capability void * carg3, __capability void *PCC, __capability void *IDC, __capability void *sealing_tool);
 
-__capability void *ccall_real_4_c(int method_nb,
+__capability void *ccall_real_4_c(int method_nb, int64_t timeoutCycle,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
                   const __capability void * carg1, const __capability void * carg2, const __capability void * carg3, __capability void *PCC, __capability void *IDC, __capability void *sealing_tool);
 
-register_t ccall_real_4_strong_r(int method_nb,
+register_t ccall_real_4_strong_r(int method_nb, int64_t timeoutCycle,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
                   const __capability void * carg1, const __capability void * carg2, const __capability void * carg3, __capability void *PCC, __capability void *IDC, __capability void *sealing_tool);
 
-__capability void *ccall_real_4_strong_c(int method_nb,
+__capability void *ccall_real_4_strong_c(int method_nb, int64_t timeoutCycle,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
                   const __capability void * carg1, const __capability void * carg2, const __capability void * carg3, __capability void *PCC, __capability void *IDC, __capability void *sealing_tool);
 

@@ -84,6 +84,10 @@ void kernel_timer(void)
                 // first, release the current callee mutex
                 *((int __capability *)kernel_exception_framep_ptr->cf_c0 + 0x100/sizeof(int)) = 0;
 
+                // the callee failed to meet timing, clear almost all registers.
+                for(size_t i=0; i<(sizeof(register_t)*32 + CAP_SIZE*12)/CAP_SIZE; i++) {
+                    *((capability __capability *)kernel_exception_framep_ptr + i) = NULLCAP;
+                } 
                 kernel_exception_framep_ptr->cf_pcc = *tStack;
                 kernel_exception_framep_ptr->mf_pc = cheri_getoffset(*tStack);
                 void __capability *theC0 = *(tStack + 1);

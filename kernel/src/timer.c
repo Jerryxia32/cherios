@@ -59,13 +59,15 @@ void kernel_timer(void)
 	 * Forced context switch of user process.
 	 */
 	aid_t hint = sched_reschedule(0);
+	//aid_t hint = kernel_curr_act;
 
     /*
      * Scan the context's trusted stack to check for expired ccalls.
      * hint 1 is init which doesn't need a trusted stack
      */
     if(hint > 1) {
-        capability __capability *oriStack = kernel_exception_framep_ptr->cf_kr1c;
+        struct reg_frame __capability *kernel_exception_framep_cap = (struct reg_frame __capability *)kernel_exception_framep_ptr;
+        capability __capability *oriStack = kernel_exception_framep_cap->cf_kr1c;
         capability __capability *tStack = cheri_setoffset(oriStack, 0);
 
         // scan and pop the stack
@@ -82,17 +84,17 @@ void kernel_timer(void)
                 //kernel_printf(KRED"CCall expired in %s, force pop."KRST"\n", kernel_acts[hint].name);
 
                 // first, release the current callee mutex
-                *((int __capability *)kernel_exception_framep_ptr->cf_c0 + 0x100/sizeof(int)) = 0;
+                *((int __capability *)kernel_exception_framep_cap->cf_c0 + 0x100/sizeof(int)) = 0;
 
                 // the callee failed to meet timing, clear almost all registers.
-                for(size_t i=0; i<(sizeof(register_t)*32 + CAP_SIZE*12)/CAP_SIZE; i++) {
-                    *((capability __capability *)kernel_exception_framep_ptr + i) = NULLCAP;
+                for(size_t i=0; i<(REG_SIZE*32 + CAP_SIZE*12)/CAP_SIZE; i++) {
+                    *((capability __capability *)kernel_exception_framep_cap + i) = NULLCAP;
                 } 
-                kernel_exception_framep_ptr->cf_pcc = *tStack;
-                kernel_exception_framep_ptr->mf_pc = cheri_getoffset(*tStack);
+                kernel_exception_framep_cap->cf_pcc = *tStack;
+                kernel_exception_framep_cap->mf_pc = cheri_getoffset(*tStack);
                 void __capability *theC0 = *(tStack + 1);
-                kernel_exception_framep_ptr->mf_sp = cheri_getoffset(theC0);
-                kernel_exception_framep_ptr->cf_c0 = cheri_setoffset(theC0, 0);
+                kernel_exception_framep_cap->mf_sp = cheri_getoffset(theC0);
+                kernel_exception_framep_cap->cf_c0 = cheri_setoffset(theC0, 0);
                 
                 // release all held mutexes
                 for(size_t theOffset = 3; tStack + theOffset < oriStack; theOffset += 3) {
@@ -106,7 +108,7 @@ void kernel_timer(void)
         }
 
         // reinstall kr1c
-        kernel_exception_framep_ptr->cf_kr1c = tStack;
+        kernel_exception_framep_cap->cf_kr1c = tStack;
     }
 
 	/*

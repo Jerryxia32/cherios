@@ -41,6 +41,7 @@
 /*
  * 64-bit MIPS types.
  */
+#define REG_SIZE 8
 typedef unsigned long	register_t;		/* 64-bit MIPS register */
 typedef unsigned long	paddr_t;		/* Physical address */
 typedef unsigned long	vaddr_t;		/* Virtual address */

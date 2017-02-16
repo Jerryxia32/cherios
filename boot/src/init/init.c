@@ -61,6 +61,7 @@ init_elem_t init_list[] = {
 	B_DENTRY(m_memmgt,	"memmgt.elf",		0, 	1)
 	B_FENCE
 	B_DENTRY(m_namespace,	"namespace.elf",	0,	1)
+	B_FENCE
 	//B_DENTRY(m_uart,	"uart.elf",		0,	1)
 	B_DENTRY(m_core,	"AES.elf",		0, 	1)
 	B_DENTRY(m_core,	"sha.elf",		0, 	1)
@@ -75,8 +76,6 @@ init_elem_t init_list[] = {
 	//B_DENTRY(m_core,	"sockets.elf",		0,	B_SO)
 	//B_DENTRY(m_core,	"zlib.elf",		0,	B_ZL)
 	//B_DENTRY(m_core,	"virtio-blk.elf",	0,	B_FS)
-	//B_DENTRY(m_core,	"test1b.elf",		0,	B_T1)
-	//B_FENCE
 	//B_PENTRY(m_fs,		"fatfs.elf",		0,	B_FS)
 	B_FENCE
 	//B_PENTRY(m_user,	"hello.elf",		0,	1)
@@ -84,22 +83,6 @@ init_elem_t init_list[] = {
 	//B_PENTRY(m_user,	"prga.elf",		1,	B_SO)
 	//B_PENTRY(m_user,	"prga.elf",		2,	B_SO)
 	//B_PENTRY(m_user,	"zlib_test.elf",	0,	B_ZL)
-	//B_PENTRY(m_user,	"test1a.elf",		0,	B_T1)
-	//B_PENTRY(m_user,	"test2a.elf",		0,	B_T2)
-	//B_PENTRY(m_user,	"test2b.elf",		0,	B_T2)
-
-#if 0
-	#define T3(_arg) \
-	B_PENTRY(m_user,	"test3.elf",		_arg,	B_T3)
-	T3(16) T3(17) T3(18) T3(19)
-	T3(20) T3(21) T3(22) T3(23) T3(24) T3(25) T3(26) T3(27) T3(28) T3(29)
-	T3(30) T3(31) T3(32) T3(33) T3(34) T3(35) T3(36) T3(37) T3(38) T3(39)
-	T3(40) T3(41) T3(42) T3(43) T3(44) T3(45) T3(46) T3(47) T3(48) T3(49)
-	T3(50) T3(51) T3(52) T3(53) T3(54) T3(55) T3(56) T3(57) T3(58) T3(59)
-	T3(60) T3(61) T3(62) T3(63) T3(64) T3(65) T3(66) T3(67) T3(68) T3(69)
-	T3(70) T3(71) T3(72) T3(73) T3(74) T3(75) T3(76) T3(77) T3(78) T3(79)
-#endif
-
 	{m_fence, 0, NULL, 0, 0, 0, NULL}
 };
 
@@ -132,10 +115,6 @@ static void load_modules(void) {
 		}
 		be->ctrl = load_module(be->type, be->name, be->arg, NULL);
 		printf(KWHT"Loaded module %s"KRST"\n", be->name);
-        if(strcmp(be->name, "dijkstra.elf") == 0) {
-            printf(KWHT"dijkstra finished loading."KRST"\n");
-            stats_display();
-        }
 		switch(init_list[i].type) {
 		case m_memmgt:
 			nssleep(3);
@@ -153,8 +132,6 @@ static void load_modules(void) {
 }
 
 int init_main() {
-  	stats_init();
-
     act_self_cap = cheri_setoffset(cheri_getdefault(), 1);
     act_self_cap = cheri_setbounds(act_self_cap, 1);
     act_self_cap = cheri_andperm(act_self_cap, CHERI_PERM_SEAL);

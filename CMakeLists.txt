@@ -83,7 +83,7 @@ set(CMAKE_RANLIB : CACHE INTERNAL "noop for ranlib")
 # CMake will try to link ctr1.o into the executable and this might not exist
 # We don't need it as we are building in a freestanding environment here anyway
 # adding -cheri-linker here causes a segfault when detecting compiler features! TODO: report bug
-set(CMAKE_EXE_LINKER_FLAGS "-nostartfiles -nodefaultlibs -G0 -mxgot"
+set(CMAKE_EXE_LINKER_FLAGS "-nostartfiles -nodefaultlibs"
     CACHE INTERNAL "Flags used by the linker" FORCE)
 cmake_policy(SET CMP0056 NEW) # add CMAKE_EXE_LINKER_FLAGS when using try_compile()
 enable_language(C)
@@ -120,15 +120,13 @@ include_directories(include)
 # set up the right flags for C and ASM sources
 set(ASMC_COMPILER_FLAGS
     -mcpu=mips4
-    #-mabi=sandbox
+    -mabi=n64
     -mllvm -cheri128
     -cheri-linker
     -fno-PIC
-    -mno-abicalls
     -integrated-as
     -msoft-float
     -fcolor-diagnostics
-    # "-B${CheriSDK_TOOLCHAIN_DIR}"  # Doesn't seem to be required
 )
 set(ASM_COMPILER_FLAGS
     ${ASMC_COMPILER_FLAGS}
@@ -138,8 +136,6 @@ set(C_COMPILER_FLAGS
     -nostdinc
     -O3 # TODO: make this depend on the configuration
     -fomit-frame-pointer # TODO: make this depend on the configuration
-    -G0
-#    -mxgot
     -Werror
     -std=c11
     -DHARDWARE_${HARDWARE}
@@ -255,11 +251,8 @@ function(add_cherios_module _target)
     )
   target_link_libraries(${_target}
     -cheri-linker
-    -G0
-    -mxgot
     -nostartfiles
     -nodefaultlibs
-    #-pie
     )
 
   set_target_properties(${_target} PROPERTIES OUTPUT_NAME "${_target}.elf")
@@ -291,11 +284,6 @@ add_subdirectory(memmgt)
 add_subdirectory(namespace)
 #add_subdirectory(prga)
 #add_subdirectory(sockets)
-#add_subdirectory(test1a)
-#add_subdirectory(test1b)
-#add_subdirectory(test2a)
-#add_subdirectory(test2b)
-#add_subdirectory(test3)
 #add_subdirectory(uart)
 #add_subdirectory(virtio-blk)
 #add_subdirectory(zlib)

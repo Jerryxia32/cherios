@@ -107,7 +107,7 @@ int elf_check_supported(Elf_Env *env, Elf64_Ehdr *hdr) {
 		ERROR("Bad e_version");
 		return 0;
 	}
-	if(hdr->e_flags != 0x30000007) {
+	if(hdr->e_flags != 0x30000007 && hdr->e_flags != 0x30000001) {
 		ERRORM("Bad e_flags: %X", hdr->e_flags);
 		return 0;
 	}

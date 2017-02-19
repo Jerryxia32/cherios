@@ -179,9 +179,6 @@ function(add_to_filesystem _target)
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CHERIOS_FILESYSTEM_DIR}"
     # copy the binary to the fs root directory
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${_target}> "${_fs_target_path}"
-    # remove some sections to save place (TODO: make this depend on the configuration)
-    COMMAND "${CheriSDK_TOOLCHAIN_DIR}/strip" "${_fs_target_path}"
-    COMMAND "${CheriSDK_TOOLCHAIN_DIR}/objcopy" -R .comment -R .apple_names -R .apple_objc -R .apple_namespaces -R .apple_types -R .MIPS.options -R .MIPS.abiflags "${_fs_target_path}"
     )
   # Using a CACHE INTERNAL variable ensures that changes are globally visible
   set(CHERIOS_FILESYSTEM_DEPENDS ${CHERIOS_FILESYSTEM_DEPENDS} ${_target} CACHE INTERNAL "dependencies for filesystem")
@@ -257,14 +254,19 @@ function(add_cherios_module _target)
 
   set_target_properties(${_target} PROPERTIES OUTPUT_NAME "${_target}.elf")
 
-  # add it to the filesystem dir if requested
-  if(add_exe_ADD_TO_FILESYSTEM)
-    add_to_filesystem(${_target})
-  endif()
   # create a .dump file of the binary (added to byproducts so that ninja clean removes it)
   add_custom_command(TARGET ${_target} POST_BUILD BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/${_target}.dump"
     COMMAND "${CheriSDK_TOOLCHAIN_DIR}/objdump" -x -d -S "$<TARGET_FILE:${_target}>" > "${CMAKE_CURRENT_BINARY_DIR}/${_target}.dump"
     )
+  add_custom_command(TARGET ${_target} POST_BUILD
+    # remove some sections to save place (TODO: make this depend on the configuration)
+    COMMAND "${CheriSDK_TOOLCHAIN_DIR}/strip" "${CMAKE_CURRENT_BINARY_DIR}/${_target}.elf"
+    COMMAND "${CheriSDK_TOOLCHAIN_DIR}/objcopy" -R .comment -R .apple_names -R .apple_objc -R .apple_namespaces -R .apple_types -R .MIPS.options -R .MIPS.abiflags "${_target}.elf"
+    )
+  # add it to the filesystem dir if requested
+  if(add_exe_ADD_TO_FILESYSTEM)
+    add_to_filesystem(${_target})
+  endif()
 endfunction()
 
 

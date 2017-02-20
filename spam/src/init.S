@@ -36,7 +36,7 @@
 	.global start
 	.ent start
 start:
-    j start_common
+    b start_common
 
 .rodata
 .global __AES_start

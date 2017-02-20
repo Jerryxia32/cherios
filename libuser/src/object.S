@@ -58,7 +58,7 @@ ccall_real_4_end:
 	.global ccall_real_4_r
 	.ent ccall_real_4_r
 ccall_real_4_r:
-    j ccall_real_4
+    b ccall_real_4
     move $v0, $a0
 ccall_real_4_r_end:
 	.size ccall_real_4_r, ccall_real_4_r_end - ccall_real_4_r
@@ -68,7 +68,7 @@ ccall_real_4_r_end:
 	.global ccall_real_4_c
 	.ent ccall_real_4_c
 ccall_real_4_c:
-    j ccall_real_4
+    b ccall_real_4
     move $v0, $a0
 ccall_real_4_c_end:
 	.size ccall_real_4_c, ccall_real_4_c_end - ccall_real_4_c
@@ -133,7 +133,7 @@ ccall_real_4_strong_end:
 	.global ccall_real_4_strong_r
 	.ent ccall_real_4_strong_r
 ccall_real_4_strong_r:
-    j ccall_real_4_strong
+    b ccall_real_4_strong
     daddiu  $sp, $sp, -160
 ccall_real_4_strong_r_end:
 	.size ccall_real_4_strong_r, ccall_real_4_strong_r_end - ccall_real_4_strong_r
@@ -143,7 +143,7 @@ ccall_real_4_strong_r_end:
 	.global ccall_real_4_strong_c
 	.ent ccall_real_4_strong_c
 ccall_real_4_strong_c:
-    j ccall_real_4_strong
+    b ccall_real_4_strong
     daddiu  $sp, $sp, -160
 ccall_real_4_strong_c_end:
 	.size ccall_real_4_strong_c, ccall_real_4_strong_c_end - ccall_real_4_strong_c

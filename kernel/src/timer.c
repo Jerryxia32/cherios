@@ -33,6 +33,7 @@
 #include "cp0.h"
 
 static register_t		kernel_last_timer;
+int timingFailed = 0;
 
 void kernel_timer_init(void) {
 	/*
@@ -81,15 +82,12 @@ void kernel_timer(void)
 
             // timeout reached, force return
             if(*remainTimep <= 0) {
-                //kernel_printf(KRED"CCall expired in %s, force pop."KRST"\n", kernel_acts[hint].name);
+                // timing failed, signal the assembly to clear registers.
+                timingFailed = 1;
 
                 // first, release the current callee mutex
                 *((int __capability *)kernel_exception_framep_cap->cf_c0 + 0x100/sizeof(int)) = 0;
 
-                // the callee failed to meet timing, clear almost all registers.
-                for(size_t i=0; i<(REG_SIZE*32 + CAP_SIZE*12)/CAP_SIZE; i++) {
-                    *((capability __capability *)kernel_exception_framep_cap + i) = NULLCAP;
-                } 
                 kernel_exception_framep_cap->cf_pcc = *tStack;
                 kernel_exception_framep_cap->mf_pc = cheri_getoffset(*tStack);
                 void __capability *theC0 = *(tStack + 1);

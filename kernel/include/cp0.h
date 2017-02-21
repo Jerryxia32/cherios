@@ -32,19 +32,9 @@
 #define	_CHERI_CP0_H_
 
 /*
- * CP0 manipulation routines.
+ * CHERI demonstration mini-OS: support routines for MIPS coprocessor 0 (CP0).
  */
-int	cp0_status_bd_get(void);
-void	cp0_status_bev_set(int bev);
-int	cp0_status_exl_get(void);
-void	cp0_status_ie_disable(void);
-void	cp0_status_ie_enable(void);
-int	cp0_status_ie_get(void);
-void	cp0_status_im_enable(int mask);
-void	cp0_status_im_disable(int mask);
-register_t	cp0_cause_excode_get(void);
-register_t	cp0_cause_ipending_get(void);
-void		cp0_cause_set(register_t cause);
+
 /*
  * Routines for managing the CP0 count and compare registers, used to
  * implement cycle counting and timers.
@@ -66,7 +56,7 @@ cp0_compare_set(register_t compare)
 }
 
 
-static inline register_t
+inline register_t
 cp0_status_get(void)
 {
 	register_t status;
@@ -75,7 +65,7 @@ cp0_status_get(void)
 	return (status);
 }
 
-static inline void
+inline void
 cp0_status_set(register_t status)
 {
 
@@ -85,7 +75,7 @@ cp0_status_set(register_t status)
 /*
  * Routines for managing the CP0 BadVAddr register.
  */
-static inline register_t
+inline register_t
 cp0_badvaddr_get(void)
 {
 	register_t badvaddr;
@@ -97,7 +87,7 @@ cp0_badvaddr_get(void)
 /*
  * Routines for managing the CP0 BadInstr register.
  */
-static inline register_t
+inline register_t
 cp0_badinstr_get(void)
 {
 	register_t badinstr;
@@ -106,4 +96,120 @@ cp0_badinstr_get(void)
 	return (badinstr);
 }
 
+/*
+ * Routines for managing various aspects of the CP0 status register.
+ */
+inline int
+cp0_status_bd_get(void)
+{
+
+	return (cp0_status_get() & MIPS_CP0_CAUSE_BD);
+}
+
+inline void
+cp0_status_bev_set(int bev)
+{
+	register_t status;
+
+	/* XXXRW: Non-atomic test-and-set. */
+	status = cp0_status_get();
+	if (bev)
+		status |= MIPS_CP0_STATUS_BEV;
+	else
+		status &= ~MIPS_CP0_STATUS_BEV;
+	cp0_status_set(status);
+}
+
+inline int
+cp0_status_exl_get(void)
+{
+
+	return (cp0_status_get() & MIPS_CP0_STATUS_EXL);
+}
+
+inline void
+cp0_status_ie_disable(void)
+{
+	register_t status;
+
+	/* XXXRW: Non-atomic test-and-set. */
+	status = cp0_status_get();
+	status &= ~MIPS_CP0_STATUS_IE;
+	cp0_status_set(status);
+}
+
+inline void
+cp0_status_ie_enable(void)
+{
+	register_t status;
+
+	/* XXXRW: Non-atomic test-and-set. */
+	status = cp0_status_get();
+	status |= MIPS_CP0_STATUS_IE;
+	cp0_status_set(status);
+}
+
+inline int
+cp0_status_ie_get(void)
+{
+
+	return (cp0_status_get() & MIPS_CP0_STATUS_IE);
+}
+
+inline void
+cp0_status_im_enable(int mask)
+{
+	register_t status;
+
+	/* XXXRW: Non-atomic modification. */
+	status = cp0_status_get();
+	status |= (mask << MIPS_CP0_STATUS_IM_SHIFT);
+	cp0_status_set(status);
+}
+
+inline void
+cp0_status_im_disable(int mask)
+{
+	register_t status;
+
+	/* XXXRW: Non-atomic modification. */
+	status = cp0_status_get();
+	status &= ~(mask << MIPS_CP0_STATUS_IM_SHIFT);
+	cp0_status_set(status);
+}
+
+/*
+ * Routines for managing the CP0 cause register.
+ */
+inline register_t
+cp0_cause_get(void)
+{
+	register_t cause;
+
+	__asm__ __volatile__ ("dmfc0 %0, $13" : "=r" (cause));
+	return (cause);
+}
+
+inline register_t
+cp0_cause_excode_get(void)
+{
+
+	return ((cp0_cause_get() & MIPS_CP0_CAUSE_EXCCODE) >>
+	    MIPS_CP0_CAUSE_EXCODE_SHIFT);
+}
+
+inline register_t
+cp0_cause_ipending_get(void)
+{
+
+	return ((cp0_cause_get() & MIPS_CP0_CAUSE_IP) >>
+	    MIPS_CP0_CAUSE_IP_SHIFT);
+}
+
+inline void
+cp0_cause_set(register_t cause)
+{
+
+	__asm__ __volatile__ ("dmtc0 %0, $13" : : "r" (cause));
+}
 #endif /* _CHERI_CP0_H_ */

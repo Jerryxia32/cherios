@@ -101,7 +101,6 @@ kernel_cp2_exception_handler:
 		dla	$k0, kernel_exception_framep_ptr
         cld	$k0, $k0, 0($kdc)
 
-        csc $c0, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         csc $c1, $k0, 1*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         csc $c2, $k0, 2*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         csc $c3, $k0, 3*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
@@ -115,6 +114,9 @@ kernel_cp2_exception_handler:
         csc $c25, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         csc $kr1c, $k0, 12*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         csc $epcc, $k0, 13*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+        # avoid "direct c0 access deprecated" warning
+        cgetdefault $c1
+        csc $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
 
         csd $at, $k0, 0*REG_SIZE($kdc)
         csd $v0, $k0, 1*REG_SIZE($kdc)
@@ -219,7 +221,9 @@ kernel_cp2_exception_handler:
         cld	$k1, $k0, 31*REG_SIZE($kdc)
         dmtc0	$k1, $14		# EPC
 
-        clc $c0, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+        # avoid "direct c0 access deprecated" warning
+        clc $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+        csetdefault $c1
         clc $c1, $k0, 1*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         clc $c2, $k0, 2*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         clc $c3, $k0, 3*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
@@ -252,7 +256,8 @@ timing_failed_restore:
         cld	$k1, $k0, 31*REG_SIZE($kdc)
         dmtc0	$k1, $14		# EPC
 
-        clc $c0, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+        clc $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+        csetdefault $c1
         clc $kr1c, $k0, 12*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         clc $epcc, $k0, 13*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         # clear the timing failed flag
@@ -313,7 +318,7 @@ kernel_cp2_creturn:
      */
     clearlo 0xfff3 // keep v0, v1 for return values
     clearhi 0x0f00 // clear t8, t9, k0, k1
-    cclearlo 0xfff7 // keep c3
+    cclearlo 0xfff6 // keep c3
     cclearhi 0x17f9 // don't clear c17, c18 as it's callee save, don't clear kernel and kr1c
 
         li  $k0, -3*CAP_SIZE

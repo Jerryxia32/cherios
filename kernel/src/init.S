@@ -54,7 +54,6 @@ start:
 	#Save register frame
 	dla	$k0, kernel_init_save_frame
 
-    csc $c0, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     csc $c1, $k0, 1*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     csc $c2, $k0, 2*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     csc $c3, $k0, 3*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
@@ -68,6 +67,9 @@ start:
     csc $c25, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     csc $kr1c, $k0, 12*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     csc $epcc, $k0, 13*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    # avoid "direct c0 access deprecated" warning
+    cgetdefault $c1
+    csc $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
 
     csd $at, $k0, 0*REG_SIZE($kdc)
     csd $v0, $k0, 1*REG_SIZE($kdc)
@@ -178,7 +180,9 @@ start:
 	cld	$k1, $k0, 31*REG_SIZE($kdc)
 	dmtc0	$k1, $14		# EPC
 
-    clc $c0, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    # avoid "direct c0 access deprecated" warning
+    clc $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csetdefault $c1
     clc $c1, $k0, 1*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     clc $c2, $k0, 2*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     clc $c3, $k0, 3*CAP_SIZE+MIPS_FRAME_SIZE($kdc)

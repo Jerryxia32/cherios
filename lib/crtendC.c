@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-typedef unsigned long long mips_function_ptr;
+typedef void (*mips_function_ptr)(void);
 
 mips_function_ptr __attribute__((used))
     __attribute__((section(".ctors")))

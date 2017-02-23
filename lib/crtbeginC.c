@@ -45,7 +45,6 @@ void	crt_call_constructors(void);
  * are still generating them as a sequence of PCC-relative integers.
  */
 typedef void (*mips_function_ptr)(void);
-typedef void (*cheri_function_ptr)(void);
 
 static mips_function_ptr __attribute__((used))
     __attribute__((section(".ctors")))

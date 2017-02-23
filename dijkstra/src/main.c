@@ -13,7 +13,7 @@ struct _NODE
 {
   int iDist;
   int iPrev;
-};
+} __attribute__((aligned(8)));
 typedef struct _NODE NODE;
 
 struct _QITEM

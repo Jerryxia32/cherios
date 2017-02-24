@@ -13,6 +13,7 @@
 #include <limits.h>
 #include "bitops.h"
 #include<statcounters.h>
+#include<mibench_iter.h>
 
 #define FUNCS  7
 #define ITERATIONS 500000
@@ -21,7 +22,6 @@ static int CDECL bit_shifter(uint32_t x);
 
 int main()
 {
-    stats_init();
     printf("Bitcount hello world!.\n");
     uint32_t i, j, n, seed;
     uint32_t iterations;
@@ -50,10 +50,13 @@ int main()
 
     puts("Bit counter algorithm benchmark\n");
 
-    for (i = 0; i < FUNCS; i++) {
-        for (j = n = 0, seed = 0; j < iterations; j++, seed += 13)
-            n += pBitCntFunc[i](seed);
-        printf("Counting algorithm %s counts:\n    %d.\n", text[i], n);
+    stats_init();
+    for(int iter=0; iter<BITCOUNT_ITER; iter++) {
+        for (i = 0; i < FUNCS; i++) {
+            for (j = n = 0, seed = 0; j < iterations; j++, seed += 13)
+                n += pBitCntFunc[i](seed);
+            printf("Counting algorithm %s counts:\n    %d.\n", text[i], n);
+        }
     }
     stats_display();
     return 0;

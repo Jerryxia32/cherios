@@ -5,6 +5,7 @@
 #include<object.h>
 #include<namespace.h>
 #include<assert.h>
+#include<mibench_iter.h>
 
 #define NUM_NODES                          100
 #define NONE                               9999
@@ -246,7 +247,6 @@ void dijkstra(int chStart, int chEnd)
 }
 
 int main() {
-  stats_init();
   int i_l,j;
   
   /* make a fully connected matrix */
@@ -259,9 +259,12 @@ int main() {
   //}
 
   /* finds 10 shortest paths between nodes */
-  for (i_l=0,j=NUM_NODES/2;i_l<100;i_l+=2,j+=2) {
-			j=j%NUM_NODES;
-      dijkstra(i_l,j);
+  stats_init();
+  for(int iter=0; iter<DIJKSTRA_ITER; iter++) {
+      for (i_l=0,j=NUM_NODES/2;i_l<100;i_l+=1,j+=1) {
+                j=j%NUM_NODES;
+          dijkstra(i_l,j);
+      }
   }
   stats_display();
   return 0;

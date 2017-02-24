@@ -8,6 +8,7 @@
 #include<assert.h>
 #include<sha_info.h>
 #include<statcounters.h>
+#include<mibench_iter.h>
 
 #define EACH_BLOCK_SIZE 256
 #define DOMAIN_TIMES 100000
@@ -16,7 +17,6 @@ extern char __AES_start, __AES_end;
 
 int
 main() {
-    stats_init();
     for(int i=0; i<8; i++) {
         printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
     }
@@ -50,21 +50,30 @@ main() {
     const char *theKey = "0123456789ABCDEFFEDCBA98765432100123456789ABCDEFFEDCBA9876543210";
     const __capability char *theKeyCap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)theKey), strlen(theKey)+1);
 
-    while((remain = len-encdecOffset) > EACH_BLOCK_SIZE) {
-        encret = ccall_real_4_strong_r(0, LONG_MAX, EACH_BLOCK_SIZE, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap, aes_PCC, aes_IDC, NULLCAP);
+    stats_init();
+    for(int i=0; i<AES_ITER; i++) {
+        totalDeced = 0;
+        encdecOffset = 0;
+        remain = 0;
+        while((remain = len-encdecOffset) > EACH_BLOCK_SIZE) {
+            encret = ccall_real_4_strong_r(0, LONG_MAX, EACH_BLOCK_SIZE, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap, aes_PCC, aes_IDC, NULLCAP);
+            decret = ccall_real_4_strong_r(0, LONG_MAX, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap, aes_PCC, aes_IDC, NULLCAP);
+            encdecOffset += EACH_BLOCK_SIZE;
+            totalDeced += decret;
+        }
+        encret = ccall_real_4_strong_r(0, LONG_MAX, remain, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap, aes_PCC, aes_IDC, NULLCAP);
         decret = ccall_real_4_strong_r(0, LONG_MAX, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap, aes_PCC, aes_IDC, NULLCAP);
-        encdecOffset += EACH_BLOCK_SIZE;
         totalDeced += decret;
     }
-    encret = ccall_real_4_strong_r(0, LONG_MAX, remain, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap, aes_PCC, aes_IDC, NULLCAP);
-    decret = ccall_real_4_strong_r(0, LONG_MAX, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap, aes_PCC, aes_IDC, NULLCAP);
-    totalDeced += decret;
-
     printf("Size of the original: %ld, Total bytes decrypted: %ld\n", len, totalDeced);
+    stats_display();
 
     __capability SHA_INFO *theinfo = (__capability SHA_INFO *)malloc_c(sizeof(SHA_INFO)+1);
     __capability uint8_t *theinfo_out = cheri_andperm(theinfo, ~CHERI_PERM_SOFT_0);
-    ccall_4(sha_ref, sha_id, 0, len, 0, 0, theinfo_out, AES_data_cap, NULLCAP);
+    stats_init();
+    for(int i=0; i<SHA_ITER; i++) {
+        ccall_4(sha_ref, sha_id, 0, len, 0, 0, theinfo_out, AES_data_cap, NULLCAP);
+    }
     ccall_4(sha_ref, sha_id, 1, 0, 0, 0, theinfo_out, NULLCAP, NULLCAP);
     stats_display();
 

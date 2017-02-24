@@ -43,8 +43,6 @@
 	.ent start_common
 start_common:
 	# Save arguments
-	move		$s0, $a0
-	move		$s1, $a1
 	move		$s2, $a2
 
 	# Initialise BSS and globals before running C constructors, so that C
@@ -69,22 +67,17 @@ start_common:
 	# Call object init.
 	move		$a0, $s2
     #move		$a1, $s5
-    cmove       $c3, $c17
+    cmove       $c3, $c6
     cgetpcc $c4
     dla $t0, msg_entry_ccall
     csetoffset $c4, $c4, $t0
     cgetdefault $c5
     csetoffset  $c5, $c5, $sp
-	move		$a1, $s6
-	move		$a2, $s7 # careful, s8 is used to remember pc for PIC
+	move		$a1, $s0
+	move		$a2, $s1 # careful, s8 is used to remember pc for PIC
     dla     $t9, libuser_init
     jalr    $t9
     nop
-
-	# Restore arguments
-	move		$a0, $s0
-	move		$a1, $s1
-	move		$a2, $s2
 
 	# Call main().
     dla     $t9, main

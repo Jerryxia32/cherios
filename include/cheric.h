@@ -318,10 +318,10 @@ typedef struct reg_frame {
 	 */
 	/* No need to preserve $zero. */
 	register_t	mf_at, mf_v0, mf_v1;
-	register_t	mf_a0, mf_a1, mf_a2, mf_a3, mf_a4, mf_a5, mf_a6, mf_a7;
-	register_t	mf_t0, mf_t1, mf_t2, mf_t3;
-	register_t	mf_s0, mf_s1, mf_s2, mf_s3, mf_s4, mf_s5, mf_s6, mf_s7;
-	register_t	mf_t8, mf_t9;
+	register_t	mf_a0, mf_a1, mf_a2, mf_a3;
+	register_t	mf_t0, mf_t1;
+	register_t	mf_s0, mf_s1, mf_s2, mf_s3;
+	register_t	mf_t9;
 	/* No need to preserve $k0, $k1. */
 	register_t	mf_gp, mf_sp, mf_fp, mf_ra;
 
@@ -330,6 +330,9 @@ typedef struct reg_frame {
 
 	/* Program counter. */
 	register_t	mf_pc;
+	register_t	padding0;
+	register_t	padding1;
+	register_t	padding2;
 
 	/*
 	 * Capability registers.
@@ -341,10 +344,9 @@ typedef struct reg_frame {
 	 * General purpose capability registers.
 	 */
 	capability	cf_c1, cf_c2;
-    capability cf_c3, cf_c4, cf_c5, cf_c6, cf_c7, cf_c8;
+    capability cf_c3, cf_c4, cf_c5, cf_c6, cf_c7;
     //capability cf_c9;
     //capability cf_c11, cf_c12;
-    capability cf_c17, cf_c18;
     //capability  cf_c10, cf_c11, cf_c12, cf_c13;
 	//capability	cf_c14, cf_c15, cf_c16, cf_c17;
 	//capability	cf_c18, cf_c19, cf_c20, cf_c21, cf_c22;

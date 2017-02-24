@@ -155,14 +155,13 @@ void * get_cookie(void * cb, void * cs) {
  */
 
 #define CCALL_ASM_CSCB "move $t0, %[cb] \n" "move $t1, %[cs] \n" "move $v0, %[method_nb] \n"
-//#define CCALL_INSTR(n) "ccall $c1, $c2, " #n "\n"
 #define CCALL_INSTR(n) \
         "li $v1, " #n "\n" \
         "syscall \n" \
         "nop \n" \
 
 #define CCALL_INOPS [cb]"r" (cb), [cs]"r" (cs), [method_nb]"r" (method_nb)
-#define CCALL_CLOBS "$c1", "$c2", "$c11","$c12","$c3","$c4","$c5", "$c9", "$c10","v0","v1","a0","a1","a2", "t0", "t1"
+#define CCALL_CLOBS "$c3","$c4","$c5", "v0","v1","a0","a1","a2", "t0", "t1"
 #define CCALL_TOP \
     ret_t ret; \
     __asm__ __volatile__ ( \

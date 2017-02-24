@@ -33,8 +33,9 @@
 
 .set MIPS_SZCAP, _MIPS_SZCAP
 .set CAP_SIZE, (MIPS_SZCAP/8)
-.set C17_OFFSET, 96
+.set C6_OFFSET, 64
 .set REG_SIZE, (64/8)
+.set SAVE_FRAME_SIZE, 128
 
 .set noreorder
 .set nobopt
@@ -43,11 +44,15 @@
 	.text
 	.ent ccall_real_4
 ccall_real_4:
+    cgetdefault $c25
+    clc $c1, $sp, CAP_SIZE($c25)
+    clc $c2, $sp, 2*CAP_SIZE($c25)
     move $v1, $a1
     move $a0, $a2
+    ld $a2, 0($sp)
     move $a1, $a3
-    move $a2, $a4
-    ccall   $c6, $c7, 0
+
+    ccall   $c1, $c2, 0
     jr  $ra
     nop
 ccall_real_4_end:
@@ -84,27 +89,24 @@ ccall_real_4_strong:
     sd $s1, 8($sp)
     sd $s2, 16($sp)
     sd $s3, 24($sp)
-    sd $s4, 32($sp)
-    sd $s5, 40($sp)
-    sd $s6, 48($sp)
-    sd $s7, 56($sp)
-    sd $gp, 64($sp)
+    sd $gp, 32($sp)
 #sd $sp, 72($sp)
-    sd $fp, 80($sp)
-    sd $ra, 88($sp)
-    csc $c17, $sp, C17_OFFSET($c25)
-    csc $c18, $sp, (C17_OFFSET+CAP_SIZE)($c25)
+    sd $fp, 40($sp)
+    sd $ra, 48($sp)
+    csc $c6, $sp, C6_OFFSET($c25)
+    csc $c7, $sp, (C6_OFFSET+CAP_SIZE)($c25)
 
+    clc $c1, $sp, SAVE_FRAME_SIZE+CAP_SIZE($c25)
+    clc $c2, $sp, SAVE_FRAME_SIZE+2*CAP_SIZE($c25)
     move $v0, $a0
     move $v1, $a1
     move $a0, $a2
+    ld $a2, SAVE_FRAME_SIZE($sp)
     move $a1, $a3
-    move $a2, $a4
     clearlo 0xff03 # keep four mips arg regs and v0, v1
     clearhi 0xdfff # keep $sp for seal
-    cclearlo 0xfe06 # keep c0 c3-c8
-    cclearhi 0x07ff # keep kernel cap regs
-    ccall   $c6, $c7, 0
+    cclearlo 0xffc0 # keep c0-c5
+    ccall   $c1, $c2, 0
 
 	# Load register frame
     cgetdefault $c25
@@ -112,19 +114,15 @@ ccall_real_4_strong:
     ld $s1, 8($sp)
     ld $s2, 16($sp)
     ld $s3, 24($sp)
-    ld $s4, 32($sp)
-    ld $s5, 40($sp)
-    ld $s6, 48($sp)
-    ld $s7, 56($sp)
-    ld $gp, 64($sp)
+    ld $gp, 32($sp)
 #ld $sp, 72($sp)
-    ld $fp, 80($sp)
-    ld $ra, 88($sp)
-    clc $c17, $sp, C17_OFFSET($c25)
-    clc $c18, $sp, (C17_OFFSET+CAP_SIZE)($c25)
+    ld $fp, 40($sp)
+    ld $ra, 48($sp)
+    clc $c6, $sp, C6_OFFSET($c25)
+    clc $c7, $sp, (C6_OFFSET+CAP_SIZE)($c25)
 
     jr  $ra
-    daddiu  $sp, $sp, 160
+    daddiu  $sp, $sp, SAVE_FRAME_SIZE
 ccall_real_4_strong_end:
 	.size ccall_real_4_strong, ccall_real_4_strong_end - ccall_real_4_strong
 	.end ccall_real_4_strong
@@ -134,7 +132,7 @@ ccall_real_4_strong_end:
 	.ent ccall_real_4_strong_r
 ccall_real_4_strong_r:
     b ccall_real_4_strong
-    daddiu  $sp, $sp, -160
+    daddiu  $sp, $sp, -SAVE_FRAME_SIZE
 ccall_real_4_strong_r_end:
 	.size ccall_real_4_strong_r, ccall_real_4_strong_r_end - ccall_real_4_strong_r
 	.end ccall_real_4_strong_r
@@ -144,7 +142,7 @@ ccall_real_4_strong_r_end:
 	.ent ccall_real_4_strong_c
 ccall_real_4_strong_c:
     b ccall_real_4_strong
-    daddiu  $sp, $sp, -160
+    daddiu  $sp, $sp, -SAVE_FRAME_SIZE
 ccall_real_4_strong_c_end:
 	.size ccall_real_4_strong_c, ccall_real_4_strong_c_end - ccall_real_4_strong_c
 	.end ccall_real_4_strong_c

@@ -31,7 +31,7 @@
 
 .set CAP_SIZE, _MIPS_SZCAP/8
 .set REG_SIZE, 64/8
-.set MIPS_FRAME_SIZE, 32*REG_SIZE
+.set MIPS_FRAME_SIZE, 24*REG_SIZE
 .set noat
 .set noreorder
 
@@ -108,12 +108,9 @@ kernel_cp2_exception_handler:
         csc $c5, $k0, 5*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         csc $c6, $k0, 6*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         csc $c7, $k0, 7*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $c8, $k0, 8*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $c17, $k0, 9*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $c18, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $c25, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $kr1c, $k0, 12*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $epcc, $k0, 13*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+        csc $c25, $k0, 8*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+        csc $kr1c, $k0, 9*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+        csc $epcc, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         # avoid "direct c0 access deprecated" warning
         cgetdefault $c1
         csc $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
@@ -125,34 +122,23 @@ kernel_cp2_exception_handler:
         csd $a1, $k0, 4*REG_SIZE($kdc)
         csd $a2, $k0, 5*REG_SIZE($kdc)
         csd $a3, $k0, 6*REG_SIZE($kdc)
-        csd $a4, $k0, 7*REG_SIZE($kdc)
-        csd $a5, $k0, 8*REG_SIZE($kdc)
-        csd $a6, $k0, 9*REG_SIZE($kdc)
-        csd $a7, $k0, 10*REG_SIZE($kdc)
-        csd $t0, $k0, 11*REG_SIZE($kdc)
-        csd $t1, $k0, 12*REG_SIZE($kdc)
-        csd $t2, $k0, 13*REG_SIZE($kdc)
-        csd $t3, $k0, 14*REG_SIZE($kdc)
-        csd $s0, $k0, 15*REG_SIZE($kdc)
-        csd $s1, $k0, 16*REG_SIZE($kdc)
-        csd $s2, $k0, 17*REG_SIZE($kdc)
-        csd $s3, $k0, 18*REG_SIZE($kdc)
-        csd $s4, $k0, 19*REG_SIZE($kdc)
-        csd $s5, $k0, 20*REG_SIZE($kdc)
-        csd $s6, $k0, 21*REG_SIZE($kdc)
-        csd $s7, $k0, 22*REG_SIZE($kdc)
-        csd $t8, $k0, 23*REG_SIZE($kdc)
-        csd $t9, $k0, 24*REG_SIZE($kdc)
-        csd $gp, $k0, 25*REG_SIZE($kdc)
-        csd $sp, $k0, 26*REG_SIZE($kdc)
-        csd $fp, $k0, 27*REG_SIZE($kdc)
-        csd $ra, $k0, 28*REG_SIZE($kdc)
+        csd $t0, $k0, 7*REG_SIZE($kdc)
+        csd $t1, $k0, 8*REG_SIZE($kdc)
+        csd $s0, $k0, 9*REG_SIZE($kdc)
+        csd $s1, $k0, 10*REG_SIZE($kdc)
+        csd $s2, $k0, 11*REG_SIZE($kdc)
+        csd $s3, $k0, 12*REG_SIZE($kdc)
+        csd $t9, $k0, 13*REG_SIZE($kdc)
+        csd $gp, $k0, 14*REG_SIZE($kdc)
+        csd $sp, $k0, 15*REG_SIZE($kdc)
+        csd $fp, $k0, 16*REG_SIZE($kdc)
+        csd $ra, $k0, 17*REG_SIZE($kdc)
         mfhi	$k1
-        csd	$k1, $k0, 29*REG_SIZE($kdc)
+        csd	$k1, $k0, 18*REG_SIZE($kdc)
         mflo	$k1
-        csd	$k1, $k0, 30*REG_SIZE($kdc)
+        csd	$k1, $k0, 19*REG_SIZE($kdc)
         dmfc0	$k1, $14		# EPC
-        csd	$k1, $k0, 31*REG_SIZE($kdc)
+        csd	$k1, $k0, 20*REG_SIZE($kdc)
 
 		# Set up exception stack
         dla     $sp, __stop_exception_stack
@@ -192,33 +178,22 @@ kernel_cp2_exception_handler:
         cld $a1, $k0, 4*REG_SIZE($kdc)
         cld $a2, $k0, 5*REG_SIZE($kdc)
         cld $a3, $k0, 6*REG_SIZE($kdc)
-        cld $a4, $k0, 7*REG_SIZE($kdc)
-        cld $a5, $k0, 8*REG_SIZE($kdc)
-        cld $a6, $k0, 9*REG_SIZE($kdc)
-        cld $a7, $k0, 10*REG_SIZE($kdc)
-        cld $t0, $k0, 11*REG_SIZE($kdc)
-        cld $t1, $k0, 12*REG_SIZE($kdc)
-        cld $t2, $k0, 13*REG_SIZE($kdc)
-        cld $t3, $k0, 14*REG_SIZE($kdc)
-        cld $s0, $k0, 15*REG_SIZE($kdc)
-        cld $s1, $k0, 16*REG_SIZE($kdc)
-        cld $s2, $k0, 17*REG_SIZE($kdc)
-        cld $s3, $k0, 18*REG_SIZE($kdc)
-        cld $s4, $k0, 19*REG_SIZE($kdc)
-        cld $s5, $k0, 20*REG_SIZE($kdc)
-        cld $s6, $k0, 21*REG_SIZE($kdc)
-        cld $s7, $k0, 22*REG_SIZE($kdc)
-        cld $t8, $k0, 23*REG_SIZE($kdc)
-        cld $t9, $k0, 24*REG_SIZE($kdc)
-        cld $gp, $k0, 25*REG_SIZE($kdc)
-        cld $sp, $k0, 26*REG_SIZE($kdc)
-        cld $fp, $k0, 27*REG_SIZE($kdc)
-        cld $ra, $k0, 28*REG_SIZE($kdc)
-        cld	$k1, $k0, 29*REG_SIZE($kdc)
+        cld $t0, $k0, 7*REG_SIZE($kdc)
+        cld $t1, $k0, 8*REG_SIZE($kdc)
+        cld $s0, $k0, 9*REG_SIZE($kdc)
+        cld $s1, $k0, 10*REG_SIZE($kdc)
+        cld $s2, $k0, 11*REG_SIZE($kdc)
+        cld $s3, $k0, 12*REG_SIZE($kdc)
+        cld $t9, $k0, 13*REG_SIZE($kdc)
+        cld $gp, $k0, 14*REG_SIZE($kdc)
+        cld $sp, $k0, 15*REG_SIZE($kdc)
+        cld $fp, $k0, 16*REG_SIZE($kdc)
+        cld $ra, $k0, 17*REG_SIZE($kdc)
+        cld	$k1, $k0, 18*REG_SIZE($kdc)
         mthi	$k1
-        cld	$k1, $k0, 30*REG_SIZE($kdc)
+        cld	$k1, $k0, 19*REG_SIZE($kdc)
         mtlo	$k1
-        cld	$k1, $k0, 31*REG_SIZE($kdc)
+        cld	$k1, $k0, 20*REG_SIZE($kdc)
         dmtc0	$k1, $14		# EPC
 
         # avoid "direct c0 access deprecated" warning
@@ -231,12 +206,9 @@ kernel_cp2_exception_handler:
         clc $c5, $k0, 5*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         clc $c6, $k0, 6*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         clc $c7, $k0, 7*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $c8, $k0, 8*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $c17, $k0, 9*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $c18, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $c25, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $kr1c, $k0, 12*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $epcc, $k0, 13*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+        clc $c25, $k0, 8*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+        clc $kr1c, $k0, 9*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+        clc $epcc, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
 
 		#
 		# On general principle, flush the contents of $k0 and $k1
@@ -281,27 +253,26 @@ kernel_cp2_ccall_handler:
         srl $k0, $k0, 8
         bne $k0, $k1, kernel_cp2_creturn
         nop
-        cgetdefault   $c2
-        csetoffset  $c2, $c2, $sp
+        cgetdefault   $kr2c
+        csetoffset  $kr2c, $kr2c, $sp
         li  $k0, 4
         cincoffset  $epcc, $epcc, $k0
         csc $epcc, $0, 0($kr1c)
-        csc $c2, $0, CAP_SIZE($kr1c)
+        csc $kr2c, $0, CAP_SIZE($kr1c)
         dmfc0   $k0, $9 # read the current count register
         csd $v1, $0, 2*CAP_SIZE($kr1c)
         csw $k0, $0, 2*CAP_SIZE+REG_SIZE($kr1c)
-        cfromptr    $c2, $c2, $0
         li  $k0, 3*CAP_SIZE
         cincoffset  $kr1c, $kr1c, $k0
 
-        cgettype    $k0, $c6
+        cgettype    $k0, $c1
         csetoffset  $kdc, $kdc, $k0
-        cunseal $epcc, $c6, $kdc
-        cunseal $c7, $c7, $kdc
-        cgetoffset  $sp, $c7
+        cunseal $epcc, $c1, $kdc
+        cunseal $c2, $c2, $kdc
+        cgetoffset  $sp, $c2
         # extract the stack pointer of the callee
-        csetoffset  $c7, $c7, $0
-        csetdefault $c7
+        csetoffset  $c2, $c2, $0
+        csetdefault $c2
         cgetoffset  $k0, $epcc
 		dmtc0	$k0, $14		# EPC
 		move	$k0, $zero
@@ -318,17 +289,16 @@ kernel_cp2_creturn:
      */
     clearlo 0xfff3 // keep v0, v1 for return values
     clearhi 0x0f00 // clear t8, t9, k0, k1
-    cclearlo 0xfff6 // keep c3
-    cclearhi 0x17f9 // don't clear c17, c18 as it's callee save, don't clear kernel and kr1c
+    cclearlo 0xff36 // keep c3, c6, c7
 
         li  $k0, -3*CAP_SIZE
         cincoffset  $kr1c, $kr1c, $k0
         clc $epcc, $0, 0($kr1c)
-        clc $c7, $0, CAP_SIZE($kr1c)
+        clc $kr2c, $0, CAP_SIZE($kr1c)
         # extract the stack pointer of the caller
-        cgetoffset  $sp, $c7
-        csetoffset  $c7, $c7, $0
-        csetdefault $c7
+        cgetoffset  $sp, $kr2c
+        csetoffset  $kr2c, $kr2c, $0
+        csetdefault $kr2c
         cgetoffset  $k0, $epcc
 		dmtc0	$k0, $14		# EPC
 		eret

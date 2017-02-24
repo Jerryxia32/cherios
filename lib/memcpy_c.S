@@ -83,7 +83,7 @@ memcpy_c:
 	                             # We could do something involving shifts, but
 	                             # this is probably a sufficiently uncommon
 	                             # case not to be worth optimising.
-	andi     $t8, $a0, CAP_ALIGN_MASK      # t8 = len % CAP_SIZE
+	andi     $t9, $a0, CAP_ALIGN_MASK      # t9 = len % CAP_SIZE
 
 fast_path:                       # At this point, src and dst are known to have
                                  # the same alignment.  They may not be capability
@@ -194,7 +194,7 @@ memcpy_c_hack:
 	                             # We could do something involving shifts, but
 	                             # this is probably a sufficiently uncommon
 	                             # case not to be worth optimising.
-	andi     $t8, $a0, 0x7      # t8 = len % CAP_SIZE
+	andi     $t9, $a0, 0x7      # t9 = len % CAP_SIZE
 
 fast_path_hack:                       # At this point, src and dst are known to have
                                  # the same alignment.  They may not be capability

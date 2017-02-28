@@ -42,6 +42,7 @@ start:
 .global __pcm_start
 .global __pcm_end
 
+.align 5
 __pcm_start:
 .incbin "large.pcm"
 __pcm_end:

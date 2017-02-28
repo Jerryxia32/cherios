@@ -115,7 +115,8 @@ void fillrand(byte *buf, int len)
 }    
 
 uint64_t encfile(__capability byte *fin, __capability byte *fout, aes *ctx, uint64_t length) {   
-    byte            inbuf[16], outbuf[16];
+    byte            inbuf[16] __attribute__((aligned(CAP_SIZE)));
+    byte outbuf[16] __attribute__((aligned(CAP_SIZE)));
     __capability byte *inbufcap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)inbuf), 16);
     __capability byte *outbufcap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)outbuf), 16);
     uint64_t   i=0, l=0;
@@ -175,7 +176,9 @@ uint64_t encfile(__capability byte *fin, __capability byte *fout, aes *ctx, uint
 }
 
 int decfile(__capability byte *fin, __capability byte *fout, aes *ctx, uint64_t length) {
-    byte    inbuf1[16], inbuf2[16], outbuf[16];
+    byte    inbuf1[16] __attribute__((aligned(CAP_SIZE)));
+    byte inbuf2[16] __attribute__((aligned(CAP_SIZE)));
+    byte outbuf[16] __attribute__((aligned(CAP_SIZE)));
     byte    *bp1, *bp2, *tp;
     __capability byte    *bp1cap, *bp2cap, *tpcap;
     uint64_t i, l, flen;
@@ -253,7 +256,7 @@ int
 main_aes(__capability byte *in, __capability byte *out, int64_t length, __capability char *givenKey) {
     __capability char *cp;
     char    ch;
-    byte key[32];
+    byte key[32] __attribute__((aligned(CAP_SIZE)));
     int     i=0, by=0, key_len=0, err = 0;
     aes     ctx[1];
 

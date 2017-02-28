@@ -42,6 +42,7 @@ start:
 .global __AES_start
 .global __AES_end
 
+.align 5
 __AES_start:
 .incbin "AES_input_large.asc"
 __AES_end:

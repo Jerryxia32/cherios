@@ -192,7 +192,7 @@ void sha_final(__capability SHA_INFO *sha_info)
 void sha_stream(__capability SHA_INFO *sha_info, __capability char *fin, size_t fin_size)
 {
     size_t readbyte = 0;
-    BYTE data[BLOCK_SIZE];
+    BYTE data[BLOCK_SIZE] __attribute__((aligned(CAP_SIZE)));
     __capability BYTE *datacap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)data), BLOCK_SIZE);
 
     sha_init(sha_info);

@@ -3,19 +3,20 @@
 #include<string.h>
 #include<cheric.h>
 #include<mibench_iter.h>
+#include<statcounters.h>
 
 struct adpcm_state state;
 
-#define NSAMPLES 1000
-
-char	abuf[NSAMPLES/2];
-short	sbuf[NSAMPLES];
+#define NSAMPLES 1024
 
 extern char __adpcm_c_start, __adpcm_c_end;
 extern char __adpcm_d_start, __adpcm_d_end;
 
 int
 main() {
+    char	abuf[NSAMPLES/2] __attribute__((aligned(CAP_SIZE)));
+    short	sbuf[NSAMPLES] __attribute__((aligned(CAP_SIZE)));
+
     // first, construct two capability to the buffers.
     char __capability *abufcap = cheri_getdefault();
     abufcap = cheri_setoffset(abufcap, (size_t)abuf);
@@ -37,9 +38,12 @@ main() {
     size_t totalProcessed = 0;
     size_t remain = 0;
 
+    stats_init();
     for(int n=0; n<ADPCM_ITER; n++) {
 
         /* encode stage */
+        totalProcessed = 0;
+        remain = 0;
         while((remain = cSize - totalProcessed) > NSAMPLES*2) {
             memcpy_c(sbufcap, adpcmCcap + totalProcessed, NSAMPLES*2);
             adpcm_coder(sbufcap, abufcap, NSAMPLES, &state);
@@ -67,6 +71,7 @@ main() {
         totalProcessed += remain;
         printf("adpcm decoded %ld bytes in total.\n", totalProcessed);
     }
+    stats_display();
 
     return 0;
 }

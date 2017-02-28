@@ -42,6 +42,7 @@ start:
 .global __adpcm_c_start
 .global __adpcm_c_end
 
+.align 5
 __adpcm_c_start:
 .incbin "adpcm_large.pcm"
 __adpcm_c_end:
@@ -53,6 +54,7 @@ nop
 .global __adpcm_d_start
 .global __adpcm_d_end
 
+.align 5
 __adpcm_d_start:
 .incbin "adpcm_large.adpcm"
 __adpcm_d_end:

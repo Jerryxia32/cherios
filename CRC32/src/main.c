@@ -3,6 +3,7 @@
 /* Crc - 32 BIT ANSI X3.66 CRC checksum files */
 
 #include<stdio.h>
+#include<cheric.h>
 #include"crc.h"
 #include<mibench_iter.h>
 #include<statcounters.h>
@@ -123,7 +124,7 @@ WORD updateCRC32(unsigned char ch, WORD crc)
       return UPDC32(ch, crc);
 }
 
-Boolean_T crc32file(const char *name, unsigned long pcm_size, WORD *crc, unsigned long *charcnt)
+Boolean_T crc32file(char __capability *uncachedC0, const char *name, unsigned long pcm_size, WORD *crc, unsigned long *charcnt)
 {
       register WORD oldcrc32 = 0xffffffff;
       register int c;
@@ -131,7 +132,7 @@ Boolean_T crc32file(const char *name, unsigned long pcm_size, WORD *crc, unsigne
 
       while (1)
       {
-            c = *ptr;
+            c = *(uncachedC0 + (size_t)ptr);
             if(*charcnt == pcm_size) break;
             ++*charcnt;
             ptr++;
@@ -162,12 +163,13 @@ main()
 {
     stats_init();
     WORD crc = 0;
-    unsigned long charcnt = 0;
-    unsigned long pcm_size = &__pcm_end - &__pcm_start;
+    size_t charcnt = 0;
+    size_t pcm_size = &__pcm_end - &__pcm_start;
+    capability uncachedC0 = *((capability __capability *)0x200);
     int i;
     register int errors = 0;
     for(i=0; i<CRC32_ITER; i++) {
-        errors |= crc32file(&__pcm_start, pcm_size, &crc, &charcnt);
+        errors |= crc32file(uncachedC0, &__pcm_start, pcm_size, &crc, &charcnt);
         printf("CRC: %08X, char count: %7ld\n", crc, charcnt);
         printf("pcm size: %ld\n", &__pcm_end - &__pcm_start);
         charcnt = 0;

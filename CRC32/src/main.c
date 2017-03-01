@@ -4,6 +4,7 @@
 
 #include<stdio.h>
 #include<cheric.h>
+#include<mips.h>
 #include"crc.h"
 #include<mibench_iter.h>
 #include<statcounters.h>
@@ -126,17 +127,26 @@ WORD updateCRC32(unsigned char ch, WORD crc)
 
 Boolean_T crc32file(char __capability *uncachedC0, const char *name, unsigned long pcm_size, WORD *crc, unsigned long *charcnt)
 {
-      register WORD oldcrc32 = 0xffffffff;
-      register int c;
+      WORD oldcrc32 = 0xffffffff;
+      uint8_t c;
       const char *ptr = name;
+      int counter = REG_SIZE;
+      register_t readBuffer = 0;
 
       while (1)
       {
-            c = *(uncachedC0 + (size_t)ptr);
-            if(*charcnt == pcm_size) break;
-            ++*charcnt;
-            ptr++;
-            oldcrc32 = UPDC32(c, oldcrc32);
+          if(counter == REG_SIZE) {
+              readBuffer = *(register_t __capability *)(uncachedC0 + (size_t)ptr);
+              counter = 0;
+          }
+          // The following only works for BIG ENDIAN!
+          c = (readBuffer & (0xffUL<<((REG_SIZE-1)*8))) >> ((REG_SIZE-1)*8);
+          readBuffer >>= 8;
+          if(*charcnt == pcm_size) break;
+          ++*charcnt;
+          ptr++;
+          oldcrc32 = UPDC32(c, oldcrc32);
+          counter++;
       }
       *crc = oldcrc32 = ~oldcrc32;
 

@@ -253,12 +253,12 @@ kernel_cp2_ccall_handler:
         srl $k0, $k0, 8
         bne $k0, $k1, kernel_cp2_creturn
         nop
-        cgetdefault   $kr2c
-        csetoffset  $kr2c, $kr2c, $sp
+        cgetdefault   $c25
+        csetoffset  $c25, $c25, $sp
         li  $k0, 4
         cincoffset  $epcc, $epcc, $k0
         csc $epcc, $0, 0($kr1c)
-        csc $kr2c, $0, CAP_SIZE($kr1c)
+        csc $c25, $0, CAP_SIZE($kr1c)
         dmfc0   $k0, $9 # read the current count register
         csd $v1, $0, 2*CAP_SIZE($kr1c)
         csw $k0, $0, 2*CAP_SIZE+REG_SIZE($kr1c)
@@ -294,11 +294,11 @@ kernel_cp2_creturn:
         li  $k0, -3*CAP_SIZE
         cincoffset  $kr1c, $kr1c, $k0
         clc $epcc, $0, 0($kr1c)
-        clc $kr2c, $0, CAP_SIZE($kr1c)
+        clc $c25, $0, CAP_SIZE($kr1c)
         # extract the stack pointer of the caller
-        cgetoffset  $sp, $kr2c
-        csetoffset  $kr2c, $kr2c, $0
-        csetdefault $kr2c
+        cgetoffset  $sp, $c25
+        csetoffset  $c25, $c25, $0
+        csetdefault $c25
         cgetoffset  $k0, $epcc
 		dmtc0	$k0, $14		# EPC
 		eret

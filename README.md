@@ -15,15 +15,14 @@ CheriOS-microkernel is still in a very early state.
 You need a Cheri SDK ([LLVM] and [Clang]) to build CheriOS. Note that this IoT version uses less capability registers, and you need to hack LLVM to support this:
 
 * C0: default data capability.
-* C1, C2: Temporary registers, caller save.
-* C3 - C8: capability argument registers. C6 - C7 are used as PCC, IDC.
-* C17, C18: callee save.
+* C1, C2: Temporary registers, caller save. CCall capabilities
+* C3 - C5: capability argument registers.
+* C6, C7: callee save.
 * C25: exception handling in user space.
 * KR1C: Trusted stack register.
 * KCC, KDC, EPCC: kernel capability registers.
 
-256-bit Cheri SDK works out of the box.
-128-bit Cheri SDK is supported, but requires sealed capabilities to support at least CAP\_SIZE granularity.
+Both 256-bit and 128-bit Cheri SDK works out of the box.
 
 The following snipset will build CheriOS for a 256-bit SDK targetting [cheri-qemu] (defaults).
 ```sh
@@ -59,7 +58,7 @@ CheriOS code is organized as follow:
 * __memmgt__: provides the system-wide mmap
 * __namespace__: provides a directory of registered activations
 * __uart__: module providing print services
-* __qsort, AES, stringsearch, dijkstra, spam, sha, CRC32, bitcount__: MiBench benchmarks
+* __qsort, AES, stringsearch, dijkstra, spam, sha, CRC32, bitcount, adpcm__: MiBench benchmarks
 
 
    [cheri-qemu]: <https://github.com/CTSRD-CHERI/qemu>

@@ -133,6 +133,9 @@ msg_entry_end:
 	.global msg_entry_loopback
 	.ent msg_entry_loopback
 msg_entry_loopback:
+    cgetdefault $c25
+    clc $c1, $sp, 0($c25)
+    clc $c2, $sp, CAP_SIZE($c25)
     move    $v0, $a0
     move    $a0, $a1
     move    $a1, $a2

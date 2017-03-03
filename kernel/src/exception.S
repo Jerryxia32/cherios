@@ -56,8 +56,7 @@
 		.global kernel_exception_trampoline
 		.ent kernel_exception_trampoline
 kernel_exception_trampoline:
-		dla	$k0, kernel_cp2_exception_handler
-		jr	$k0
+        j   kernel_cp2_exception_handler
         csetoffset  $kdc, $kdc, $0
 kernel_exception_trampoline_end:
 		nop
@@ -69,8 +68,7 @@ kernel_exception_trampoline_end:
 		.global kernel_ccall_trampoline
 		.ent kernel_ccall_trampoline
 kernel_ccall_trampoline:
-		dla	$k0, kernel_cp2_ccall_handler
-		jr	$k0
+        j   kernel_cp2_ccall_handler
         li  $k1, 5
 kernel_ccall_trampoline_end:
 		nop
@@ -252,7 +250,6 @@ kernel_cp2_ccall_handler:
         cgetcause   $k0
         srl $k0, $k0, 8
         bne $k0, $k1, kernel_cp2_creturn
-        nop
         cgetdefault   $c25
         csetoffset  $c25, $c25, $sp
         li  $k0, 4
@@ -275,8 +272,6 @@ kernel_cp2_ccall_handler:
         csetdefault $c2
         cgetoffset  $k0, $epcc
 		dmtc0	$k0, $14		# EPC
-		move	$k0, $zero
-		move	$k1, $zero
 		eret
 
 kernel_cp2_creturn:

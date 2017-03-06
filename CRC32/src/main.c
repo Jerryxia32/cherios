@@ -141,7 +141,7 @@ Boolean_T crc32file(char __capability *uncachedC0, const char *name, unsigned lo
           }
           // The following only works for BIG ENDIAN!
           c = (readBuffer & (0xffUL<<((REG_SIZE-1)*8))) >> ((REG_SIZE-1)*8);
-          readBuffer >>= 8;
+          readBuffer <<= 8;
           if(*charcnt == pcm_size) break;
           ++*charcnt;
           ptr++;

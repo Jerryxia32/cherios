@@ -69,6 +69,7 @@ void kernel_timer(void)
     if(hint > 1) {
         struct reg_frame __capability *kernel_exception_framep_cap = (struct reg_frame __capability *)kernel_exception_framep_ptr;
         capability __capability *oriStack = kernel_exception_framep_cap->cf_kr1c;
+#ifdef REAL_TIME
         capability __capability *tStack = cheri_setoffset(oriStack, 0);
 
         // scan and pop the stack
@@ -79,7 +80,16 @@ void kernel_timer(void)
             int32_t elapsed = cp0_count_get() - *lastTimep;
             *lastTimep += elapsed;
             *remainTimep -= elapsed;
-
+#else
+        size_t oriOffset;
+        if((oriOffset = cheri_getoffset(oriStack)) != 0) {
+            //check if a random frame expires
+            size_t rand = cp0_count_get() % oriOffset;
+            rand &= ~(((size_t)CAP_SIZE<<2)-1);
+            capability __capability *tStack = cheri_setoffset(oriStack, rand);
+            int64_t __capability *remainTimep = (int64_t __capability *)((char __capability *)tStack + 2*CAP_SIZE);
+            *remainTimep -= TIMER_INTERVAL;
+#endif
             // timeout reached, force return
             if(*remainTimep <= 0) {
                 // timing failed, signal the assembly to clear registers.
@@ -95,18 +105,22 @@ void kernel_timer(void)
                 kernel_exception_framep_cap->cf_c0 = cheri_setoffset(theC0, 0);
                 
                 // release all held mutexes
-                for(size_t theOffset = 3; tStack + theOffset < oriStack; theOffset += 3) {
+                for(size_t theOffset = 4; tStack + theOffset < oriStack; theOffset += 4) {
                     *(int __capability *)cheri_setoffset(*(tStack + theOffset + 1), 0x100) = 0;
                 }
+#ifdef REAL_TIME
                 break;
             }
 
             //check the next
-            tStack += 3;
+            tStack += 4;
         }
-
-        // reinstall kr1c
         kernel_exception_framep_cap->cf_kr1c = tStack;
+#else
+                kernel_exception_framep_cap->cf_kr1c = tStack;
+            }
+        }
+#endif
     }
 
 	/*
@@ -123,6 +137,6 @@ void kernel_timer(void)
 
 	kernel_last_timer = next_timer;
      */
-	kernel_last_timer = TMOD(cp0_count_get() + TIMER_INTERVAL);
+	kernel_last_timer = TMOD(cp0_count_get() + TIMER_INTERVAL + 1);
 	cp0_compare_set(kernel_last_timer);	//Also clears pending interrupt.
 }

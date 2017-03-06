@@ -33,6 +33,7 @@
 
 //#define __TRACE__
 //#define __LITE__
+//#define REAL_TIME
 
 #define MAX_ACTIVATIONS 32
 

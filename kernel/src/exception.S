@@ -222,14 +222,14 @@ timing_failed_restore:
         clearhi 0xf3ff  # keep k0, k1
         cclearlo 0xfffe # keep c0, as the kernel uses it
         cclearhi 0x17ff # don't clear kernel and kr1c
-        cld $sp, $k0, 26*REG_SIZE($kdc)
-        cld	$k1, $k0, 31*REG_SIZE($kdc)
+        cld $sp, $k0, 15*REG_SIZE($kdc)
+        cld	$k1, $k0, 20*REG_SIZE($kdc)
         dmtc0	$k1, $14		# EPC
 
         clc $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         csetdefault $c1
-        clc $kr1c, $k0, 12*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $epcc, $k0, 13*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+        clc $kr1c, $k0, 9*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+        clc $epcc, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         # clear the timing failed flag
         dla $k0, timingFailed
         csw  $0, $k0, 0($kdc)
@@ -256,10 +256,13 @@ kernel_cp2_ccall_handler:
         cincoffset  $epcc, $epcc, $k0
         csc $epcc, $0, 0($kr1c)
         csc $c25, $0, CAP_SIZE($kr1c)
-        dmfc0   $k0, $9 # read the current count register
         csd $v1, $0, 2*CAP_SIZE($kr1c)
+//#define REAL_TIME
+#ifdef REAL_TIME
+        dmfc0   $k0, $9 # read the current count register
         csw $k0, $0, 2*CAP_SIZE+REG_SIZE($kr1c)
-        li  $k0, 3*CAP_SIZE
+#endif
+        li  $k0, 4*CAP_SIZE
         cincoffset  $kr1c, $kr1c, $k0
 
         cgettype    $k0, $c1
@@ -286,7 +289,7 @@ kernel_cp2_creturn:
     clearhi 0x0f00 // clear t8, t9, k0, k1
     cclearlo 0xff36 // keep c3, c6, c7
 
-        li  $k0, -3*CAP_SIZE
+        li  $k0, -4*CAP_SIZE
         cincoffset  $kr1c, $kr1c, $k0
         clc $epcc, $0, 0($kr1c)
         clc $c25, $0, CAP_SIZE($kr1c)

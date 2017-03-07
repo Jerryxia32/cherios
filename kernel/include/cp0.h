@@ -39,7 +39,7 @@
  * Routines for managing the CP0 count and compare registers, used to
  * implement cycle counting and timers.
  */
-inline register_t
+static inline register_t
 cp0_count_get(void)
 {
 	register_t count;
@@ -48,7 +48,7 @@ cp0_count_get(void)
 	return (count & 0xFFFFFFFF);
 }
 
-inline void
+static inline void
 cp0_compare_set(register_t compare)
 {
 
@@ -56,7 +56,7 @@ cp0_compare_set(register_t compare)
 }
 
 
-inline register_t
+static inline register_t
 cp0_status_get(void)
 {
 	register_t status;
@@ -65,7 +65,7 @@ cp0_status_get(void)
 	return (status);
 }
 
-inline void
+static inline void
 cp0_status_set(register_t status)
 {
 
@@ -75,7 +75,7 @@ cp0_status_set(register_t status)
 /*
  * Routines for managing the CP0 BadVAddr register.
  */
-inline register_t
+static inline register_t
 cp0_badvaddr_get(void)
 {
 	register_t badvaddr;
@@ -87,7 +87,7 @@ cp0_badvaddr_get(void)
 /*
  * Routines for managing the CP0 BadInstr register.
  */
-inline register_t
+static inline register_t
 cp0_badinstr_get(void)
 {
 	register_t badinstr;
@@ -99,14 +99,14 @@ cp0_badinstr_get(void)
 /*
  * Routines for managing various aspects of the CP0 status register.
  */
-inline int
+static inline int
 cp0_status_bd_get(void)
 {
 
 	return (cp0_status_get() & MIPS_CP0_CAUSE_BD);
 }
 
-inline void
+static inline void
 cp0_status_bev_set(int bev)
 {
 	register_t status;
@@ -120,14 +120,14 @@ cp0_status_bev_set(int bev)
 	cp0_status_set(status);
 }
 
-inline int
+static inline int
 cp0_status_exl_get(void)
 {
 
 	return (cp0_status_get() & MIPS_CP0_STATUS_EXL);
 }
 
-inline void
+static inline void
 cp0_status_ie_disable(void)
 {
 	register_t status;
@@ -138,7 +138,7 @@ cp0_status_ie_disable(void)
 	cp0_status_set(status);
 }
 
-inline void
+static inline void
 cp0_status_ie_enable(void)
 {
 	register_t status;
@@ -149,14 +149,14 @@ cp0_status_ie_enable(void)
 	cp0_status_set(status);
 }
 
-inline int
+static inline int
 cp0_status_ie_get(void)
 {
 
 	return (cp0_status_get() & MIPS_CP0_STATUS_IE);
 }
 
-inline void
+static inline void
 cp0_status_im_enable(int mask)
 {
 	register_t status;
@@ -167,7 +167,7 @@ cp0_status_im_enable(int mask)
 	cp0_status_set(status);
 }
 
-inline void
+static inline void
 cp0_status_im_disable(int mask)
 {
 	register_t status;
@@ -181,7 +181,7 @@ cp0_status_im_disable(int mask)
 /*
  * Routines for managing the CP0 cause register.
  */
-inline register_t
+static inline register_t
 cp0_cause_get(void)
 {
 	register_t cause;
@@ -190,7 +190,7 @@ cp0_cause_get(void)
 	return (cause);
 }
 
-inline register_t
+static inline register_t
 cp0_cause_excode_get(void)
 {
 
@@ -198,7 +198,7 @@ cp0_cause_excode_get(void)
 	    MIPS_CP0_CAUSE_EXCODE_SHIFT);
 }
 
-inline register_t
+static inline register_t
 cp0_cause_ipending_get(void)
 {
 
@@ -206,7 +206,7 @@ cp0_cause_ipending_get(void)
 	    MIPS_CP0_CAUSE_IP_SHIFT);
 }
 
-inline void
+static inline void
 cp0_cause_set(register_t cause)
 {
 

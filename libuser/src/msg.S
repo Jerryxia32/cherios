@@ -252,6 +252,15 @@ end_ccall:
     sw  $0, 0($t0)
     daddiu  $sp, $sp, CAP_SIZE
 
+    /* the callee should never trust the caller, as the callee can be called
+     * by anyone. However, I think the caller should be able to choose whether
+     * to trust the callee, as he knows who he is going to call. Therefore,
+     * callee should always clear registers, except for callee saved ones and
+     * return values.
+     */
+    clearlo 0xfff3 // keep v0, v1 for return values
+    clearhi 0x0f00 // clear t8, t9, k0, k1
+    cclearlo 0xff36 // keep c3, c6, c7
     creturn
 
 msg_entry_ccall_end:

@@ -41,6 +41,8 @@ void * act_self_id   = NULL;
 __capability void *act_self_PCC = NULLCAP;
 __capability void *act_self_IDC = NULLCAP;
 __capability void * act_self_cap   = NULLCAP;
+__capability void *helper_cap   = NULLCAP;
+__capability void *return_cap   = NULLCAP;
 
 void object_init(void * self_ctrl, __capability void* self_cap, __capability void *self_PCC, __capability void *self_IDC) {
 	assert(self_ctrl != NULL);

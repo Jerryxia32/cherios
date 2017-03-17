@@ -9,7 +9,7 @@ set(CMAKE_C_COMPILER_WORKS 1)
 # Configure hardare at compile time.  Default to "qemu" for CHERI QEMU MALTA.
 # Other option are "fpga" for CHERI on FPGA and "l3" for the L3 simulator.
 #
-set(HARDWARE "qemu" CACHE STRING
+set(HARDWARE "fpga" CACHE STRING
 "Configure hardare at compile time.  Default to \"qemu\" for CHERI QEMU MALTA.\
  Other option are \"fpga\" for CHERI on FPGA and \"l3\" for the L3 simulator.")
 
@@ -133,7 +133,7 @@ set(ASM_COMPILER_FLAGS
 set(C_COMPILER_FLAGS
     ${ASMC_COMPILER_FLAGS}
     -nostdinc
-    -O3 # TODO: make this depend on the configuration
+    -Os # TODO: make this depend on the configuration
     -fomit-frame-pointer # TODO: make this depend on the configuration
     -Werror
     -std=c11
@@ -281,7 +281,7 @@ add_subdirectory(dijkstra)
 add_subdirectory(adpcm)
 add_subdirectory(AES)
 #add_subdirectory(fatfs)
-#add_subdirectory(hello)
+add_subdirectory(ccall_helper)
 add_subdirectory(memmgt)
 add_subdirectory(namespace)
 #add_subdirectory(prga)

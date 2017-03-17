@@ -89,55 +89,53 @@ __capability void *calloc_c_c(size_t items, size_t length) {
 }
 
 #else /* ifdef MALLOC_FASTPATH */
+static int mallocInit = 0;
 static __capability void * memmgt_PCC = NULLCAP;
 static __capability void * memmgt_IDC = NULLCAP;
+extern void __capability *helper_cap;
+
+void
+init_memmgt() {
+    memmgt_PCC = namespace_get_PCC(3);
+    memmgt_IDC  = namespace_get_IDC(3);
+    helper_cap = namespace_get_PCC(7);
+    mallocInit = 1;
+}
 
 __capability void *malloc_c(size_t length) {
-	if(memmgt_PCC == NULLCAP || memmgt_IDC == NULLCAP) {
-		memmgt_PCC = namespace_get_PCC(3);
-		memmgt_IDC  = namespace_get_IDC(3);
-	}
-	return ccall_real_4_c(0, LONG_MAX, length, 0, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, NULLCAP);
+    if(mallocInit == 0)
+        init_memmgt();
+	return ccall_real_4_c(0, LONG_MAX, length, 0, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, helper_cap);
 }
 
 __capability void *calloc_c(size_t items, size_t length) {
-	if(memmgt_PCC == NULLCAP || memmgt_IDC == NULLCAP) {
-		memmgt_PCC = namespace_get_PCC(3);
-		memmgt_IDC  = namespace_get_IDC(3);
-	}
-	return ccall_real_4_c(1, LONG_MAX, items, length, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, NULLCAP);
+    if(mallocInit == 0)
+        init_memmgt();
+	return ccall_real_4_c(1, LONG_MAX, items, length, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, helper_cap);
 }
 
 __capability void *realloc_c(__capability void *ptr, size_t length) {
-	if(memmgt_PCC == NULLCAP || memmgt_IDC == NULLCAP) {
-		memmgt_PCC = namespace_get_PCC(3);
-		memmgt_IDC  = namespace_get_IDC(3);
-	}
-	return ccall_real_4_c(2, LONG_MAX, length, 0, 0, ptr, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, NULLCAP);
+    if(mallocInit == 0)
+        init_memmgt();
+	return ccall_real_4_c(2, LONG_MAX, length, 0, 0, ptr, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, helper_cap);
 }
 
 void free_c(__capability void *ptr) {
-	if(memmgt_PCC == NULLCAP || memmgt_IDC == NULLCAP) {
-		memmgt_PCC = namespace_get_PCC(3);
-		memmgt_IDC  = namespace_get_IDC(3);
-	}
-	ccall_real_4_c(3, LONG_MAX, 0, 0, 0, ptr, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, NULLCAP);
+    if(mallocInit == 0)
+        init_memmgt();
+	ccall_real_4_c(3, LONG_MAX, 0, 0, 0, ptr, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, helper_cap);
 }
 
 __capability void *malloc_c_c(size_t length) {
-	if(memmgt_PCC == NULLCAP || memmgt_IDC == NULLCAP) {
-		memmgt_PCC = namespace_get_PCC(3);
-		memmgt_IDC  = namespace_get_IDC(3);
-	}
-	return ccall_real_4_c(4, LONG_MAX, length, 0, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, NULLCAP);
+    if(mallocInit == 0)
+        init_memmgt();
+	return ccall_real_4_c(4, LONG_MAX, length, 0, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, helper_cap);
 }
 
 __capability void *calloc_c_c(size_t items, size_t length) {
-	if(memmgt_PCC == NULLCAP || memmgt_IDC == NULLCAP) {
-		memmgt_PCC = namespace_get_PCC(3);
-		memmgt_IDC  = namespace_get_IDC(3);
-	}
-	return ccall_real_4_c(5, LONG_MAX, items, length, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, NULLCAP);
+    if(mallocInit == 0)
+        init_memmgt();
+	return ccall_real_4_c(5, LONG_MAX, items, length, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, helper_cap);
 }
 #endif /* MALLOC_FASTPATH */
 

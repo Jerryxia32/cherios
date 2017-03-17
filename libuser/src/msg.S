@@ -201,6 +201,9 @@ msg_entry_end_loopback:
 	.global msg_entry_ccall
 	.ent msg_entry_ccall
 msg_entry_ccall:
+    cgetoffset  $sp, $idc
+    csetoffset  $idc, $idc, $0
+    csetdefault $idc
     li $t0, MUTEX_ADDR
 mutex_loop_ccall:
     # mutex to prevent module from receiving another message while still
@@ -258,10 +261,13 @@ end_ccall:
      * callee should always clear registers, except for callee saved ones and
      * return values.
      */
+    dla $t0, return_cap
+    cgetdefault $c25
+    clc $idc, $t0, 0($c25)
     clearlo 0xfff3 // keep v0, v1 for return values
     clearhi 0x0f00 // clear t8, t9, k0, k1
+    ccall   $idc, $idc, 41
     cclearlo 0xff36 // keep c3, c6, c7
-    creturn
 
 msg_entry_ccall_end:
 	.end msg_entry_ccall

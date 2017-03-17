@@ -31,13 +31,53 @@
 .set noreorder
 .set nobopt
 .set noat
+.set CAP_SIZE, (_MIPS_SZCAP/8)
 
 	.text
 	.global start
 	.ent start
 start:
-#j start_common
-    dla $t9, start_common
-    dadd $t9, $s4, $t9
-    jr  $t9
+    b start_common
     nop
+
+	.text
+	.global ccall_helper
+	.ent ccall_helper
+ccall_helper:
+    cgetdefault   $c25
+    csetoffset  $c25, $c25, $sp
+    csc $idc, $0, 0($kr1c)
+    csc $c25, $0, CAP_SIZE($kr1c)
+    csd $v1, $0, 2*CAP_SIZE($kr1c)
+//#define REAL_TIME
+#ifdef REAL_TIME
+    dmfc0   $t0, $9 # read the current count register
+    csw $t0, $0, 2*CAP_SIZE+REG_SIZE($kr1c)
+#endif
+    li  $t0, 4*CAP_SIZE
+    cincoffset  $kr1c, $kr1c, $t0
+
+    ccall   $c1, $c2, 42
+    nop
+ccall_helper_end:
+	.size ccall_helper, ccall_helper - ccall_helper_end
+	.end ccall_helper
+
+	.text
+	.global creturn_helper
+	.ent creturn_helper
+creturn_helper:
+    li  $t0, -4*CAP_SIZE
+    cincoffset  $kr1c, $kr1c, $t0
+    clc $c1, $0, 0($kr1c)
+    clc $c25, $0, CAP_SIZE($kr1c)
+    # extract the stack pointer of the caller
+    cgetoffset  $sp, $c25
+    csetoffset  $c25, $c25, $0
+    csetdefault $c25
+    ccall   $c1, $c1, 42
+    nop
+creturn_helper_end:
+	.size creturn_helper, creturn_helper - creturn_helper_end
+	.end creturn_helper
+

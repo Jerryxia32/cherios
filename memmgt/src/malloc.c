@@ -144,8 +144,14 @@ malloc_core(size_t nbytes)
     return ret;
 }
 
+static int returnCapInited = 0;
+
 __capability void *
 malloc_c_c(size_t nbytes) {
+    if(returnCapInited == 0) {
+        return_cap = namespace_get_IDC(7);
+        returnCapInited = 1;
+    }
     __capability void *ret = malloc_core(nbytes);
     return(cheri_andperm(ret, ~CHERI_PERM_STORE_LOCAL_CAP));
 }

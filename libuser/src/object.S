@@ -47,12 +47,14 @@ ccall_real_4:
     cgetdefault $c25
     clc $c1, $sp, CAP_SIZE($c25)
     clc $c2, $sp, 2*CAP_SIZE($c25)
+    clc $idc, $sp, 3*CAP_SIZE($c25)
     move $v1, $a1
     move $a0, $a2
     ld $a2, 0($sp)
     move $a1, $a3
 
-    ccall   $c1, $c2, 0
+    ccall   $idc, $idc, 41
+    nop
     jr  $ra
     nop
 ccall_real_4_end:
@@ -98,6 +100,7 @@ ccall_real_4_strong:
 
     clc $c1, $sp, SAVE_FRAME_SIZE+CAP_SIZE($c25)
     clc $c2, $sp, SAVE_FRAME_SIZE+2*CAP_SIZE($c25)
+    clc $idc, $sp, SAVE_FRAME_SIZE+3*CAP_SIZE($c25)
     move $v0, $a0
     move $v1, $a1
     move $a0, $a2
@@ -106,7 +109,8 @@ ccall_real_4_strong:
     clearlo 0xff03 # keep four mips arg regs and v0, v1
     clearhi 0xdfff # keep $sp for seal
     cclearlo 0xffc0 # keep c0-c5
-    ccall   $c1, $c2, 0
+    ccall   $idc, $idc, 41
+    nop
 
 	# Load register frame
     cgetdefault $c25

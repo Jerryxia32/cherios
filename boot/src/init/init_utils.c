@@ -150,6 +150,7 @@ static __capability void * get_act_cap(module_t type) {
         break;
 	case m_core:
 	case m_user:
+	case m_ccall_helper:
         /* return a capability with permit_seal permission of otype aid */
         sealing_tool_no++;
         if(sealing_tool_no == 1L<<CHERI_OTYPE_WIDTH) {
@@ -221,7 +222,7 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 	__capability void * pcc = cheri_getpcc();
 	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), (allocsize + PAGE_ALIGN) & ~(PAGE_ALIGN-1));
 	pcc = cheri_incoffset(pcc, entry);
-	pcc = cheri_andperm(pcc, (CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
+	pcc = cheri_andperm(pcc, (CHERI_PERM_ACCESS_SYS_REGS | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
 				  | CHERI_PERM_LOAD_CAP));
     /* make sure the permission given to c0 of each module is bounded */
     prgmp = cheri_andperm(prgmp, (CHERI_PERM_GLOBAL | CHERI_PERM_LOAD | CHERI_PERM_STORE
@@ -229,6 +230,9 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
                 | CHERI_PERM_STORE_LOCAL_CAP | CHERI_PERM_SOFT_0));
     if(type != m_memmgt) {
         prgmp = cheri_andperm(prgmp, ~CHERI_PERM_GLOBAL);
+    }
+    if(type != m_ccall_helper) {
+        pcc = cheri_andperm(pcc, ~CHERI_PERM_ACCESS_SYS_REGS);
     }
 
 	void * ctrl = init_act_create(file, cheri_setoffset(prgmp, 0),

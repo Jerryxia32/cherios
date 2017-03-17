@@ -352,6 +352,7 @@ typedef struct reg_frame {
 	//capability	cf_c18, cf_c19, cf_c20, cf_c21, cf_c22;
 	//capability	cf_c23, cf_c24;
     capability cf_c25;
+    capability cf_idc;
 
 	/*
 	 * Special-purpose capability registers that must be preserved on a

@@ -34,6 +34,11 @@ main() {
 	__capability void * aes_IDC = namespace_get_IDC(5);
 	assert(aes_IDC != NULLCAP);
 
+	__capability void * helper_PCC = namespace_get_PCC(7);
+	assert(helper_PCC != NULLCAP);
+	__capability void * helper_IDC = namespace_get_IDC(7);
+	assert(helper_IDC != NULLCAP);
+
     size_t len = &__AES_end - &__AES_start;
     __capability char *AES_data_cap = cheri_setbounds(cheri_setoffset(*((capability __capability *)0x200), (size_t)&__AES_start), len+1);
     size_t encdecOffset = 0, totalDeced = 0, remain = 0;
@@ -56,13 +61,13 @@ main() {
         encdecOffset = 0;
         remain = 0;
         while((remain = len-encdecOffset) > EACH_BLOCK_SIZE) {
-            encret = ccall_real_4_strong_r(0, LONG_MAX, EACH_BLOCK_SIZE, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap, aes_PCC, aes_IDC, NULLCAP);
-            decret = ccall_real_4_strong_r(0, LONG_MAX, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap, aes_PCC, aes_IDC, NULLCAP);
+            encret = ccall_real_4_strong_r(0, LONG_MAX, EACH_BLOCK_SIZE, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap, aes_PCC, aes_IDC, helper_PCC);
+            decret = ccall_real_4_strong_r(0, LONG_MAX, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap, aes_PCC, aes_IDC, helper_PCC);
             encdecOffset += EACH_BLOCK_SIZE;
             totalDeced += decret;
         }
-        encret = ccall_real_4_strong_r(0, LONG_MAX, remain, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap, aes_PCC, aes_IDC, NULLCAP);
-        decret = ccall_real_4_strong_r(0, LONG_MAX, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap, aes_PCC, aes_IDC, NULLCAP);
+        encret = ccall_real_4_strong_r(0, LONG_MAX, remain, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap, aes_PCC, aes_IDC, helper_PCC);
+        decret = ccall_real_4_strong_r(0, LONG_MAX, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap, aes_PCC, aes_IDC, helper_PCC);
         totalDeced += decret;
     }
     printf("Size of the original: %ld, Total bytes decrypted: %ld\n", len, totalDeced);
@@ -80,14 +85,14 @@ main() {
     printf("Cross domain (ccall safe) for %d times.\n", DOMAIN_TIMES);
     stats_init();
     for(int i=0; i<DOMAIN_TIMES; i++) {
-        ccall_real_4_strong_r(1, LONG_MAX, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP, aes_PCC, aes_IDC, NULLCAP);
+        ccall_real_4_strong_r(1, LONG_MAX, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP, aes_PCC, aes_IDC, helper_PCC);
     }
     stats_display();
 
     printf("Cross domain (ccall unsafe) for %d times.\n", DOMAIN_TIMES);
     stats_init();
     for(int i=0; i<DOMAIN_TIMES; i++) {
-        ccall_real_4_r(1, LONG_MAX, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP, aes_PCC, aes_IDC, NULLCAP);
+        ccall_real_4_r(1, LONG_MAX, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP, aes_PCC, aes_IDC, helper_PCC);
     }
     stats_display();
 

@@ -27,29 +27,32 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+#include<mips.h>
+#include<object.h>
+#include<namespace.h>
+#include<cheric.h>
+#include<stdio.h>
 
-#include "lib.h"
-
-#define _MSG 0
-
-#if _MSG
-static void hello(void) {
-	printf("Hello Hello world\n");
-}
-
-extern void msg_entry;
-void (*msg_methods[]) = {hello};
-size_t msg_methods_nb = countof(msg_methods);
-void (*ctrl_methods[]) = {NULL};
-size_t ctrl_methods_nb = countof(ctrl_methods);
-#endif
+extern char ccall_helper;
+extern char creturn_helper;
 
 int main(void)
 {
-	syscall_puts("Hello Hello world\n");
+	puts("CCall helper Hello world.\n");
+    void __capability *call_helper = cheri_getpcc();
+    void __capability *return_helper = cheri_getpcc();
+    call_helper = cheri_setoffset(call_helper, (size_t)&ccall_helper);
+    return_helper = cheri_setoffset(return_helper, (size_t)&creturn_helper);
 
-	#if _MSG
+    call_helper = cheri_seal(call_helper, act_self_cap);
+    return_helper = cheri_seal(return_helper, act_self_cap);
+    int ret = namespace_register(7, act_self_ref, act_self_id, call_helper, return_helper);
+    if(ret!=0) {
+        printf("CCall_helper: register failed\n");
+        return -1;
+    }
+    printf("CCall_helper: register OK\n");
+
 	msg_enable = 1; /* Go in waiting state instead of exiting */
-	#endif
 	return 0;
 }

@@ -39,6 +39,8 @@ extern void * act_self_id;
 extern __capability void *act_self_PCC;
 extern __capability void *act_self_IDC;
 extern __capability void * act_self_cap;
+extern __capability void * helper_cap;
+extern __capability void * return_cap;
 void *	act_ctrl_get_ref(void * ctrl);
 void *	act_ctrl_get_id(void * ctrl);
 int	act_ctrl_revoke(void * ctrl);

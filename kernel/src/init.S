@@ -62,8 +62,9 @@ start:
     csc $c6, $k0, 6*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     csc $c7, $k0, 7*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     csc $c25, $k0, 8*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-    csc $kr1c, $k0, 9*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-    csc $epcc, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csc $idc, $k0, 9*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csc $kr1c, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csc $epcc, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     # avoid "direct c0 access deprecated" warning
     cgetdefault $c1
     csc $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
@@ -166,8 +167,9 @@ start:
     clc $c6, $k0, 6*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     clc $c7, $k0, 7*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     clc $c25, $k0, 8*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-    clc $kr1c, $k0, 9*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-    clc $epcc, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    clc $idc, $k0, 9*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    clc $kr1c, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    clc $epcc, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
 
 	# Kernel init done
 	move	$k0, $zero

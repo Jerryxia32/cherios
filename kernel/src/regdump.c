@@ -112,7 +112,7 @@ void regdump(int reg_num) {
 	REG_DUMP_C(c22); REG_DUMP_C(c23); REG_DUMP_C(c24); REG_DUMP_C(c25); kernel_printf("\n");
      */
 
-	REG_DUMP_C(c25); REG_DUMP_C(kr1c); creg = 31; REG_DUMP_C(pcc); kernel_printf("\n");
+	REG_DUMP_C(c25); REG_DUMP_C(idc); REG_DUMP_C(kr1c); creg = 31; REG_DUMP_C(pcc); kernel_printf("\n");
 }
 
 #else

@@ -43,6 +43,7 @@ typedef enum module_type {
 	m_uart,
 	m_fs,
 	m_core,
+    m_ccall_helper,
 	m_user,
 	m_fence
 } module_t;

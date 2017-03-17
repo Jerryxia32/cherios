@@ -6,3 +6,4 @@ virtio-blk  4
 qsort       10
 AES         5
 sha         6
+ccall_helper 7

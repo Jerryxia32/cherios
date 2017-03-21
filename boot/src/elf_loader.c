@@ -137,9 +137,9 @@ static inline Elf64_Phdr *elf_segment(Elf64_Ehdr *hdr, int idx) {
 
 /* not secure */
 
-__capability void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, size_t *entry, int kernelMode) {
+void * __capability elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, size_t *entry, int kernelMode) {
 	//char *addr = (char *)p;
-    __capability char *addr = cheri_getdefault();
+    char * __capability addr = cheri_getdefault();
     addr = cheri_setoffset(addr, (size_t)p);
     char *strtable;
 	size_t lowaddr = (size_t)(-1);
@@ -171,7 +171,7 @@ __capability void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t
 		}
 	}
 
-    char __capability *prgmp;
+    char * __capability prgmp;
     if(kernelMode == 0) {
         prgmp = env->alloc(allocsize + MODULE_STACK_SIZE + 2*PAGE_ALIGN); //over provision for a 64KiB stack and a 4KiB trusted stack
 

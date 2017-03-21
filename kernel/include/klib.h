@@ -95,7 +95,7 @@ void	kernel_freeze(void) __dead2;
 
 int	try_gc(void * p, void * pool);
 
-int	msg_push(int dest, int src, void *, __capability void *sync_token);
+int	msg_push(int dest, int src, void *, void * __capability sync_token);
 void	msg_pop(aid_t act);
 void	msg_queue_init(aid_t act);
 int	msg_queue_empty(aid_t act);
@@ -113,13 +113,13 @@ void *	act_seal_identifier(void * identifier);
 void	regdump(int reg_num);
 void	framedump(const struct reg_frame *frame);
 
-static inline __capability void *kernel_seal(const __capability void *p, uint64_t otype) {
-	__capability void *seal = cheri_setoffset(cheri_getdefault(), otype);
+static inline void * __capability kernel_seal(const void * __capability p, uint64_t otype) {
+	void * __capability seal = cheri_setoffset(cheri_getdefault(), otype);
 	return cheri_seal(p, seal);
 }
 
-static inline __capability void *kernel_unseal(__capability void *p, uint64_t otype) {
-	__capability void *seal = cheri_setoffset(cheri_getdefault(), otype);
+static inline void * __capability kernel_unseal(void * __capability p, uint64_t otype) {
+	void * __capability seal = cheri_setoffset(cheri_getdefault(), otype);
 	return cheri_unseal(p, seal);
 }
 

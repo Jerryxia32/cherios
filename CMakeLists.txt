@@ -121,7 +121,6 @@ include_directories(include)
 set(ASMC_COMPILER_FLAGS
     -mcpu=cheri128
     -mabi=n64
-    -cheri-linker
     -fno-PIC
     -integrated-as
     -msoft-float
@@ -246,7 +245,7 @@ function(add_cherios_module _target)
     "-T${add_exe_LINKER_SCRIPT}"
     )
   target_link_libraries(${_target}
-    -cheri-linker
+      #-fuse-ld=lld
     -nostartfiles
     -nodefaultlibs
     )

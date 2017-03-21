@@ -199,13 +199,13 @@ void kernel_exception_syscall(void)
  */
 
 /* Creates a token for synchronous CCalls. This ensures the answer is unique. */
-static __capability void *get_sync_token(aid_t ccaller) {
+static void * __capability get_sync_token(aid_t ccaller) {
 	static uint32_t unique = 0;
 	unique++;
 	kernel_acts[ccaller].sync_token.expected_reply  = unique;
 
 	uint64_t token_offset = (((u64)ccaller) << 32) + unique;
-	__capability void *sync_token = cheri_andperm(cheri_getdefault(), 0);
+	void * __capability sync_token = cheri_andperm(cheri_getdefault(), 0);
 	#ifdef _CHERI256_
 	sync_token = cheri_setbounds(sync_token, 0);
 	#endif
@@ -228,7 +228,7 @@ void kernel_ccall_fake(int cflags) {
 		return;
 	}
 
-	__capability void *sync_token = NULLCAP;
+	void * __capability sync_token = NULLCAP;
 	if(cflags & 4) {
 		sync_token = get_sync_token(kernel_curr_act);
 	}
@@ -268,7 +268,7 @@ void kernel_ccall_fake(int cflags) {
 void kernel_creturn_fake(void) {
   	KERNEL_TRACE(__func__, "in %s", kernel_acts[kernel_curr_act].name);
 
-	__capability void *sync_token = kernel_exception_framep_ptr->cf_c2;
+	void * __capability sync_token = kernel_exception_framep_ptr->cf_c2;
 	if(sync_token == NULLCAP) {
 		/* Used by asynchronous primitives */
 		//act_wait(kernel_curr_act, 0);

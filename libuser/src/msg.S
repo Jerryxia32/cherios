@@ -263,11 +263,12 @@ end_ccall:
      */
     dla $t0, return_cap
     cgetdefault $c25
-    clc $idc, $t0, 0($c25)
+    clc $c25, $t0, 0($c25)
     clearlo 0xfff3 // keep v0, v1 for return values
     clearhi 0x0f00 // clear t8, t9, k0, k1
-    ccall   $idc, $idc, 41
     cclearlo 0xff36 // keep c3, c6, c7
+    ccall   $c25, $c25, 41
+    nop
 
 msg_entry_ccall_end:
 	.end msg_entry_ccall

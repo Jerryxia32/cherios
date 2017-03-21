@@ -54,7 +54,7 @@ static char *rcsid = "$FreeBSD$";
 #pragma clang diagnostic ignored "-Wsign-compare"
 
 caddr_t	pagepool_start, pagepool_end;
-__capability char	*pool;
+char * __capability pool;
 
 int
 __morepages(int n __unused)
@@ -63,7 +63,7 @@ __morepages(int n __unused)
 }
 
 void
-__init_heap(__capability void * heap)
+__init_heap(void * __capability heap)
 {
 	/*
 	 * XXXBD: assumes DDC is page aligned.
@@ -77,8 +77,8 @@ __init_heap(__capability void * heap)
 	pool = heap;
 }
 
-__capability void *
-__rederive_pointer(__capability void *ptr)
+void * __capability
+__rederive_pointer(void * __capability ptr)
 {
 	caddr_t addr, base;
 

@@ -58,43 +58,43 @@
  * in the kernel.
  */
 #define	cheri_getlen(x)		__builtin_cheri_get_cap_length(		\
-				    __DECONST(__capability void *, (x)))
+				    __DECONST(void * __capability, (x)))
 #define	cheri_getbase(x)	__builtin_cheri_get_cap_base(		\
-				    __DECONST(__capability void *, (x)))
+				    __DECONST(void * __capability, (x)))
 #define	cheri_getoffset(x)	__builtin_cheri_cap_offset_get(		\
-				    __DECONST(__capability void *, (x)))
+				    __DECONST(void * __capability, (x)))
 #define	cheri_getperm(x)	__builtin_cheri_get_cap_perms(		\
-				    __DECONST(__capability void *, (x)))
+				    __DECONST(void * __capability, (x)))
 #define	cheri_getsealed(x)	__builtin_cheri_get_cap_sealed(		\
-				    __DECONST(__capability void *, (x)))
+				    __DECONST(void * __capability, (x)))
 #define	cheri_gettag(x)		__builtin_cheri_get_cap_tag(		\
-				    __DECONST(__capability void *, (x)))
+				    __DECONST(void * __capability, (x)))
 #define	cheri_gettype(x)	__builtin_cheri_get_cap_type(		\
-				    __DECONST(__capability void *, (x)))
+				    __DECONST(void * __capability, (x)))
 
 #define	cheri_andperm(x, y)	__builtin_cheri_and_cap_perms(		\
-				    __DECONST(__capability void *, (x)), (y))
+				    __DECONST(void * __capability, (x)), (y))
 #define	cheri_cleartag(x)	__builtin_cheri_clear_cap_tag(		\
-				    __DECONST(__capability void *, (x)))
+				    __DECONST(void * __capability, (x)))
 #define	cheri_incoffset(x, y)	__builtin_cheri_cap_offset_increment(	\
-				    __DECONST(__capability void *, (x)), (y))
+				    __DECONST(void * __capability, (x)), (y))
 #define	cheri_setoffset(x, y)	__builtin_cheri_cap_offset_set(		\
-				    __DECONST(__capability void *, (x)), (y))
+				    __DECONST(void * __capability, (x)), (y))
 
 #define	cheri_seal(x, y)	__builtin_cheri_seal_cap(		 \
-				    __DECONST(__capability void *, (x)), \
-				    __DECONST(__capability void *, (y)))
+				    __DECONST(void * __capability, (x)), \
+				    __DECONST(void * __capability, (y)))
 #define	cheri_unseal(x, y)	__builtin_cheri_unseal_cap(		 \
-				    __DECONST(__capability void *, (x)), \
-				    __DECONST(__capability void *, (y)))
+				    __DECONST(void * __capability, (x)), \
+				    __DECONST(void * __capability, (y)))
 
 #define	cheri_getcause()	__builtin_cheri_get_cause()
 #define	cheri_setcause(x)	__builtin_cheri_set_cause(x)
 
 #define	cheri_ccheckperm(c, p)	__builtin_cheri_check_perms(		\
-				    __DECONST(__capability void *, (c)), (p))
+				    __DECONST(void * __capability, (c)), (p))
 #define	cheri_cchecktype(c, t)	__builtin_cheri_check_type(		\
-				    __DECONST(__capability void *, (c)), (t))
+				    __DECONST(void * __capability, (c)), (t))
 
 #define	cheri_getdefault()	__builtin_cheri_get_global_data_cap()
 #define	cheri_getidc()		__builtin_cheri_get_invoke_data_cap()
@@ -109,7 +109,7 @@
 #define	cheri_local(c)		cheri_andperm((c), ~CHERI_PERM_GLOBAL)
 
 #define	cheri_setbounds(x, y)	__builtin_memcap_bounds_set(		\
-				    __DECONST(__capability void *, (x)), (y))
+				    __DECONST(void * __capability, (x)), (y))
 
 #define cheri_getddcoffset(cap) (cheri_getbase(cap) + cheri_getoffset(cap) \
                     - cheri_getbase(cheri_getdefault()))
@@ -137,7 +137,7 @@
 #if (_MIPS_SZCAP != 64)
 #define CHERI_OTYPE_WIDTH 24
 #endif
-#define	NULLCAP		((__capability void *)0)
+#define	NULLCAP		((void * __capability)0)
 
 /*
  * Two variations on cheri_ptr() based on whether we are looking for a code or
@@ -152,13 +152,13 @@
  * appears not currently to be the case, so manually derive using
  * cheri_getpcc() for now.
  */
-static __inline __capability void *
+static __inline void * __capability
 cheri_codeptr(const void *ptr, size_t len)
 {
 #ifdef NOTYET
 	__capability void (*c)(void) = ptr;
 #else
-	__capability void *c = cheri_setoffset(cheri_getpcc(),
+	void * __capability c = cheri_setoffset(cheri_getpcc(),
 	    (register_t)ptr);
 #endif
 
@@ -166,7 +166,7 @@ cheri_codeptr(const void *ptr, size_t len)
 	return (cheri_setbounds(c, len));
 }
 
-static __inline __capability void *
+static __inline void * __capability
 cheri_codeptrperm(const void *ptr, size_t len, register_t perm)
 {
 
@@ -174,22 +174,22 @@ cheri_codeptrperm(const void *ptr, size_t len, register_t perm)
 	    perm | CHERI_PERM_GLOBAL));
 }
 
-static __inline __capability void *
+static __inline void * __capability
 cheri_ptr(const void *ptr, size_t len)
 {
 
 	/* Assume CFromPtr without base set, availability of CSetBounds. */
-	return (cheri_setbounds((const __capability void *)ptr, len));
+	return (cheri_setbounds((const void * __capability)ptr, len));
 }
 
-static __inline __capability void *
+static __inline void * __capability
 cheri_ptrperm(const void *ptr, size_t len, register_t perm)
 {
 
 	return (cheri_andperm(cheri_ptr(ptr, len), perm | CHERI_PERM_GLOBAL));
 }
 
-static __inline __capability void *
+static __inline void * __capability
 cheri_ptrpermoff(const void *ptr, size_t len, register_t perm, off_t off)
 {
 
@@ -205,10 +205,10 @@ cheri_ptrpermoff(const void *ptr, size_t len, register_t perm, off_t off)
  * The caller may wish to assert various properties about the returned
  * capability, including that CHERI_PERM_SEAL is set.
  */
-static __inline __capability void *
-cheri_maketype(__capability void *root_type, register_t type)
+static __inline void * __capability
+cheri_maketype(void * __capability root_type, register_t type)
 {
-	__capability void *c;
+	void * __capability c;
 
 	c = root_type;
 	c = cheri_setoffset(c, type);	/* Set type as desired. */
@@ -217,14 +217,14 @@ cheri_maketype(__capability void *root_type, register_t type)
 	return (c);
 }
 
-static __inline __capability void *
+static __inline void * __capability
 cheri_zerocap(void)
 {
-	return (__capability void *)0;
+	return (void * __capability)0;
 }
 
 #define	cheri_getreg(x) ({						\
-	__capability void *_cap;					\
+	void * __capability _cap;					\
 	__asm __volatile ("cmove %0, $c" #x : "=C" (_cap));		\
 	_cap;								\
 })
@@ -239,9 +239,9 @@ cheri_zerocap(void)
 
 #define CHERI_PRINT_PTR(ptr)						\
 	printf("%s: " #ptr " b:%016jx l:%016zx o:%jx\n", __func__,	\
-	   cheri_getbase((const __capability void *)(ptr)),		\
-	   cheri_getlen((const __capability void *)(ptr)),		\
-	   cheri_getoffset((const __capability void *)(ptr)))
+	   cheri_getbase((const void * __capability)(ptr)),		\
+	   cheri_getlen((const void * __capability)(ptr)),		\
+	   cheri_getoffset((const void * __capability)(ptr)))
 
 #define CHERI_PRINT_CAP(cap)						\
 	printf("%-20s: %-16s t:%lx s:%lx p:%08jx "			\
@@ -305,7 +305,7 @@ static inline int VCAPS(const void * cap, size_t len, unsigned flags) {
 /*
  * Canonical C-language representation of a capability.
  */
-typedef __capability void * capability;
+typedef void * __capability capability;
 
 /*
  * Register frame to be preserved on context switching. The order of

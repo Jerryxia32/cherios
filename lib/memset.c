@@ -117,12 +117,12 @@ bzero(void *b, size_t s)
 	(void)memset(b, 0, s);
 }
 
-__capability void *
-memset_c(__capability void *dst0, int c0, size_t length)
+void * __capability
+memset_c(void * __capability dst0, int c0, size_t length)
 {
 	size_t t;
 	u_int c;
-	__capability u_char *dst;
+	u_char * __capability dst;
 
     /* XXX for some reason ctoptr is not working well, a temporary hack */
     size_t dst0DDCoffset = cheri_getbase(dst0) + cheri_getoffset(dst0) - cheri_getbase(cheri_getdefault());
@@ -170,7 +170,7 @@ memset_c(__capability void *dst0, int c0, size_t length)
 	/* Fill words.  Length was >= 2*words so we know t >= 1 here. */
 	t = length / wsize;
 	do {
-		*(__capability u_int *)(__capability void *)dst = c;
+		*(u_int * __capability)(void * __capability)dst = c;
 		dst += wsize;
 	} while (--t != 0);
 
@@ -184,7 +184,7 @@ memset_c(__capability void *dst0, int c0, size_t length)
 }
 
 void
-bzero_c(__capability void *b, size_t s)
+bzero_c(void * __capability b, size_t s)
 {
 
 	(void)memset_c(b, 0, s);

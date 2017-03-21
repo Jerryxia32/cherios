@@ -22,11 +22,11 @@ struct _QITEM
   int iNode;
   int iDist;
   int iPrev;
-  __capability struct _QITEM *qNext;
+  struct _QITEM * __capability qNext;
 };
 typedef struct _QITEM QITEM;
 
-__capability QITEM *qHead = NULLCAP;
+QITEM * __capability qHead = NULLCAP;
 
 int AdjMatrix[NUM_NODES][NUM_NODES] = {
 {32,32,54,12,52,56,8,30,44,94,44,39,65,19,51,91,1,5,89,34,25,58,20,51,38,65,30,7,20,10,51,18,43,71,97,61,26,5,57,70,65,0,75,29,86,93,87,87,64,75,88,89,100,7,40,37,38,36,44,24,46,95,43,89,32,5,15,58,77,72,95,8,38,69,37,24,27,90,77,92,31,30,80,30,37,86,33,76,21,77,100,68,37,8,22,69,81,38,94,57},
@@ -150,8 +150,8 @@ void print_path (NODE *rgnNodes_l, int chNode)
 
 void enqueue (int iNode_l, int iDist_l, int iPrev_l)
 {
-  __capability QITEM *qNew = (__capability QITEM *)malloc_c_c(sizeof(QITEM));
-  __capability QITEM *qLast = qHead;
+  QITEM * __capability qNew = (QITEM * __capability)malloc_c_c(sizeof(QITEM));
+  QITEM * __capability qLast = qHead;
   
   if (!qNew) 
     {
@@ -179,7 +179,7 @@ void enqueue (int iNode_l, int iDist_l, int iPrev_l)
 
 void dequeue (int *piNode, int *piDist, int *piPrev)
 {
-  __capability QITEM *qKill = qHead;
+  QITEM * __capability qKill = qHead;
   
   if (qHead)
     {

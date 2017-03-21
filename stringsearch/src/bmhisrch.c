@@ -32,7 +32,7 @@ static int patlen;              /* # chars in pattern               */
 static int skip[UCHAR_MAX+1];   /* skip-ahead count for test chars  */
 static int skip2;               /* skip-ahead after non-match with
                                 ** matching final character         */
-static __capability uchar *pat = NULLCAP;       /* uppercase copy of pattern        */
+static uchar * __capability pat = NULLCAP;       /* uppercase copy of pattern        */
 
 /*
 ** bmhi_init() is called prior to bmhi_search() to calculate the

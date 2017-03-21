@@ -62,7 +62,7 @@ void init_pagebucket(void);
  * byte is set to MAGIC, and the second byte is the size index.
  */
 union	overhead {
-	__capability union	overhead *ov_next;	/* when free */
+	union overhead * __capability ov_next;	/* when free * __capability */
 	struct {
 		u_char	ovu_magic;	/* magic number */
 		u_char	ovu_index;	/* bucket # */
@@ -80,7 +80,7 @@ union	overhead {
  * precedes the data area returned to the user.
  */
 #define	NBUCKETS 30
-static	__capability union overhead *nextf[NBUCKETS];
+static union overhead * __capability nextf[NBUCKETS];
 
 static	int pagebucket;			/* page size bucket */
 
@@ -99,10 +99,10 @@ botch(char *s)
 #define	ASSERT(p)
 #endif
 
-inline __capability void *
+inline void * __capability
 malloc_core(size_t nbytes)
 {
-	__capability union overhead *op;
+	union overhead * __capability op;
 	int bucket;
 	size_t amt;
 
@@ -140,33 +140,33 @@ malloc_core(size_t nbytes)
 	op->ov_index = bucket;
 	//return cheri_setbounds(op + 1, nbytes);
     op += 1;
-	void __capability *ret = cheri_setbounds(op, (1<<(bucket+3)) - MALLOC_HEADER_SIZE);
+	void * __capability ret = cheri_setbounds(op, (1<<(bucket+3)) - MALLOC_HEADER_SIZE);
     return ret;
 }
 
 static int returnCapInited = 0;
 
-__capability void *
+void * __capability
 malloc_c_c(size_t nbytes) {
     if(returnCapInited == 0) {
         return_cap = namespace_get_IDC(7);
         returnCapInited = 1;
     }
-    __capability void *ret = malloc_core(nbytes);
+    void * __capability ret = malloc_core(nbytes);
     return(cheri_andperm(ret, ~CHERI_PERM_STORE_LOCAL_CAP));
 }
 
-__capability void *
+void * __capability
 malloc_c(size_t nbytes) {
-    __capability void *ret = malloc_c_c(nbytes);
+    void * __capability ret = malloc_c_c(nbytes);
     ret = cheri_andperm(ret, cheri_getperm(ret) & ~CHERI_PERM_LOAD_CAP & ~CHERI_PERM_STORE_CAP);
     return ret;
 }
 
-__capability void *
+void * __capability
 calloc_core(size_t num, size_t size)
 {
-	__capability void *ret;
+	void * __capability ret;
 
 	if (size != 0 && (num * size) / size != num) {
 		/* size_t overflow. */
@@ -179,10 +179,10 @@ calloc_core(size_t num, size_t size)
 	return (ret);
 }
 
-__capability void *
+void * __capability
 calloc_c_c(size_t num, size_t size)
 {
-	__capability void *ret;
+	void * __capability ret;
 
 	if (size != 0 && (num * size) / size != num) {
 		/* size_t overflow. */
@@ -195,9 +195,9 @@ calloc_c_c(size_t num, size_t size)
 	return (ret);
 }
 
-__capability void *
+void * __capability
 calloc_c(size_t num, size_t nbytes) {
-    __capability void *ret = calloc_c_c(num, nbytes);
+    void * __capability ret = calloc_c_c(num, nbytes);
     ret = cheri_andperm(ret, cheri_getperm(ret) & ~CHERI_PERM_LOAD_CAP & ~CHERI_PERM_STORE_CAP);
     return ret;
 }
@@ -208,8 +208,8 @@ calloc_c(size_t num, size_t nbytes) {
 static void
 morecore(int bucket)
 {
-	__capability char *buf;
-	__capability union overhead *op;
+	char * __capability buf;
+	union overhead * __capability op;
 	size_t sz;			/* size of desired block */
 	int amt;			/* amount to allocate */
 	int nblks;			/* how many blocks we get */
@@ -246,17 +246,17 @@ morecore(int bucket)
 	 */
 	nextf[bucket] = op = cheri_setbounds(buf, sz);
 	while (--nblks > 0) {
-		op->ov_next = (__capability union overhead *)cheri_setbounds(buf + sz, sz);
+		op->ov_next = (union overhead * __capability)cheri_setbounds(buf + sz, sz);
 		buf += sz;
 		op = op->ov_next;
 	}
 	op->ov_next = NULLCAP;
 }
 
-static __capability union overhead *
-find_overhead(__capability void * cp)
+static union overhead * __capability
+find_overhead(void * __capability cp)
 {
-	__capability union overhead *op;
+	union overhead * __capability op;
 
 	if (!cheri_gettag(cp))
 		return (NULLCAP);
@@ -283,14 +283,14 @@ find_overhead(__capability void * cp)
 }
 
 void
-free_c(__capability void *cp)
+free_c(void * __capability cp)
 {
     if(!(cheri_getperm(cp) & CHERI_PERM_SOFT_0)) {
         CHERI_PRINT_PTR(cp);
         panic(KRED"malloc: capability permit free not set!\n");
     }
 	int bucket;
-	__capability union overhead *op;
+	union overhead * __capability op;
 
 	if (cp == NULLCAP)
 		return;
@@ -303,8 +303,8 @@ free_c(__capability void *cp)
 	nextf[bucket] = op;
 }
 
-__capability void *
-realloc_c(__capability void *cp, size_t nbytes)
+void * __capability
+realloc_c(void * __capability cp, size_t nbytes)
 {
 #if 0
 	size_t cur_space;	/* Space in the current bucket */
@@ -350,7 +350,7 @@ realloc_c(__capability void *cp, size_t nbytes)
 	free(cp);
 	return (res);
 #endif
-    __capability void *res;
+    void * __capability res;
 	if((res = malloc_c_c(nbytes)) == NULLCAP)
 		return (NULLCAP);
 	memcpy_c(res, cp, (nbytes <= cheri_getlen(cp)) ? nbytes : cheri_getlen(cp));

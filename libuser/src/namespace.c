@@ -41,7 +41,7 @@ void namespace_init(void *ns_ref, void *ns_id) {
 	namespace_id  = ns_id;
 }
 
-int namespace_register(int nb, void *ref, void *id, __capability void *PCC, __capability void *IDC) {
+int namespace_register(int nb, void *ref, void *id, void * __capability PCC, void * __capability IDC) {
 	return ccall_4(namespace_ref, namespace_id, 0, nb, (register_t)ref, (register_t)id, PCC, IDC, NULLCAP).rret;
 }
 
@@ -53,10 +53,10 @@ void * namespace_get_id(int nb) {
 	return (void *)ccall_4(namespace_ref, namespace_id, 2, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).rret;
 }
 
-__capability void * namespace_get_PCC(int nb) {
+void * __capability namespace_get_PCC(int nb) {
 	return ccall_4(namespace_ref, namespace_id, 3, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }
 
-__capability void * namespace_get_IDC(int nb) {
+void * __capability namespace_get_IDC(int nb) {
 	return ccall_4(namespace_ref, namespace_id, 4, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }

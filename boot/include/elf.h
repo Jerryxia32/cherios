@@ -96,15 +96,15 @@ typedef struct {
 
 /* Calling environment for loader */
 typedef struct {
-	__capability void *(*alloc)(size_t size);
-	void (*free)(__capability void *addr);
+	void * __capability(*alloc)(size_t size);
+	void (*free)(void * __capability addr);
 	int (*printf)(const char *fmt, ...);
 	int (*vprintf)(const char *fmt, va_list ap);
-	__capability void *(*memcpy_c)(__capability void *dest, const __capability void *src, size_t n);
+	void * __capability(*memcpy_c)(void * __capability dest, const void * __capability src, size_t n);
 } Elf_Env;
 
 /* given pointer p to ELF image, returns a pointer to the loaded
    image.  if provided, it also sets the min and max addresses touched
    by the loader, and the entry point.
  */
-__capability void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, size_t *entry, int kernelMode);
+void * __capability elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, size_t *entry, int kernelMode);

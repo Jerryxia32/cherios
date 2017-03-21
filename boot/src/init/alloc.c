@@ -56,11 +56,11 @@ static char * pool_next = NULL;
 
 static int system_alloc = 0;
 
-static __capability void *init_alloc_core(size_t s) {
+static void * __capability init_alloc_core(size_t s) {
 	if(pool_next + s >= pool_end) {
 		return NULLCAP;
 	}
-    __capability void *p = cheri_getdefault();
+    void * __capability p = cheri_getdefault();
     p = cheri_setoffset(p, (size_t)pool_next);
 	pool_next = align_upwards(pool_next+s, 4096);
     p = cheri_setbounds(p, (size_t)pool_next - cheri_getoffset(p));
@@ -81,9 +81,9 @@ void init_alloc_enable_system(void * c_memmgt) {
     printf("System alloc (memmgt module) enabled.\n");
 }
 
-__capability void *init_alloc(size_t s) {
+void * __capability init_alloc(size_t s) {
 	if(system_alloc == 1) {
-		__capability void * p = calloc_core(1, s);
+		void * __capability p = calloc_core(1, s);
 		if(!p) {
 			return NULLCAP;
 		}
@@ -92,7 +92,7 @@ __capability void *init_alloc(size_t s) {
 	return init_alloc_core(s);
 }
 
-void init_free(__capability void * p) {
+void init_free(void * __capability p) {
 	if(system_alloc == 1) {
         free_core(p);
 	}

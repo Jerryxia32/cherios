@@ -33,14 +33,14 @@
 
 #include"mips.h"
 
-__capability void *	malloc_c(size_t n);
-__capability void *	calloc_c(size_t n, size_t s);
-__capability void *	malloc_c_c(size_t n);
-__capability void *	calloc_c_c(size_t n, size_t s);
-__capability void *	calloc_core(size_t n, size_t s);
-__capability void *	realloc_c(__capability void *oldmem, size_t s);
-void 	free_c(__capability void * p);
-void 	free_core(__capability void * p);
+void * __capability	malloc_c(size_t n);
+void * __capability	calloc_c(size_t n, size_t s);
+void * __capability	malloc_c_c(size_t n);
+void * __capability	calloc_c_c(size_t n, size_t s);
+void * __capability	calloc_core(size_t n, size_t s);
+void * __capability	realloc_c(void * __capability oldmem, size_t s);
+void 	free_c(void * __capability p);
+void 	free_core(void * __capability p);
 
 void 	abort(void);
 void	exit(int status);

@@ -67,16 +67,16 @@ void kernel_timer(void)
      * hint 1 is init which doesn't need a trusted stack
      */
     if(hint > 1) {
-        struct reg_frame __capability *kernel_exception_framep_cap = (struct reg_frame __capability *)kernel_exception_framep_ptr;
-        capability __capability *oriStack = kernel_exception_framep_cap->cf_kr1c;
+        struct reg_frame * __capability kernel_exception_framep_cap = (struct reg_frame * __capability)kernel_exception_framep_ptr;
+        capability * __capability oriStack = kernel_exception_framep_cap->cf_kr1c;
 #ifdef REAL_TIME
-        capability __capability *tStack = cheri_setoffset(oriStack, 0);
+        capability * __capability tStack = cheri_setoffset(oriStack, 0);
 
         // scan and pop the stack
         while(tStack < oriStack) {
             //check if the current frame expires
-            int32_t __capability *lastTimep = (int32_t __capability *)((char __capability *)tStack + 2*CAP_SIZE + sizeof(register_t));
-            int64_t __capability *remainTimep = (int64_t __capability *)((char __capability *)tStack + 2*CAP_SIZE);
+            int32_t * __capability lastTimep = (int32_t * __capability)((char * __capability)tStack + 2*CAP_SIZE + sizeof(register_t));
+            int64_t * __capability remainTimep = (int64_t * __capability)((char * __capability)tStack + 2*CAP_SIZE);
             int32_t elapsed = cp0_count_get() - *lastTimep;
             *lastTimep += elapsed;
             *remainTimep -= elapsed;
@@ -86,8 +86,8 @@ void kernel_timer(void)
             //check if a random frame expires
             size_t rand = cp0_count_get() % oriOffset;
             rand &= ~(((size_t)CAP_SIZE<<2)-1);
-            capability __capability *tStack = cheri_setoffset(oriStack, rand);
-            int64_t __capability *remainTimep = (int64_t __capability *)((char __capability *)tStack + 2*CAP_SIZE);
+            capability * __capability tStack = cheri_setoffset(oriStack, rand);
+            int64_t * __capability remainTimep = (int64_t * __capability)((char * __capability)tStack + 2*CAP_SIZE);
             *remainTimep -= TIMER_INTERVAL;
 #endif
             // timeout reached, force return
@@ -96,17 +96,17 @@ void kernel_timer(void)
                 timingFailed = 1;
 
                 // first, release the current callee mutex
-                *((int __capability *)kernel_exception_framep_cap->cf_c0 + 0x100/sizeof(int)) = 0;
+                *((int * __capability)kernel_exception_framep_cap->cf_c0 + 0x100/sizeof(int)) = 0;
 
                 kernel_exception_framep_cap->cf_pcc = *tStack;
                 kernel_exception_framep_cap->mf_pc = cheri_getoffset(*tStack);
-                void __capability *theC0 = *(tStack + 1);
+                void * __capability theC0 = *(tStack + 1);
                 kernel_exception_framep_cap->mf_sp = cheri_getoffset(theC0);
                 kernel_exception_framep_cap->cf_c0 = cheri_setoffset(theC0, 0);
                 
                 // release all held mutexes
                 for(size_t theOffset = 4; tStack + theOffset < oriStack; theOffset += 4) {
-                    *(int __capability *)cheri_setoffset(*(tStack + theOffset + 1), 0x100) = 0;
+                    *(int * __capability)cheri_setoffset(*(tStack + theOffset + 1), 0x100) = 0;
                 }
 #ifdef REAL_TIME
                 break;

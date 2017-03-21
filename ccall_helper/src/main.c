@@ -39,8 +39,8 @@ extern char creturn_helper;
 int main(void)
 {
 	puts("CCall helper Hello world.\n");
-    void __capability *call_helper = cheri_getpcc();
-    void __capability *return_helper = cheri_getpcc();
+    void * __capability call_helper = cheri_getpcc();
+    void * __capability return_helper = cheri_getpcc();
     call_helper = cheri_setoffset(call_helper, (size_t)&ccall_helper);
     return_helper = cheri_setoffset(return_helper, (size_t)&creturn_helper);
 

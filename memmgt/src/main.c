@@ -31,7 +31,7 @@
 #include "lib.h"
 #include "malloc_heap.h"
 
-__capability void *sealing_tool = NULLCAP;
+void * __capability sealing_tool = NULLCAP;
 
 extern void msg_entry;
 extern char msg_entry_ccall;
@@ -54,10 +54,10 @@ int main(void) {
 	syscall_puts("memmgt Hello world\n");
 
 	/* Get capability to heap */
-	__capability void *heap = act_get_cap();
+	void * __capability heap = act_get_cap();
 	CHERI_PRINT_CAP(heap);
 	assert(heap != NULLCAP);
-    sealing_tool = *(__capability capability *)heap;
+    sealing_tool = *(capability * __capability)heap;
 	CHERI_PRINT_CAP(sealing_tool);
     act_self_PCC = cheri_setoffset(act_self_PCC, (size_t)&msg_entry_ccall);
     act_self_PCC = cheri_seal(act_self_PCC, sealing_tool);

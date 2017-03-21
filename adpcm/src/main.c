@@ -18,18 +18,18 @@ main() {
     short	sbuf[NSAMPLES] __attribute__((aligned(CAP_SIZE)));
 
     // first, construct two capability to the buffers.
-    char __capability *abufcap = cheri_getdefault();
+    char * __capability abufcap = cheri_getdefault();
     abufcap = cheri_setoffset(abufcap, (size_t)abuf);
     abufcap = cheri_setbounds(abufcap, NSAMPLES/2);
-    short __capability *sbufcap = cheri_getdefault();
+    short * __capability sbufcap = cheri_getdefault();
     sbufcap = cheri_setoffset(sbufcap, (size_t)sbuf);
     sbufcap = cheri_setbounds(sbufcap, NSAMPLES*2);
     
     // second, construct two capabilities to the two data regions.
     size_t cSize = &__adpcm_c_end - &__adpcm_c_start;
     size_t dSize = &__adpcm_d_end - &__adpcm_d_start;
-    char __capability *adpcmCcap = *((capability __capability *)0x200);
-    char __capability *adpcmDcap = *((capability __capability *)0x200);
+    char * __capability adpcmCcap = *((capability * __capability)0x200);
+    char * __capability adpcmDcap = *((capability * __capability)0x200);
     adpcmCcap = cheri_setoffset(adpcmCcap, (size_t)&__adpcm_c_start);
     adpcmCcap = cheri_setbounds(adpcmCcap, cSize);
     adpcmDcap = cheri_setoffset(adpcmDcap, (size_t)&__adpcm_d_start);

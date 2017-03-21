@@ -70,10 +70,10 @@ static int stepsizeTable[89] = {
 };
 
 void
-adpcm_coder(short __capability *indata, char __capability *outdata, int len,
+adpcm_coder(short * __capability indata, char * __capability outdata, int len,
         struct adpcm_state *state) {
-    short __capability *inp;			/* Input buffer pointer */
-    signed char __capability *outp;		/* output buffer pointer */
+    short * __capability inp;			/* Input buffer pointer */
+    signed char * __capability outp;		/* output buffer pointer */
     int val;			/* Current input sample value */
     int sign;			/* Current adpcm sign bit */
     int delta;			/* Current adpcm output value */
@@ -85,7 +85,7 @@ adpcm_coder(short __capability *indata, char __capability *outdata, int len,
     int outputbuffer;		/* place to keep previous 4-bit value */
     int bufferstep;		/* toggle between outputbuffer/output */
 
-    outp = (signed char __capability *)outdata;
+    outp = (signed char * __capability)outdata;
     inp = indata;
 
     valpred = state->valprev;
@@ -169,10 +169,10 @@ adpcm_coder(short __capability *indata, char __capability *outdata, int len,
 }
 
     void
-adpcm_decoder(char __capability *indata, short __capability *outdata, int len,
+adpcm_decoder(char * __capability indata, short * __capability outdata, int len,
        struct adpcm_state *state) {
-    signed char __capability *inp;		/* Input buffer pointer */
-    short __capability *outp;		/* output buffer pointer */
+    signed char * __capability inp;		/* Input buffer pointer */
+    short * __capability outp;		/* output buffer pointer */
     int sign;			/* Current adpcm sign bit */
     int delta;			/* Current adpcm output value */
     int step;			/* Stepsize */
@@ -183,7 +183,7 @@ adpcm_decoder(char __capability *indata, short __capability *outdata, int len,
     int bufferstep;		/* toggle between inputbuffer/input */
 
     outp = outdata;
-    inp = (signed char __capability *)indata;
+    inp = (signed char * __capability)indata;
 
     valpred = state->valprev;
     index = state->index;

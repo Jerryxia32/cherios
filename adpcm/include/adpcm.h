@@ -9,7 +9,7 @@ struct adpcm_state {
     char	index;		/* Index into stepsize table */
 };
 
-void adpcm_coder(short __capability *, char __capability *, int,
+void adpcm_coder(short * __capability, char * __capability, int,
         struct adpcm_state *);
-void adpcm_decoder(char __capability *, short __capability *, int,
+void adpcm_decoder(char * __capability, short * __capability, int,
         struct adpcm_state *);

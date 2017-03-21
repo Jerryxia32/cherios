@@ -8,13 +8,13 @@ typedef struct
 	register_t a1;
 	register_t a2;
 
-    __capability void *c3; /* Cap arguments */
-    __capability void *c4; /* Cap arguments */
-    __capability void *c5; /* Cap arguments */
+    void * __capability c3; /* Cap arguments */
+    void * __capability c4; /* Cap arguments */
+    void * __capability c5; /* Cap arguments */
 
 	register_t v0;  /* method nb */
 	register_t v1;  /* syscall nb */
-	__capability void *c2;  /* token nb */
+	void * __capability c2;  /* token nb */
 	//void *     idc; /* identifier */
 }  msg_t;
 

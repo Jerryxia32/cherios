@@ -57,8 +57,8 @@ static void * init_act_register(reg_frame_t * frame, const char * name) {
 	return ret;
 }
 
-static void * init_act_create(const char * name, __capability void * c0, __capability void * pcc, void * stack,
-			      __capability void * act_cap, void * ns_ref, void * ns_id,
+static void * init_act_create(const char * name, void * __capability c0, void * __capability pcc, void * stack,
+			      void * __capability act_cap, void * ns_ref, void * ns_id,
 			      register_t rarg, const void * carg) {
 	reg_frame_t frame;
 	memset(&frame, 0, sizeof(reg_frame_t));
@@ -71,7 +71,7 @@ static void * init_act_create(const char * name, __capability void * c0, __capab
 	frame.mf_sp	= (size_t)stack;
 
     /* set up per activation trusted stack */
-    void __capability *temp = cheri_getdefault();
+    void * __capability temp = cheri_getdefault();
     temp = cheri_andperm(temp, cheri_getperm(c0));
     temp = cheri_setoffset(temp, cheri_getbase(c0) - PAGE_ALIGN + MALLOC_HEADER_SIZE);
     frame.cf_kr1c = cheri_setbounds(temp, PAGE_ALIGN - MALLOC_HEADER_SIZE);
@@ -84,7 +84,7 @@ static void * init_act_create(const char * name, __capability void * c0, __capab
     size_t uncachedLen = cheri_getlen(c0);
     capability uncachedC0 = cheri_setbounds(cheri_setoffset(cheri_getdefault(), uncachedBase), uncachedLen);
     uncachedC0 = cheri_andperm(uncachedC0, cheri_getperm(c0));
-    *((capability __capability *)c0 + 0x200/CAP_SIZE) = uncachedC0;
+    *((capability * __capability)c0 + 0x200/CAP_SIZE) = uncachedC0;
 
 	/* set cap */
 	frame.cf_c6	= act_cap;
@@ -100,8 +100,8 @@ static void * init_act_create(const char * name, __capability void * c0, __capab
 }
 
 /* Return the capability needed by the activation */
-static __capability void * get_act_cap(module_t type) {
-	__capability void * cap = NULLCAP;
+static void * __capability get_act_cap(module_t type) {
+	void * __capability cap = NULLCAP;
 	switch(type) {
 	case m_uart:{}
 
@@ -123,7 +123,7 @@ static __capability void * get_act_cap(module_t type) {
 		break;
 	case m_memmgt:{}
         size_t heaplen = (size_t)&__stop_heap - (size_t)&__start_heap;
-        __capability void * heap = cheri_setoffset(cheri_getdefault(), (size_t)&__start_heap);
+        void * __capability heap = cheri_setoffset(cheri_getdefault(), (size_t)&__start_heap);
         heap = cheri_setbounds(heap, heaplen);
         cap = cheri_andperm(heap, (CHERI_PERM_GLOBAL | CHERI_PERM_LOAD | CHERI_PERM_STORE
                     | CHERI_PERM_LOAD_CAP | CHERI_PERM_STORE_CAP
@@ -132,11 +132,11 @@ static __capability void * get_act_cap(module_t type) {
         if(sealing_tool_no == 1L<<CHERI_OTYPE_WIDTH) {
             panic("Used all otypes");
         }
-        __capability void *mem_seal_tool = cheri_getdefault();
+        void * __capability mem_seal_tool = cheri_getdefault();
         mem_seal_tool = cheri_setoffset(mem_seal_tool, sealing_tool_no);
         mem_seal_tool = cheri_setbounds(mem_seal_tool, 1);
         mem_seal_tool = cheri_andperm(mem_seal_tool, (CHERI_PERM_SEAL));
-        *(__capability capability *)cap = mem_seal_tool;
+        *(capability * __capability)cap = mem_seal_tool;
         break;
 
 		break;
@@ -170,7 +170,7 @@ static __capability void * get_act_cap(module_t type) {
 static void * ns_ref = NULL;
 static void * ns_id  = NULL;
 
-static __capability void * elf_loader(Elf_Env *env, const char * file, size_t *maxaddr, size_t * entry) {
+static void * __capability elf_loader(Elf_Env *env, const char * file, size_t *maxaddr, size_t * entry) {
 	int filelen=0;
 	char * addr = load(file, &filelen);
 	if(!addr) {
@@ -180,7 +180,7 @@ static __capability void * elf_loader(Elf_Env *env, const char * file, size_t *m
 	return elf_loader_mem(env, addr, NULL, maxaddr, entry, 0);
 }
 
-static __capability void *init_memcpy(__capability void *dest, const __capability void *src, size_t n) {
+static void * __capability init_memcpy(void * __capability dest, const void * __capability src, size_t n) {
 	return memcpy_c(dest, src, n);
 }
 
@@ -203,7 +203,7 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 	  .memcpy_c  = init_memcpy,
 	};
 
-	__capability char *prgmp = elf_loader(&env, file, &allocsize, &entry);
+	char * __capability prgmp = elf_loader(&env, file, &allocsize, &entry);
     printf(KWHT"Module loaded at %p, entry: %lx, size: %lx"KRST"\n", (void *)cheri_getbase(prgmp), entry, allocsize);
 	if(!prgmp) {
 		assert(0);
@@ -219,7 +219,7 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
     /* Make the stack pointer cap size aligned */
 	void * stack = (void *)(cheri_getlen(prgmp) - 2*_MIPS_SZCAP/8);
     printf(KWHT"Stack bottom at %p"KRST"\n", stack);
-	__capability void * pcc = cheri_getpcc();
+	void * __capability pcc = cheri_getpcc();
 	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), (allocsize + PAGE_ALIGN) & ~(PAGE_ALIGN-1));
 	pcc = cheri_incoffset(pcc, entry);
 	pcc = cheri_andperm(pcc, (CHERI_PERM_ACCESS_SYS_REGS | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD

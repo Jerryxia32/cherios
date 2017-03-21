@@ -29,31 +29,31 @@ main() {
 	assert(sha_ref != NULL);
 	void * sha_id  = namespace_get_id(6);
 
-	__capability void * aes_PCC = namespace_get_PCC(5);
+	void * __capability aes_PCC = namespace_get_PCC(5);
 	assert(aes_PCC != NULLCAP);
-	__capability void * aes_IDC = namespace_get_IDC(5);
+	void * __capability aes_IDC = namespace_get_IDC(5);
 	assert(aes_IDC != NULLCAP);
 
-	__capability void * helper_PCC = namespace_get_PCC(7);
+	void * __capability helper_PCC = namespace_get_PCC(7);
 	assert(helper_PCC != NULLCAP);
-	__capability void * helper_IDC = namespace_get_IDC(7);
+	void * __capability helper_IDC = namespace_get_IDC(7);
 	assert(helper_IDC != NULLCAP);
 
     size_t len = &__AES_end - &__AES_start;
-    __capability char *AES_data_cap = cheri_setbounds(cheri_setoffset(*((capability __capability *)0x200), (size_t)&__AES_start), len+1);
+    char * __capability AES_data_cap = cheri_setbounds(cheri_setoffset(*((capability * __capability)0x200), (size_t)&__AES_start), len+1);
     size_t encdecOffset = 0, totalDeced = 0, remain = 0;
     int64_t encret;
     uint64_t decret;
 
-    __capability uint8_t *enc = (__capability uint8_t *)malloc_c(EACH_BLOCK_SIZE + 32);
-    __capability uint8_t *encdec = (__capability uint8_t *)malloc_c((size_t)len + 32);
+    uint8_t * __capability enc = (uint8_t * __capability)malloc_c(EACH_BLOCK_SIZE + 32);
+    uint8_t * __capability encdec = (uint8_t * __capability)malloc_c((size_t)len + 32);
 
     /* Prepare capabilities that have no permit free permission */
-    __capability uint8_t *enc_out = cheri_andperm(enc, ~CHERI_PERM_SOFT_0);
-    __capability uint8_t *encdec_out = cheri_andperm(encdec, ~CHERI_PERM_SOFT_0);
+    uint8_t * __capability enc_out = cheri_andperm(enc, ~CHERI_PERM_SOFT_0);
+    uint8_t * __capability encdec_out = cheri_andperm(encdec, ~CHERI_PERM_SOFT_0);
 
     const char *theKey = "0123456789ABCDEFFEDCBA98765432100123456789ABCDEFFEDCBA9876543210";
-    const __capability char *theKeyCap = cheri_setbounds(cheri_setoffset(*((capability __capability *)0x200), (size_t)theKey), strlen(theKey)+1);
+    const char * __capability theKeyCap = cheri_setbounds(cheri_setoffset(*((capability * __capability)0x200), (size_t)theKey), strlen(theKey)+1);
 
     stats_init();
     for(int i=0; i<AES_ITER; i++) {
@@ -73,8 +73,8 @@ main() {
     printf("Size of the original: %ld, Total bytes decrypted: %ld\n", len, totalDeced);
     stats_display();
 
-    __capability SHA_INFO *theinfo = (__capability SHA_INFO *)malloc_c(sizeof(SHA_INFO)+1);
-    __capability uint8_t *theinfo_out = cheri_andperm(theinfo, ~CHERI_PERM_SOFT_0);
+    SHA_INFO * __capability theinfo = (SHA_INFO * __capability)malloc_c(sizeof(SHA_INFO)+1);
+    uint8_t * __capability theinfo_out = cheri_andperm(theinfo, ~CHERI_PERM_SOFT_0);
     stats_init();
     for(int i=0; i<SHA_ITER; i++) {
         ccall_4(sha_ref, sha_id, 0, len, 0, 0, theinfo_out, AES_data_cap, NULLCAP);

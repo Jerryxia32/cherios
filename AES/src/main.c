@@ -52,7 +52,7 @@
 
 #define memcpy_c memcpy_c_hack
 
-int main_aes(__capability byte *in, __capability byte *out, int64_t length, __capability char *givenKey);
+int main_aes(byte * __capability in, byte * __capability out, int64_t length, char * __capability givenKey);
 
 void empty_entry() {
 }
@@ -114,11 +114,11 @@ void fillrand(byte *buf, int len)
     }
 }    
 
-uint64_t encfile(__capability byte *fin, __capability byte *fout, aes *ctx, uint64_t length) {   
+uint64_t encfile(byte * __capability fin, byte * __capability fout, aes *ctx, uint64_t length) {   
     byte            inbuf[16] __attribute__((aligned(CAP_SIZE)));
     byte outbuf[16] __attribute__((aligned(CAP_SIZE)));
-    __capability byte *inbufcap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)inbuf), 16);
-    __capability byte *outbufcap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)outbuf), 16);
+    byte * __capability inbufcap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)inbuf), 16);
+    byte * __capability outbufcap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)outbuf), 16);
     uint64_t   i=0, l=0;
     uint64_t readbytes = 0, writebytes = 0;
 
@@ -175,17 +175,17 @@ uint64_t encfile(__capability byte *fin, __capability byte *fout, aes *ctx, uint
     return writebytes;
 }
 
-int decfile(__capability byte *fin, __capability byte *fout, aes *ctx, uint64_t length) {
+int decfile(byte * __capability fin, byte * __capability fout, aes *ctx, uint64_t length) {
     byte    inbuf1[16] __attribute__((aligned(CAP_SIZE)));
     byte inbuf2[16] __attribute__((aligned(CAP_SIZE)));
     byte outbuf[16] __attribute__((aligned(CAP_SIZE)));
-    byte    *bp1, *bp2, *tp;
-    __capability byte    *bp1cap, *bp2cap, *tpcap;
+    byte *bp1, *bp2, *tp;
+    byte * __capability bp1cap, * __capability bp2cap, * __capability tpcap;
     uint64_t i, l, flen;
     uint64_t readbytes = 0, writebytes = 0;
-    __capability byte *inbuf1cap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)inbuf1), 16);
-    __capability byte *inbuf2cap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)inbuf2), 16);
-    __capability byte *outbufcap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)outbuf), 16);
+    byte * __capability inbuf1cap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)inbuf1), 16);
+    byte * __capability inbuf2cap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)inbuf2), 16);
+    byte * __capability outbufcap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)outbuf), 16);
 
     if(length < 32) {
         printf("File to be decrypt is corrupt\n");
@@ -253,8 +253,8 @@ int decfile(__capability byte *fin, __capability byte *fout, aes *ctx, uint64_t 
 }
 
 int
-main_aes(__capability byte *in, __capability byte *out, int64_t length, __capability char *givenKey) {
-    __capability char *cp;
+main_aes(byte * __capability in, byte * __capability out, int64_t length, char * __capability givenKey) {
+    char * __capability cp;
     char    ch;
     byte key[32] __attribute__((aligned(CAP_SIZE)));
     int     i=0, by=0, key_len=0, err = 0;

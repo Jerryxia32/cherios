@@ -38,13 +38,13 @@
 void * act_self_ctrl = NULL;
 void * act_self_ref  = NULL;
 void * act_self_id   = NULL;
-__capability void *act_self_PCC = NULLCAP;
-__capability void *act_self_IDC = NULLCAP;
-__capability void * act_self_cap   = NULLCAP;
-__capability void *helper_cap   = NULLCAP;
-__capability void *return_cap   = NULLCAP;
+void * __capability act_self_PCC = NULLCAP;
+void * __capability act_self_IDC = NULLCAP;
+void * __capability act_self_cap   = NULLCAP;
+void * __capability helper_cap   = NULLCAP;
+void * __capability return_cap   = NULLCAP;
 
-void object_init(void * self_ctrl, __capability void* self_cap, __capability void *self_PCC, __capability void *self_IDC) {
+void object_init(void * self_ctrl, void * __capability self_cap, void * __capability self_PCC, void * __capability self_IDC) {
 	assert(self_ctrl != NULL);
 	act_self_ctrl = self_ctrl;
 	act_self_ref  = act_ctrl_get_ref(self_ctrl);
@@ -55,7 +55,7 @@ void object_init(void * self_ctrl, __capability void* self_cap, __capability voi
 	act_self_cap = self_cap;
 }
 
-__capability void * act_get_cap(void) {
+void * __capability act_get_cap(void) {
 	return act_self_cap;
 }
 
@@ -187,7 +187,7 @@ void * get_cookie(void * cb, void * cs) {
 
 register_t ccall_1(void * cb, void * cs, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
-        const __capability void * carg1, const __capability void * carg2, const __capability void * carg3) {
+        const void * __capability carg1, const void * __capability carg2, const void * __capability carg3) {
     CCALL_TOP
         CCALL_INSTR(1001)
     CCALL_BOTTOM
@@ -196,7 +196,7 @@ register_t ccall_1(void * cb, void * cs, int method_nb,
 
 register_t ccall_2(void * cb, void * cs, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
-        const __capability void * carg1, const __capability void * carg2, const __capability void * carg3) {
+        const void * __capability carg1, const void * __capability carg2, const void * __capability carg3) {
     CCALL_TOP
         CCALL_INSTR(1002)
     CCALL_BOTTOM
@@ -205,7 +205,7 @@ register_t ccall_2(void * cb, void * cs, int method_nb,
 
 ret_t ccall_4(void * cb, void * cs, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
-        const __capability void * carg1, const __capability void * carg2, const __capability void * carg3) {
+        const void * __capability carg1, const void * __capability carg2, const void * __capability carg3) {
     CCALL_TOP
         CCALL_INSTR(1004)
     CCALL_BOTTOM

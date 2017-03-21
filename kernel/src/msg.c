@@ -50,7 +50,7 @@ static inline int empty(queue_t * queue) {
 	return queue->start == queue->end;
 }
 
-int msg_push(int dest, int src, void * identifier __unused, __capability void *sync_token) {
+int msg_push(int dest, int src, void * identifier __unused, void * __capability sync_token) {
 	queue_t * queue = msg_queues + dest;
 	msg_nb_t  qmask  = kernel_acts[dest].queue_mask;
 	kernel_assert(qmask > 0);

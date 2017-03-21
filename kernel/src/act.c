@@ -73,7 +73,7 @@ void act_init(boot_info_t *bi) {
 void kernel_skip_instr(aid_t act) {
 	kernel_exception_framep[act].mf_pc += 4; /* assumes no branch delay slot */
     /*
-	__capability void * pcc = kernel_exception_framep[act].cf_pcc;
+	void * __capability pcc = kernel_exception_framep[act].cf_pcc;
 	pcc = __builtin_memcap_offset_increment(pcc, 4);
 	kernel_exception_framep[act].cf_pcc = pcc;
      */
@@ -110,8 +110,8 @@ void * act_register(const reg_frame_t * frame, const char * name) {
 
 	/* set status */
 	kernel_acts[aid].status = status_alive;
-    __capability void *dest = cheri_getdefault();
-    __capability void *src = cheri_getdefault();
+    void * __capability dest = cheri_getdefault();
+    void * __capability src = cheri_getdefault();
     dest = cheri_setoffset(dest, (size_t)(kernel_exception_framep + aid));
     src = cheri_setoffset(src, (size_t)(frame));
 

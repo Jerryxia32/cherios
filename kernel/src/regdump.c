@@ -52,7 +52,7 @@
 	if(elem) { kernel_printf(KREG"%jx ", elem); } else { kernel_printf(" "KREG);} \
 	}
 
-static void regdump_c(const char * str_cap, int hl, const __capability void * cap) {
+static void regdump_c(const char * str_cap, int hl, const void * __capability cap) {
 	kernel_printf("%s%-3s:"KREG, hl?KBLD KUND:"", str_cap);
 	int tag  = cheri_gettag(cap);
 	kernel_printf("%s", tag?" t:1 ":KFNT" t:0 "KREG);

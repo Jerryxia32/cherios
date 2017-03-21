@@ -57,25 +57,25 @@ void register_ns(void * ns_ref, void * ns_id);
 #define realloc_c __realloc_c
 #define free_c __free_c
 
-__capability void *	malloc_c(size_t nbytes);
-__capability void *	calloc_c(size_t num, size_t size);
-__capability void *	malloc_c_c(size_t nbytes);
-__capability void *	malloc_core(size_t nbytes);
-__capability void *	calloc_c_c(size_t num, size_t size);
-__capability void *	calloc_core(size_t num, size_t size);
-__capability void *	realloc_c(__capability void *cp, size_t nbytes);
-void	free_c(__capability void *cp);
+void * __capability	malloc_c(size_t nbytes);
+void * __capability	calloc_c(size_t num, size_t size);
+void * __capability	malloc_c_c(size_t nbytes);
+void * __capability	malloc_core(size_t nbytes);
+void * __capability	calloc_c_c(size_t num, size_t size);
+void * __capability	calloc_core(size_t num, size_t size);
+void * __capability	realloc_c(void * __capability cp, size_t nbytes);
+void	free_c(void * __capability cp);
 #endif
 
-//void	release(__capability void * p);
+//void	release(void * __capability p);
 //void	release_init(void);
 
-//__capability void *	__mmap(__capability void *addr, size_t length, int prot, int flags);
-//int	__munmap(__capability void *addr, size_t length);
-//void	minit(__capability char *heap, size_t heaplen);
-//void	mfree(__capability void *addr);
+//void * __capability	__mmap(void * __capability addr, size_t length, int prot, int flags);
+//int	__munmap(void * __capability addr, size_t length);
+//void	minit(char * __capability heap, size_t heaplen);
+//void	mfree(void * __capability addr);
 
 extern	size_t pagesz;
-extern	__capability char * pool;
+extern	char * __capability pool;
 
 #endif /* !_LIB_H_ */

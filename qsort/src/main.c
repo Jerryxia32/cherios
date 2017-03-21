@@ -11,7 +11,7 @@
 #define UNLIMIT
 #define MAXARRAY 5000 /* this number, if too large, will cause a seg. fault!! */
 
-int qsort_receive(int a, int b, __capability void *c, __capability void *d) {
+int qsort_receive(int a, int b, void * __capability c, void * __capability d) {
     printf("Qsort received a message! Four args are %d, %d and two capabilities.\n", a, b);
     CHERI_PRINT_CAP(c);
     CHERI_PRINT_CAP(d);

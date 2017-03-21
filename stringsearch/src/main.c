@@ -2773,8 +2773,8 @@ main()
 	//assert(u_id != NULL);
     int sent_a = 326;
     int sent_b = -21356;
-    __capability void *sent_c = cheri_getpcc();
-    __capability void *sent_d = cheri_getdefault();
+    void * __capability sent_c = cheri_getpcc();
+    void * __capability sent_d = cheri_getdefault();
     printf("Stringsearch sent a message to Qsort with args: %d, %d and two capabilities.\n", sent_a, sent_b);
     CHERI_PRINT_CAP(sent_c);
     CHERI_PRINT_CAP(sent_d);

@@ -42,18 +42,18 @@
 
 extern u8 __fs_start, __fs_end;
 
-static __capability void *kernel_alloc_mem(size_t _size) {
+static void * __capability kernel_alloc_mem(size_t _size) {
 	/* The kernel is direct-mapped. */
 	(void) _size;
 	return cheri_getdefault();
 }
 
-static void kernel_free_mem(__capability void *addr) {
+static void kernel_free_mem(void * __capability addr) {
 	/* no-op */
 	(void)addr;
 }
 
-static __capability void *boot_memcpy(__capability void *dest, __capability const void *src, size_t n) {
+static void * __capability boot_memcpy(void * __capability dest, const void * __capability src, size_t n) {
 	return memcpy_c(dest, src, n);
 }
 
@@ -71,7 +71,7 @@ void init_elf_loader() {
 void load_kernel() {
 	extern u8 __kernel_elf_start, __kernel_elf_end;
 	size_t minaddr, maxaddr, entry;
-	__capability char *prgmp = elf_loader_mem(&env, &__kernel_elf_start,
+	char * __capability prgmp = elf_loader_mem(&env, &__kernel_elf_start,
 				     &minaddr, &maxaddr, &entry, 1);
 
 	if(!prgmp) {
@@ -126,7 +126,7 @@ boot_info_t *load_init() {
 	size_t minaddr, maxaddr, entry;
 
 	// FIXME: init is direct mapped for now
-	__capability char *prgmp = elf_loader_mem(&env, &__init_elf_start,
+	char * __capability prgmp = elf_loader_mem(&env, &__init_elf_start,
 				     &minaddr, &maxaddr, &entry, 1);
 
 	if(!prgmp) {
@@ -150,7 +150,7 @@ boot_info_t *load_init() {
 	bi.start_free_mem = make_free_mem_addr((char *)stack + INIT_STACK_SIZE);
 
 	/* set up pcc */
-	__capability void *pcc = cheri_getpcc();
+	void * __capability pcc = cheri_getpcc();
 	pcc = cheri_andperm(pcc, (CHERI_PERM_ACCESS_SYS_REGS | CHERI_PERM_GLOBAL | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
 				  | CHERI_PERM_LOAD_CAP));
 

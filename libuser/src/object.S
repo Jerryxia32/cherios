@@ -51,10 +51,9 @@ ccall_real_4:
     move $v1, $a1
     move $a0, $a2
     ld $a2, 0($sp)
-    move $a1, $a3
 
     ccall   $c25, $c25, 41
-    nop
+    move $a1, $a3
     jr  $ra
     nop
 ccall_real_4_end:
@@ -108,9 +107,8 @@ ccall_real_4_strong:
     move $a1, $a3
     clearlo 0xff03 # keep four mips arg regs and v0, v1
     clearhi 0xdfff # keep $sp for seal
-    cclearlo 0xffc0 # keep c0-c5
     ccall   $c25, $c25, 41
-    nop
+    cclearlo 0xffc0 # keep c0-c5
 
 	# Load register frame
     cgetdefault $c25

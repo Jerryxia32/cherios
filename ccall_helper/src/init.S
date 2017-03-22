@@ -55,10 +55,9 @@ ccall_helper:
     csw $t0, $0, 2*CAP_SIZE+REG_SIZE($kr1c)
 #endif
     li  $t0, 4*CAP_SIZE
-    cincoffset  $kr1c, $kr1c, $t0
 
     ccall   $c1, $c2, 42
-    nop
+    cincoffset  $kr1c, $kr1c, $t0
 ccall_helper_end:
 	.size ccall_helper, ccall_helper - ccall_helper_end
 	.end ccall_helper
@@ -74,9 +73,8 @@ creturn_helper:
     # extract the stack pointer of the caller
     cgetoffset  $sp, $c25
     csetoffset  $c25, $c25, $0
-    csetdefault $c25
     ccall   $c1, $c1, 42
-    nop
+    csetdefault $c25
 creturn_helper_end:
 	.size creturn_helper, creturn_helper - creturn_helper_end
 	.end creturn_helper

@@ -59,9 +59,9 @@ mutex_loop:
     # processing the previous one
     ll  $t1, 0($t0)
     bne $t1, $0, mutex_loop
-    li  $t2, 1
-    sc  $t2, 0($t0)
-    beq $t2, $0, mutex_loop
+    li  $t9, 1
+    sc  $t9, 0($t0)
+    beq $t9, $0, mutex_loop
     nop
 
 	bltz		$v0, control
@@ -146,9 +146,9 @@ mutex_loop_loopback:
     # processing the previous one
     ll  $t1, 0($t0)
     bne $t1, $0, mutex_loop_loopback
-    li  $t2, 1
-    sc  $t2, 0($t0)
-    beq $t2, $0, mutex_loop_loopback
+    li  $t9, 1
+    sc  $t9, 0($t0)
+    beq $t9, $0, mutex_loop_loopback
     nop
 
 	bltz		$v0, control_loopback
@@ -210,9 +210,9 @@ mutex_loop_ccall:
     # processing the previous one
     ll  $t1, 0($t0)
     bne $t1, $0, mutex_loop_ccall
-    li  $t2, 1
-    sc  $t2, 0($t0)
-    beq $t2, $0, mutex_loop_ccall
+    li  $t9, 1
+    sc  $t9, 0($t0)
+    beq $t9, $0, mutex_loop_ccall
     nop
 
 	bltz		$v0, control_ccall
@@ -266,9 +266,8 @@ end_ccall:
     clc $c25, $t0, 0($c25)
     clearlo 0xfff3 // keep v0, v1 for return values
     clearhi 0x0f00 // clear t8, t9, k0, k1
-    cclearlo 0xff36 // keep c3, c6, c7
     ccall   $c25, $c25, 41
-    nop
+    cclearlo 0xff36 // keep c3, c6, c7
 
 msg_entry_ccall_end:
 	.end msg_entry_ccall

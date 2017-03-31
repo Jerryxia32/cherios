@@ -73,7 +73,7 @@ creturn_helper:
     # extract the stack pointer of the caller
     cgetoffset  $sp, $c25
     csetoffset  $c25, $c25, $0
-    ccall   $c1, $c1, 42
+    cjr $c1
     csetdefault $c25
 creturn_helper_end:
 	.size creturn_helper, creturn_helper - creturn_helper_end

@@ -31,6 +31,10 @@
 
 #Fixme: clean-up code && comment
 
+.macro  csyscalllink   jmpreg, linkreg
+        .word (0x12 << 26) | (0x13 << 21) | (\linkreg << 16) | (\jmpreg << 11)
+.endm
+
 .set MIPS_SZCAP, _MIPS_SZCAP
 .set CAP_SIZE, (MIPS_SZCAP/8)
 .set C6_OFFSET, 64
@@ -52,7 +56,7 @@ ccall_real_4:
     move $a0, $a2
     ld $a2, 0($sp)
 
-    ccall   $c25, $c25, 41
+    csyscalllink 25, 26
     move $a1, $a3
     jr  $ra
     nop
@@ -107,7 +111,7 @@ ccall_real_4_strong:
     move $a1, $a3
     clearlo 0xff03 # keep four mips arg regs and v0, v1
     clearhi 0xdfff # keep $sp for seal
-    ccall   $c25, $c25, 41
+    csyscalllink 25, 26
     cclearlo 0xffc0 # keep c0-c5
 
 	# Load register frame

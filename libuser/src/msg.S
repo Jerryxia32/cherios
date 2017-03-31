@@ -33,6 +33,10 @@
 .set nobopt
 .set noat
 
+.macro  csyscall   jmpreg
+        .word (0x12 << 26) | (0x14 << 21)  | (\jmpreg << 11)
+.endm
+
 #.ifeq _MIPS_SZCAP-256
 #.set CAP_SIZE_BITS, 5
 #.else
@@ -266,7 +270,7 @@ end_ccall:
     clc $c25, $t0, 0($c25)
     clearlo 0xfff3 // keep v0, v1 for return values
     clearhi 0x0f00 // clear t8, t9, k0, k1
-    ccall   $c25, $c25, 41
+    csyscall 25
     cclearlo 0xff36 // keep c3, c6, c7
 
 msg_entry_ccall_end:

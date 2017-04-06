@@ -44,9 +44,9 @@ start:
 	.global ccall_helper
 	.ent ccall_helper
 ccall_helper:
+    csc $idc, $0, 0($kr1c)
     cgetdefault   $c25
     csetoffset  $c25, $c25, $sp
-    csc $idc, $0, 0($kr1c)
     csc $c25, $0, CAP_SIZE($kr1c)
     csd $v1, $0, 2*CAP_SIZE($kr1c)
 //#define REAL_TIME

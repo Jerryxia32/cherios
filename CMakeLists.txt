@@ -83,7 +83,7 @@ set(CMAKE_RANLIB : CACHE INTERNAL "noop for ranlib")
 # CMake will try to link ctr1.o into the executable and this might not exist
 # We don't need it as we are building in a freestanding environment here anyway
 # adding -cheri-linker here causes a segfault when detecting compiler features! TODO: report bug
-set(CMAKE_EXE_LINKER_FLAGS "-nostartfiles -nodefaultlibs"
+set(CMAKE_EXE_LINKER_FLAGS "-nostartfiles -nodefaultlibs" # -fuse-ld=lld"
     CACHE INTERNAL "Flags used by the linker" FORCE)
 cmake_policy(SET CMP0056 NEW) # add CMAKE_EXE_LINKER_FLAGS when using try_compile()
 enable_language(C)
@@ -132,7 +132,7 @@ set(ASM_COMPILER_FLAGS
 set(C_COMPILER_FLAGS
     ${ASMC_COMPILER_FLAGS}
     -nostdinc
-    -Os # TODO: make this depend on the configuration
+    -O3 # TODO: make this depend on the configuration
     -fomit-frame-pointer # TODO: make this depend on the configuration
     -Werror
     -std=c11
@@ -242,12 +242,9 @@ function(add_cherios_module _target)
   # Tell the compiler to use the specified linker script
   target_link_libraries(${_target}
     "-L${CMAKE_SOURCE_DIR}/ldscripts"
-    "-T${add_exe_LINKER_SCRIPT}"
+    "-T${CMAKE_SOURCE_DIR}/ldscripts/${add_exe_LINKER_SCRIPT}"
     )
   target_link_libraries(${_target}
-      #-fuse-ld=lld
-    -nostartfiles
-    -nodefaultlibs
     )
 
   set_target_properties(${_target} PROPERTIES OUTPUT_NAME "${_target}.elf")

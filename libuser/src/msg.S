@@ -266,8 +266,7 @@ end_ccall:
      * return values.
      */
     dla $t0, return_cap
-    cgetdefault $c25
-    clc $c25, $t0, 0($c25)
+    clc $c25, $t0, 0($idc)
     clearlo 0xfff3 // keep v0, v1 for return values
     clearhi 0x0f00 // clear t8, t9, k0, k1
     csyscall 25

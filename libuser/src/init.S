@@ -66,7 +66,6 @@ start_common:
 
 	# Call object init.
 	move		$a0, $s2
-    #move		$a1, $s5
     cmove       $c3, $c6
     cgetpcc $c4
     dla $t0, msg_entry_ccall
@@ -74,7 +73,7 @@ start_common:
     cgetdefault $c5
     csetoffset  $c5, $c5, $sp
 	move		$a1, $s0
-	move		$a2, $s1 # careful, s8 is used to remember pc for PIC
+	move		$a2, $s1
     dla     $t9, libuser_init
     jalr    $t9
     nop
@@ -86,14 +85,11 @@ start_common:
 
 	# main() done. Exit or CReturn
 	dla		$t0, msg_enable
-    #cgetdefault	$c17
-    #cld		$t0, $t0, 0($c17)
     ld  $t0, 0($t0)
 	bne		$t0, $zero, to_msg
 	nop
 	dla		$t0, act_self_ctrl
     ld  $a0, 0($t0)
-    #clc		$c3, $t0, 0($c17)
 	li		$v1, 26
 	syscall
     nop
@@ -101,14 +97,11 @@ start_common:
 to_msg:
 	# CReturn to go in waiting state.
     cfromptr    $c2, $c2, $0
-#jr  $ra
     li $v1, 1010
     syscall
     nop
 
 	#First 'real' message. Go to appropriate handler
-#j msg_entry
-#nop
     dla $t9, msg_entry
     jr  $t9
     nop

@@ -32,7 +32,7 @@
 .set noreorder
 .set nobopt
 .set noat
-.set REG_SIZE, (64/8)
+#include<asm.h>
 
 # Assembly stub on the way to running C code.  Assumes that $c0 and $pcc are
 # global and suitable.  Enable capability coprocessor.  Set up a stack.  Jump

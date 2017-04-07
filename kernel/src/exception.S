@@ -29,11 +29,9 @@
 # SUCH DAMAGE.
 #
 
-.set CAP_SIZE, _MIPS_SZCAP/8
-.set REG_SIZE, 64/8
-.set MIPS_FRAME_SIZE, 24*REG_SIZE
 .set noat
 .set noreorder
+#include<asm.h>
 
 #
 # Capability-aware exception handler.
@@ -223,15 +221,14 @@ timing_failed_restore:
         clearlo 0xffff
         clearhi 0xf3ff  # keep k0, k1
         cclearlo 0xfffe # keep c0, as the kernel uses it
-        cclearhi 0x17ff # don't clear kernel and kr1c
         cld $sp, $k0, 15*REG_SIZE($kdc)
         cld	$k1, $k0, 20*REG_SIZE($kdc)
         dmtc0	$k1, $14		# EPC
 
         clc $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         csetdefault $c1
-        clc $kr1c, $k0, 9*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $epcc, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+        clc $kr1c, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+        clc $epcc, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         # clear the timing failed flag
         dla $k0, timingFailed
         csw  $0, $k0, 0($kdc)

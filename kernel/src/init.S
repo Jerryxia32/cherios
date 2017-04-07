@@ -31,10 +31,8 @@
 
 #Fixme: clean-up code && comment
 
-.set CAP_SIZE, _MIPS_SZCAP/8
-.set REG_SIZE, (64/8)
-.set MIPS_FRAME_SIZE, 24*REG_SIZE
 .set noat
+#include<asm.h>
 
 # Assembly stub on the way to running C code.  Assumes that $c0 and $pcc are
 # global and suitable.  Enable capability coprocessor.  Set up a stack.  Jump

@@ -35,15 +35,13 @@
         .word (0x12 << 26) | (0x13 << 21) | (\linkreg << 16) | (\jmpreg << 11)
 .endm
 
-.set MIPS_SZCAP, _MIPS_SZCAP
-.set CAP_SIZE, (MIPS_SZCAP/8)
 .set C6_OFFSET, 64
-.set REG_SIZE, (64/8)
 .set SAVE_FRAME_SIZE, 128
 
 .set noreorder
 .set nobopt
 .set noat
+#include<asm.h>
 
 	.text
 	.ent ccall_real_4

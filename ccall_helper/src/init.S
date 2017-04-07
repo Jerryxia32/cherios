@@ -31,7 +31,7 @@
 .set noreorder
 .set nobopt
 .set noat
-.set CAP_SIZE, (_MIPS_SZCAP/8)
+#include<asm.h>
 
 	.text
 	.global start

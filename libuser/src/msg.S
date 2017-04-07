@@ -32,24 +32,11 @@
 .set noreorder
 .set nobopt
 .set noat
+#include<asm.h>
 
 .macro  csyscall   jmpreg
         .word (0x12 << 26) | (0x14 << 21)  | (\jmpreg << 11)
 .endm
-
-#.ifeq _MIPS_SZCAP-256
-#.set CAP_SIZE_BITS, 5
-#.else
-#.ifeq _MIPS_SZCAP-128
-#.set CAP_SIZE_BITS, 4
-#.else
-#.error "Unknown cap size"
-#.endif
-#.endif
-
-.set REG_SIZE_BITS, 3
-.set CAP_SIZE, _MIPS_SZCAP/8
-.set MUTEX_ADDR, 0x100
 
 # Dispatch CCalls
 

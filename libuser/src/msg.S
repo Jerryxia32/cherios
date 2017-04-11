@@ -200,10 +200,10 @@ mutex_loop_ccall:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
     ll  $t1, 0($t0)
-    bne $t1, $0, mutex_loop_ccall
+    bne $t1, $0, locked_ccall
     li  $t9, 1
     sc  $t9, 0($t0)
-    beq $t9, $0, mutex_loop_ccall
+    beq $t9, $0, locked_ccall
     nop
 
 	bltz		$v0, control_ccall
@@ -258,6 +258,14 @@ end_ccall:
     clearhi 0x0f00 // clear t8, t9, k0, k1
     csyscall 25
     cclearlo 0xff36 // keep c3, c6, c7
+
+locked_ccall:
+    li  $v1, 13
+    move    $a3, $a0
+    li  $a0, 0
+    syscall
+    b   mutex_loop_ccall
+    move    $a0, $a3
 
 msg_entry_ccall_end:
 	.end msg_entry_ccall

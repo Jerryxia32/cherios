@@ -30,6 +30,9 @@
 
 __cached_base = 0xffffffff80000000;
 
+CAP_ALIGN = 0x20;
+PAGE_ALIGN = 0x1000;
+
 /*
  * Configure cached (BEV=0) exception vectors at the following addresses.
  */

@@ -33,12 +33,12 @@
  * 0x1000 byte "guard" region to catch NULL pointer dereferences.
  */
 
-CAP_ALIGN = 0x10;
-__code_base__ = 0x1000;
+INCLUDE "mips.ld"
+__start = 0x1000;
 
 SECTIONS
 {
-	. = __code_base__;
+	. = __start;
 	.text ALIGN(CAP_ALIGN): { *(.text) }
 	.bss  ALIGN(CAP_ALIGN): { *(.bss) }
 	.data ALIGN(CAP_ALIGN): { *(.data) }

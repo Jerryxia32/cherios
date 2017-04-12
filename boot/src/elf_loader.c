@@ -165,6 +165,10 @@ void * __capability elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_
 			TRACE("lowaddr:%lx allocsize:%lx bound:%lx", lowaddr, allocsize, bound);
 		} else if(seg->p_type == 0x6474E551) {
 			/* GNU Stack */
+		} else if(seg->p_type == 0x6) {
+			/* PT_PHDR */
+		} else if(seg->p_type == 0x6474E552) {
+			/* RELRO */
 		} else {
 			ERROR("Unknown section");
 			return NULL;

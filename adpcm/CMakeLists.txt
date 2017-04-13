@@ -11,4 +11,3 @@ execute_process(COMMAND "cp" "${CMAKE_CURRENT_SOURCE_DIR}/adpcm_large.pcm" "adpc
 execute_process(COMMAND "cp" "${CMAKE_CURRENT_SOURCE_DIR}/adpcm_large.adpcm" "adpcm_large.adpcm")
 
 add_cherios_executable(adpcm ADD_TO_FILESYSTEM LINKER_SCRIPT sandbox.ld SOURCES ${SRCS})
-set_target_properties(adpcm PROPERTIES COMPILE_FLAGS -mxgot)

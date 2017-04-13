@@ -54,8 +54,13 @@ ccall_real_4:
     move $a0, $a2
     ld $a2, 0($sp)
 
+#ifdef HARDWARE_qemu
+    move $a1, $a3
+    ccall   $c1, $c2, 0
+#else
     csyscalllink 25, 26
     move $a1, $a3
+#endif
     jr  $ra
     nop
 ccall_real_4_end:
@@ -109,8 +114,13 @@ ccall_real_4_strong:
     move $a1, $a3
     clearlo 0xff03 # keep four mips arg regs and v0, v1
     clearhi 0xdfff # keep $sp for seal
+#ifdef HARDWARE_qemu
+    cclearlo 0xffc0 # keep c0-c5
+    ccall   $c1, $c2, 0
+#else
     csyscalllink 25, 26
     cclearlo 0xffc0 # keep c0-c5
+#endif
 
 	# Load register frame
     cgetdefault $c25

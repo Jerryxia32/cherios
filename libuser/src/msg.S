@@ -252,12 +252,19 @@ end_ccall:
      * callee should always clear registers, except for callee saved ones and
      * return values.
      */
+#ifdef HARDWARE_qemu
+    clearlo 0xfff3 // keep v0, v1 for return values
+    clearhi 0x0f00 // clear t8, t9, k0, k1
+    cclearlo 0xff36 // keep c3, c6, c7
+    creturn
+#else
     dla $t0, return_cap
     clc $c25, $t0, 0($idc)
     clearlo 0xfff3 // keep v0, v1 for return values
     clearhi 0x0f00 // clear t8, t9, k0, k1
     csyscall 25
     cclearlo 0xff36 // keep c3, c6, c7
+#endif
 
 locked_ccall:
     li  $v1, 13

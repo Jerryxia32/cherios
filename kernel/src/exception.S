@@ -267,11 +267,7 @@ kernel_cp2_ccall_handler:
         cgettype    $k0, $c1
         csetoffset  $kdc, $kdc, $k0
         cunseal $epcc, $c1, $kdc
-        cunseal $c2, $c2, $kdc
-        cgetoffset  $sp, $c2
-        # extract the stack pointer of the callee
-        csetoffset  $c2, $c2, $0
-        csetdefault $c2
+        cunseal $idc, $c2, $kdc
         cgetoffset  $k0, $epcc
 		dmtc0	$k0, $14		# EPC
 		eret

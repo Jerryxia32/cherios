@@ -125,6 +125,8 @@ set(ASMC_COMPILER_FLAGS
     -integrated-as
     -msoft-float
     -fcolor-diagnostics
+    -DHARDWARE_${HARDWARE}
+    -DCONSOLE_${CONSOLE}
 )
 set(ASM_COMPILER_FLAGS
     ${ASMC_COMPILER_FLAGS}
@@ -136,8 +138,6 @@ set(C_COMPILER_FLAGS
     -fomit-frame-pointer # TODO: make this depend on the configuration
     -Werror
     -std=c11
-    -DHARDWARE_${HARDWARE}
-    -DCONSOLE_${CONSOLE}
 )
 set(C_WARNING_FLAGS
     -Wall

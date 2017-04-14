@@ -58,21 +58,14 @@ void init_pagebucket(void);
 
 /*
  * The overhead on a block is one pointer. When free, this space
- * contains a pointer to the next free block. When in use, the first
- * byte is set to MAGIC, and the second byte is the size index.
+ * contains a capability to the next free block. When in use, this capability
+ * is set to the C0 of memmgt with offset bucket_index. No other users should
+ * hold this C0 so this acts as a sentinel to tell a chunk is valid to be freed
  */
 union	overhead {
 	union overhead * __capability ov_next;	/* when free * __capability */
-	struct {
-		u_char	ovu_magic;	/* magic number */
-		u_char	ovu_index;	/* bucket # */
-	} ovu;
-#define	ov_magic	ovu.ovu_magic
-#define	ov_index	ovu.ovu_index
-#define	ov_size		ovu.ovu_size
+    void * __capability sentinel;	/* when in-use * __capability */
 };
-
-#define	MAGIC		0xef		/* magic # on accounting info */
 
 /*
  * nextf[i] is the pointer to the next free block of size 2^(i+3).  The
@@ -136,8 +129,7 @@ malloc_core(size_t nbytes)
 	}
 	/* remove from linked list */
 	nextf[bucket] = op->ov_next;
-	op->ov_magic = MAGIC;
-	op->ov_index = bucket;
+    op->sentinel = cheri_setoffset(cheri_getdefault(), bucket);
 	//return cheri_setbounds(op + 1, nbytes);
     op += 1;
 	void * __capability ret = cheri_setbounds(op, (1<<(bucket+3)) - MALLOC_HEADER_SIZE);
@@ -267,7 +259,7 @@ find_overhead(void * __capability cp)
 	}
 	op--;
 
-	if (op->ov_magic == MAGIC)
+    if(cheri_setoffset(op->sentinel, 0) == cheri_getdefault())
 		return (op);
 
 	/*
@@ -297,7 +289,7 @@ free_c(void * __capability cp)
 	op = find_overhead(cp);
 	if (op == NULLCAP)
 		return;
-	bucket = op->ov_index;
+    bucket = cheri_getoffset(op->sentinel);
 	ASSERT(bucket < NBUCKETS);
 	op->ov_next = nextf[bucket];	/* also clobbers ov_magic */
 	nextf[bucket] = op;

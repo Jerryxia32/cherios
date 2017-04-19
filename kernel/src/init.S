@@ -51,7 +51,7 @@ start:
 	dmtc0	$k1, $14
 
 	#Save register frame
-	dla	$k0, kernel_init_save_frame
+	la	$k0, kernel_init_save_frame
 
 	# Expands to a list of the form
 	# csc	$creg, $0, offset*CAP_SIZE+MIPS_FRAME_SIZE($kr1c)
@@ -75,7 +75,7 @@ start:
 
 	# Set up a boot-time stack using memory allocated by the linker;
 	# assume that $c0 is a sensible starting capability for this.
-	dla		$t0, __stop_exception_stack
+	la		$t0, __stop_exception_stack
 	move		$sp, $t0
 
 	# Initialise BSS and globals before running C constructors, so that C
@@ -83,17 +83,17 @@ start:
 	# runtime) for granted.
 
 	# Zero BSS.
-	dla		$t9, crt_init_bss
+	la		$t9, crt_init_bss
     jalr    $t9
 	nop
 
 	# Initialise globals.
-	dla		$t9, crt_init_globals
+	la		$t9, crt_init_globals
     jalr    $t9
 	nop
 
 	# Call C constructors.
-	dla		$t9, crt_call_constructors
+	la		$t9, crt_call_constructors
     jalr    $t9
 	nop
 
@@ -102,14 +102,14 @@ start:
 	ld	$a1, 4*REG_SIZE($k0)
 
 	# Call cherios_main().
-	dla		$t9, cherios_main
+	la		$t9, cherios_main
 	jalr		$t9
 	nop
 
 	# Restore context from the register frame set by the scheduler,
 	# typically pointing to an init activation.
-	dla	$k0, kernel_exception_framep_ptr
-    ld  $k0, 0($k0)
+	la	$k0, kernel_exception_framep_ptr
+    lw  $k0, 0($k0)
 
 	# Expands to a list of the form
 	# cld	$greg, $0, offset*REG_SIZE($kr1c)
@@ -122,7 +122,7 @@ start:
 	ld	$k1, 30*REG_SIZE($k0)
 	mtlo	$k1
 	ld	$k1, 31*REG_SIZE($k0)
-	dmtc0	$k1, $14		# EPC
+	mtc0	$k1, $14		# EPC
 	# Expands to a list of the form
 	# clc	$creg, $0, offset*CAP_SIZE+MIPS_FRAME_SIZE($kr1c)
     #foreachi crestore, 0, $kr1c,					\

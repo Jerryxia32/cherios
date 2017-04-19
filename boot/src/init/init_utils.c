@@ -115,7 +115,7 @@ static void * get_act_cap(module_t type) {
          */
 		void * heap = &__start_heap;
         *(size_t *)((size_t)heap + 0x100) = &__stop_heap - &__start_heap; // super ugly hack, put the length of the heap at heap + 0x100
-        printf("Size of the heap: 0x%lx\n", &__stop_heap - &__start_heap);
+        printf("Size of the heap: 0x%x\n", &__stop_heap - &__start_heap);
         cap = heap;
         /*
 		heap = cheri_setbounds(heap, heaplen);
@@ -166,7 +166,7 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 	};
 
 	char *prgmp = elf_loader(&env, file, &allocsize, &entry);
-    printf(KWHT"Module loaded at %p, entry: %lx"KRST"\n", prgmp, entry);
+    printf(KWHT"Module loaded at %p, entry: %x"KRST"\n", prgmp, entry);
 	if(!prgmp) {
 		assert(0);
 		return NULL;

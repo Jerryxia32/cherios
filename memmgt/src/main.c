@@ -64,11 +64,11 @@ int main(void) {
 	pagesz = CHERIOS_PAGESIZE;
 	#if MMAP
 	minit(heap, heaplen);
-    printf("Initialize(minit) the heap with base: %p, length %lx.\n", heap, heaplen);
+    printf("Initialize(minit) the heap with base: %p, length %x.\n", heap, heaplen);
 	#else
 	init_pagebucket();
 	__init_heap(heap, heaplen);
-    printf("Initialize(__init_heap) the heap with base: %p, length %lx.\n", heap, heaplen);
+    printf("Initialize(__init_heap) the heap with base: %p, length %x.\n", heap, heaplen);
 	#endif
 
 	/* init release mecanism */

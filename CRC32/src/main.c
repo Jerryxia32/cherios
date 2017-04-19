@@ -1260,7 +1260,7 @@ main()
     for(i=0; i<CRC32_ITER; i++) {
         errors |= crc32file(&__pcm_start, pcm_size, &crc, &charcnt);
         printf("CRC: %08X, char count: %7ld\n", crc, charcnt);
-        printf("pcm size: %ld\n", &__pcm_end - &__pcm_start);
+        printf("pcm size: %d\n", &__pcm_end - &__pcm_start);
         charcnt = 0;
         crc = 0;
     }

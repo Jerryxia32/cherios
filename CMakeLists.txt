@@ -66,9 +66,9 @@ set(CMAKE_ASM_COMPILER_ID "Clang")  # for some reason CMake doesn't detect this 
 set(CMAKE_C_COMPILER ${CheriSDK_CC})
 set(CMAKE_CXX_COMPILER ${CheriSDK_CXX})
 # make sure we compile for cheri:
-set(CMAKE_ASM_COMPILER_TARGET cheri-unknown-freebsd)
-set(CMAKE_C_COMPILER_TARGET cheri-unknown-freebsd)
-set(CMAKE_CXX_COMPILER_TARGET cheri-unknown-freebsd)
+set(CMAKE_ASM_COMPILER_TARGET mips64-unknown-freebsd)
+set(CMAKE_C_COMPILER_TARGET mips64-unknown-freebsd)
+set(CMAKE_CXX_COMPILER_TARGET mips64-unknown-freebsd)
 # sysroot should not be needed as we are in a freestanding environment
 # set(CMAKE_SYSROOT ${CheriSDK_SYSROOT_DIR})
 
@@ -83,7 +83,7 @@ set(CMAKE_RANLIB : CACHE INTERNAL "noop for ranlib")
 # CMake will try to link ctr1.o into the executable and this might not exist
 # We don't need it as we are building in a freestanding environment here anyway
 # adding -cheri-linker here causes a segfault when detecting compiler features! TODO: report bug
-set(CMAKE_EXE_LINKER_FLAGS "-nostartfiles -nodefaultlibs"
+set(CMAKE_EXE_LINKER_FLAGS "-nostartfiles -nodefaultlibs -fuse-ld=lld"
     CACHE INTERNAL "Flags used by the linker" FORCE)
 cmake_policy(SET CMP0056 NEW) # add CMAKE_EXE_LINKER_FLAGS when using try_compile()
 enable_language(C)
@@ -120,9 +120,10 @@ include_directories(include)
 # set up the right flags for C and ASM sources
 set(ASMC_COMPILER_FLAGS
     -mcpu=mips4
-    -mabi=n64
+    -mabi=n32
     -cheri-linker
-    -fPIC
+    -fno-PIC
+    -mno-abicalls
     -integrated-as
     -msoft-float
     -fcolor-diagnostics
@@ -130,6 +131,7 @@ set(ASMC_COMPILER_FLAGS
 )
 set(ASM_COMPILER_FLAGS
     ${ASMC_COMPILER_FLAGS}
+    -mllvm -asm-macro-max-nesting-depth=100
 )
 set(C_COMPILER_FLAGS
     ${ASMC_COMPILER_FLAGS}
@@ -137,8 +139,6 @@ set(C_COMPILER_FLAGS
     -O3 # TODO: make this depend on the configuration
     -fomit-frame-pointer # TODO: make this depend on the configuration
     -G0
-    -mxgot
-    -mllvm -mxmxgot
     -Werror
     -std=c11
     -DHARDWARE_${HARDWARE}
@@ -161,6 +161,7 @@ set(C_WARNING_FLAGS
     -Wno-error=unused-function
     -Wno-error=unused-variable
     -Wno-error=unused-parameter
+    -Wno-error=incompatible-library-redeclaration
 )
 set(C_COMPILER_FLAGS ${C_COMPILER_FLAGS} ${C_WARNING_FLAGS})
 
@@ -250,7 +251,7 @@ function(add_cherios_module _target)
   # Tell the compiler to use the specified linker script
   target_link_libraries(${_target}
     "-L${CMAKE_SOURCE_DIR}/ldscripts"
-    "-T${add_exe_LINKER_SCRIPT}"
+    "-T${CMAKE_SOURCE_DIR}/ldscripts/${add_exe_LINKER_SCRIPT}"
     )
   target_link_libraries(${_target}
     )
@@ -263,7 +264,7 @@ function(add_cherios_module _target)
   endif()
   # create a .dump file of the binary (added to byproducts so that ninja clean removes it)
   add_custom_command(TARGET ${_target} POST_BUILD BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/${_target}.dump"
-    COMMAND "${CheriSDK_TOOLCHAIN_DIR}/objdump" -x -d -S "$<TARGET_FILE:${_target}>" > "${CMAKE_CURRENT_BINARY_DIR}/${_target}.dump"
+    COMMAND "${CheriSDK_TOOLCHAIN_DIR}/objdump" -x -d "$<TARGET_FILE:${_target}>" > "${CMAKE_CURRENT_BINARY_DIR}/${_target}.dump"
     )
 endfunction()
 

@@ -46,7 +46,7 @@ main() {
     decret = ccall_rrrr_r(u_ref, u_id, 0, (register_t)enc, (size_t)encdec + totalDeced, -encret, (register_t)theKey);
     totalDeced += decret;
 
-    printf("Size of the original: %ld, Total bytes decrypted: %ld\n", len, totalDeced);
+    printf("Size of the original: %d, Total bytes decrypted: %d\n", len, totalDeced);
 
     SHA_INFO theinfo;
     ccall_rrr_n(sha_ref, sha_id, 0, (register_t)&theinfo, (register_t)&__AES_start, (size_t)len);

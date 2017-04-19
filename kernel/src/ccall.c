@@ -130,7 +130,7 @@ void kernel_creturn(void) {
 	}
 
 	/* Check if we expect this anwser */
-	size_t sync_offset = sync_token;
+	uint64_t sync_offset = sync_token;
 	aid_t ccaller = sync_offset >> 32;
 	uint64_t unique = sync_offset & 0xFFFFFFF;
 	if(kernel_acts[ccaller].sync_token.expected_reply != unique ) {

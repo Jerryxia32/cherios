@@ -54,7 +54,7 @@
 		.global kernel_exception_trampoline
 		.ent kernel_exception_trampoline
 kernel_exception_trampoline:
-		dla	$k0, kernel_cp2_exception_handler
+		la	$k0, kernel_cp2_exception_handler
 		jr	$k0
 		nop
 kernel_exception_trampoline_end:
@@ -83,8 +83,8 @@ kernel_cp2_exception_handler:
 		# relative to KDC.  First save and clear CP2 context, then
 		# move on to general-purpose registers.
 		#
-        dla	$k0, kernel_exception_framep_ptr
-        ld  $k0, 0($k0)
+        la	$k0, kernel_exception_framep_ptr
+        lw  $k0, 0($k0)
 #cgetdefault $kr1c
 #csetoffset $kr1c, $kr1c, $k0
 #dla	$k0, 32*CAP_SIZE + 32*REG_SIZE #Should be enough
@@ -116,11 +116,11 @@ kernel_cp2_exception_handler:
 		sd	$k1, 29*REG_SIZE($k0)
 		mflo	$k1
 		sd	$k1, 30*REG_SIZE($k0)
-		dmfc0	$k1, $14		# EPC
+		mfc0	$k1, $14		# EPC
 		sd	$k1, 31*REG_SIZE($k0)
 
 		# Set up exception stack
-		dla		$t1, __stop_exception_stack
+		la		$t1, __stop_exception_stack
 		move		$sp, $t1
 
 		#
@@ -134,7 +134,7 @@ kernel_cp2_exception_handler:
 		#
 		# Normal function invocation of kernel_exception().
 		#
-		dla		$t9, kernel_exception
+		la		$t9, kernel_exception
 		jalr		$t9
 		nop
 
@@ -143,8 +143,8 @@ kernel_cp2_exception_handler:
 		# its contents replaced by the kernel.  Notice correspondence
 		# to the layout of struct reg_frame.
 		#
-        dla	$k0, kernel_exception_framep_ptr
-        ld  $k0, 0($k0)
+        la	$k0, kernel_exception_framep_ptr
+        lw  $k0, 0($k0)
 
 		# Expands to a list of the form
 		# cld	$greg, $0, offset*REG_SIZE($kr1c)
@@ -157,7 +157,7 @@ kernel_cp2_exception_handler:
 		ld	$k1, 30*REG_SIZE($k0)
 		mtlo	$k1
 		ld	$k1, 31*REG_SIZE($k0)
-		dmtc0	$k1, $14		# EPC
+		mtc0	$k1, $14		# EPC
 
 		#
 		# Restore the capability exception frame -- after

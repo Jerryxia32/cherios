@@ -69,12 +69,12 @@ static void error_elf_loader(Elf_Env *env, const char *fmt, ...) {
 	va_end(ap);
 }
 
-int elf_check_supported(Elf_Env *env, Elf64_Ehdr *hdr) {
+int elf_check_supported(Elf_Env *env, Elf32_Ehdr *hdr) {
 	if(memcmp(hdr->e_ident, "\x7F""ELF", 4)) {
 		ERROR("Bad magic number");
 		return 0;
 	}
-	if(hdr->e_ident[EI_CLASS] != 2) {
+	if(hdr->e_ident[EI_CLASS] != 2 && hdr->e_ident[EI_CLASS] != 1) {
 		ERROR("Bad EI_CLASS");
 		return 0;
 	}
@@ -106,7 +106,7 @@ int elf_check_supported(Elf_Env *env, Elf64_Ehdr *hdr) {
 		ERROR("Bad e_version");
 		return 0;
 	}
-	if(hdr->e_flags != 0x30000007) {
+	if(hdr->e_flags != 0x30000021) {
 		ERRORM("Bad e_flags: %X", hdr->e_flags);
 		return 0;
 	}
@@ -116,20 +116,20 @@ int elf_check_supported(Elf_Env *env, Elf64_Ehdr *hdr) {
 #if 0
 #endif
 
-static inline Elf64_Shdr *elf_sheader(Elf64_Ehdr *hdr) {
-	return (Elf64_Shdr *)((char *)hdr + hdr->e_shoff);
+static inline Elf32_Shdr *elf_sheader(Elf32_Ehdr *hdr) {
+	return (Elf32_Shdr *)((char *)hdr + hdr->e_shoff);
 }
 
-static inline Elf64_Shdr *elf_section(Elf64_Ehdr *hdr, int idx) {
+static inline Elf32_Shdr *elf_section(Elf32_Ehdr *hdr, int idx) {
 	assert(idx < hdr->e_shnum);
 	return &elf_sheader(hdr)[idx];
 }
 
-static inline Elf64_Phdr *elf_pheader(Elf64_Ehdr *hdr) {
-	return (Elf64_Phdr *)((char *)hdr + hdr->e_phoff);
+static inline Elf32_Phdr *elf_pheader(Elf32_Ehdr *hdr) {
+	return (Elf32_Phdr *)((char *)hdr + hdr->e_phoff);
 }
 
-static inline Elf64_Phdr *elf_segment(Elf64_Ehdr *hdr, int idx) {
+static inline Elf32_Phdr *elf_segment(Elf32_Ehdr *hdr, int idx) {
 	assert(idx < hdr->e_phnum);
 	return &elf_pheader(hdr)[idx];
 }
@@ -140,18 +140,18 @@ void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, si
 	char *addr = (char *)p;
     char *strtable;
 	size_t lowaddr = (size_t)(-1);
-	Elf64_Ehdr *hdr = (Elf64_Ehdr *)addr;
+	Elf32_Ehdr *hdr = (Elf32_Ehdr *)addr;
 	if(!elf_check_supported(env, hdr)) {
 		ERROR("ELF File cannot be loaded");
 		return NULL;
 	}
 
-	Elf64_Addr e_entry = hdr->e_entry;
+	Elf32_Addr e_entry = hdr->e_entry;
 	TRACE("e_entry:%lX e_phnum:%d e_shnum:%d", hdr->e_entry, hdr->e_phnum, hdr->e_shnum);
 
 	size_t allocsize = 0;
 	for(int i=0; i<hdr->e_phnum; i++) {
-		Elf64_Phdr *seg = elf_segment(hdr, i);
+		Elf32_Phdr *seg = elf_segment(hdr, i);
 		TRACE("SGMT: type:%X flags:%X offset:%lX vaddr:%lX filesz:%lX memsz:%lX align:%lX",
 		      seg->p_type, seg->p_flags, seg->p_offset, seg->p_vaddr,
 		      seg->p_filesz, seg->p_memsz, seg->p_align);
@@ -164,7 +164,7 @@ void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, si
 			/* GNU Stack */
 		} else {
 			ERROR("Unknown section");
-			return NULL;
+			//return NULL;
 		}
 	}
 
@@ -173,9 +173,11 @@ void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, si
 		ERROR("alloc failed");
 		return NULL;
 	}
+
     /* rewrite .got and .data.rel.local with additional offset
      * However, more sections might need rewriting. XXX
      */
+    /*
     for(int i=0; i<hdr->e_shnum; i++) {
         if(elf_section(hdr, i)->sh_type == 3) { // This section is a string table
             strtable = elf_section(hdr, i)->sh_offset + addr;
@@ -194,11 +196,12 @@ void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, si
             }
         }
     }
+     */
 
 	TRACE("Allocated %lx bytes of target memory", allocsize);
 
 	for(int i=0; i<hdr->e_phnum; i++) {
-		Elf64_Phdr *seg = elf_segment(hdr, i);
+		Elf32_Phdr *seg = elf_segment(hdr, i);
 		if(seg->p_type == 1) {
 			env->memcpy(prgmp+seg->p_vaddr, addr + seg->p_offset, seg->p_filesz);
 			TRACE("memcpy: [%lx %lx] <-- [%lx %lx] (%lx bytes)",

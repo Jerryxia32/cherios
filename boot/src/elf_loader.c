@@ -163,12 +163,13 @@ void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, si
 		} else if(seg->p_type == 0x6474E551) {
 			/* GNU Stack */
 		} else {
-			ERROR("Unknown section");
+			//ERROR("Unknown section");
 			//return NULL;
 		}
 	}
 
-	char *prgmp = env->alloc(allocsize);
+	char *prgmp = (void *)0;
+	//char *prgmp = env->alloc(allocsize - lowaddr);
 	if((size_t)prgmp + (size_t)e_entry == 0) {
 		ERROR("alloc failed");
 		return NULL;
@@ -203,7 +204,8 @@ void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, si
 	for(int i=0; i<hdr->e_phnum; i++) {
 		Elf32_Phdr *seg = elf_segment(hdr, i);
 		if(seg->p_type == 1) {
-			env->memcpy(prgmp+seg->p_vaddr, addr + seg->p_offset, seg->p_filesz);
+            //ERRORM("Load at addr: %p\n", (char *)0+seg->p_vaddr);
+			env->memcpy((char *)0+seg->p_vaddr, addr + seg->p_offset, seg->p_filesz);
 			TRACE("memcpy: [%lx %lx] <-- [%lx %lx] (%lx bytes)",
 			      seg->p_vaddr, seg->p_vaddr + seg->p_filesz,
 			      seg->p_offset, seg->p_offset + seg->p_filesz,

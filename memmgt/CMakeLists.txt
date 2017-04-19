@@ -9,5 +9,5 @@ set(SRCS
     #src/release.c
 )
 
-add_cherios_memmgr(memmgt ADD_TO_FILESYSTEM LINKER_SCRIPT sandbox.ld SOURCES ${SRCS})
+add_cherios_memmgr(memmgt ADD_TO_FILESYSTEM LINKER_SCRIPT memmgt.ld SOURCES ${SRCS})
 set_target_properties(memmgt PROPERTIES COMPILE_FLAGS -mxgot)

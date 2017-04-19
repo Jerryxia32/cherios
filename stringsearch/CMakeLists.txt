@@ -9,5 +9,5 @@ set(SRCS
     src/main.c
 )
 
-add_cherios_executable(stringsearch ADD_TO_FILESYSTEM LINKER_SCRIPT sandbox.ld SOURCES ${SRCS})
+add_cherios_executable(stringsearch ADD_TO_FILESYSTEM LINKER_SCRIPT stringsearch.ld SOURCES ${SRCS})
 set_target_properties(stringsearch PROPERTIES COMPILE_FLAGS -mxgot)

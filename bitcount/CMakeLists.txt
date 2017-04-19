@@ -10,5 +10,5 @@ set(SRCS
     src/main.c
 )
 
-add_cherios_executable(bitcount ADD_TO_FILESYSTEM LINKER_SCRIPT sandbox.ld SOURCES ${SRCS})
+add_cherios_executable(bitcount ADD_TO_FILESYSTEM LINKER_SCRIPT bitcount.ld SOURCES ${SRCS})
 set_target_properties(bitcount PROPERTIES COMPILE_FLAGS -mxgot)

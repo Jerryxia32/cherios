@@ -167,22 +167,25 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 
 	char *prgmp = elf_loader(&env, file, &allocsize, &entry);
     printf(KWHT"Module loaded at %p, entry: %x"KRST"\n", prgmp, entry);
+    /*
 	if(!prgmp) {
 		assert(0);
 		return NULL;
 	}
+     */
 
 	/* Invalidate the whole range; elf_loader only returns a
 	   pointer to the entry point. */
-	caches_invalidate(prgmp, allocsize);
+	caches_invalidate((void *)entry, allocsize - entry);
 
 	size_t stack_size = 0x10000;
-	void * stack = init_alloc(stack_size);
+	void * stack = (void *)allocsize;
 	if(!stack) {
 		assert(0);
 		return NULL;
 	}
-	void * pcc = (void *)((size_t)prgmp + entry);
+	//void * pcc = (void *)((size_t)prgmp + entry);
+	void * pcc = (void *)((size_t)0 + entry);
 	void * ctrl = init_act_create(file, 0, prgmp,
 				      pcc, (void *)((size_t)stack + stack_size), get_act_cap(type),
 				      ns_ref, ns_id, arg, carg);

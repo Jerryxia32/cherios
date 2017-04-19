@@ -37,7 +37,7 @@
 	.global start
 	.ent start
 start:
-    dla $t9, start_common
-    dadd $t9, $s4, $t9
+    la $t9, start_common
+#dadd $t9, $s4, $t9
     jr  $t9
     nop

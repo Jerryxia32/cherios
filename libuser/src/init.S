@@ -53,20 +53,20 @@ start_common:
 	# runtime) for granted.
 
 	# Zero BSS.
-    dla     $t9, crt_init_bss
-    dadd    $t9, $s4, $t9
+    la     $t9, crt_init_bss
+#dadd    $t9, $s4, $t9
     jalr    $t9
     nop
 
 	# Initialise globals.
-    dla     $t9, crt_init_globals
-    dadd    $t9, $s4, $t9
+    la     $t9, crt_init_globals
+#dadd    $t9, $s4, $t9
     jalr    $t9
     nop
 
 	# Call C constructors.
-    dla     $t9, crt_call_constructors
-    dadd    $t9, $s4, $t9
+    la     $t9, crt_call_constructors
+#dadd    $t9, $s4, $t9
     jalr    $t9
     nop
 
@@ -75,8 +75,8 @@ start_common:
 	move		$a1, $s5
 	move		$a2, $s6
 	move		$a3, $s7 # careful, s8 is used to remember pc for PIC
-    dla     $t9, libuser_init
-    dadd    $t9, $s4, $t9
+    la     $t9, libuser_init
+#dadd    $t9, $s4, $t9
     jalr    $t9
     nop
 
@@ -86,22 +86,22 @@ start_common:
 	move		$a2, $s2
 
 	# Call main().
-    dla     $t9, main
-    dadd    $t9, $s4, $t9
+    la     $t9, main
+#dadd    $t9, $s4, $t9
     jalr    $t9
     nop
 
 	# main() done. Exit or CReturn
-	dla		$t0, msg_enable
-	dadd		$t0, $s4
+	la		$t0, msg_enable
+#dadd		$t0, $s4
     #cgetdefault	$c17
     #cld		$t0, $t0, 0($c17)
-    ld  $t0, 0($t0)
+    lw  $t0, 0($t0)
 	bne		$t0, $zero, to_msg
 	nop
-	dla		$t0, act_self_ctrl
-	dadd		$t0, $s4
-    ld  $a0, 0($t0)
+	la		$t0, act_self_ctrl
+#dadd		$t0, $s4
+    lw  $a0, 0($t0)
     #clc		$c3, $t0, 0($c17)
 	li		$v1, 26
 	syscall
@@ -110,6 +110,7 @@ start_common:
 to_msg:
 	# CReturn to go in waiting state.
 	move    $v0, $0
+    move    $t2, $0
 #jr  $ra
     li $v1, 1010
     syscall

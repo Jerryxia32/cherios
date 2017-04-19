@@ -7,5 +7,5 @@ set(SRCS
     src/aes.c
 )
 
-add_cherios_executable(AES ADD_TO_FILESYSTEM LINKER_SCRIPT sandbox.ld SOURCES ${SRCS})
+add_cherios_executable(AES ADD_TO_FILESYSTEM LINKER_SCRIPT AES.ld SOURCES ${SRCS})
 set_target_properties(AES PROPERTIES COMPILE_FLAGS -mxgot)

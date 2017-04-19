@@ -1,9 +1,9 @@
 /*-
- * Copyright (c) 2016 Hadrien Barral
+ * Copyright (c) 2011 Robert N. M. Watson
  * All rights reserved.
  *
  * This software was developed by SRI International and the University of
- * Cambridge Computer Laboratory under DARPA/AFRL contract FA8750-10-C-0237
+ * Cambridge Computer Laboratory under DARPA/AFRL contract (FA8750-10-C-0237)
  * ("CTSRD"), as part of the DARPA CRASH research programme.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,27 @@
  * SUCH DAMAGE.
  */
 
-#include "mips.h"
+/*
+ * Linker definition for a relocatable sandbox.  Each one begins with a
+ * 0x1000 byte "guard" region to catch NULL pointer dereferences.
+ */
 
-uint64_t	sync_token = 0;
-long	msg_enable = 0;
+__start = 0x89b01000;
+
+SECTIONS
+{
+	. = __start;
+	.text ALIGN(0x10): { *(.text) }
+	.bss  ALIGN(0x10): { *(.bss) }
+	.data ALIGN(0x10): { *(.data) }
+
+	/*
+	 * Force zero-filling of previous segments in generated image.
+	 */
+	sandbox_trailer : {
+		QUAD(0xffffffffffffffff)
+	}
+
+	__start_bss = ADDR(.bss);
+	__stop_bss = ALIGN(__start_bss + SIZEOF(.bss), 0x10);
+}

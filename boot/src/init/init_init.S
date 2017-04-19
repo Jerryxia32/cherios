@@ -44,19 +44,19 @@
 	.ent start
 start:
     
-    dla $t2, __init_fs_start
-    sd  $t0, 0($t2)
-    dla $t2, __init_fs_stop
-    sd  $t1, 0($t2)
+    la $t2, __init_fs_start
+    sw  $t0, 0($t2)
+    la $t2, __init_fs_stop
+    sw  $t1, 0($t2)
 
 	# Jump to write-free $pcc.
-	dla		$t0, cherios_init_jump_target
+	la		$t0, cherios_init_jump_target
 	jr		$t0
 	nop
 cherios_init_jump_target:
 	# Set up a stack using memory allocated by the linker;
 	# assume that $c0 is a sensible starting capability for this.
-	dla		$t0, __stop_init_stack
+	la		$t0, __stop_init_stack
 	move		$sp, $t0
 
 	# Initialise BSS and globals before running C constructors, so that C
@@ -64,17 +64,17 @@ cherios_init_jump_target:
 	# runtime) for granted.
 
 	# Zero BSS.
-	dla		$t9, crt_init_bss
+	la		$t9, crt_init_bss
     jalr    $t9
 	nop
 
 	# Initialise globals.
-	dla		$t9, crt_init_globals
+	la		$t9, crt_init_globals
     jalr    $t9
 	nop
 
 	# Call C constructors.
-	dla		$t9, crt_call_constructors
+	la		$t9, crt_call_constructors
     jalr    $t9
 	nop
 
@@ -83,7 +83,7 @@ cherios_init_jump_target:
 	dli		$a0, 0
 
 	# Call init_main().
-	dla		$t9, init_main
+	la		$t9, init_main
     jalr    $t9
 	nop
 

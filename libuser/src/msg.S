@@ -43,7 +43,7 @@
 #.endif
 #.endif
 
-.set REG_SIZE_BITS, 3
+.set ADDR_SIZE_BITS, 2
 
 # Dispatch CCalls
 
@@ -54,41 +54,41 @@ msg_entry:
 	bltz		$v0, control
 	nop
 
-	dla		$t0, msg_methods
-	dadd    $t0, $s4, $t0
-	dla		$t1, msg_methods_nb
-	dadd    $t1, $s4, $t1
+	la		$t0, msg_methods
+#dadd    $t0, $s4, $t0
+	la		$t1, msg_methods_nb
+#dadd    $t1, $s4, $t1
 #b		call
-    dla $t9, call
-    dadd    $t9, $s4, $t9
+    la $t9, call
+#dadd    $t9, $s4, $t9
     jr  $t9
 	nop
 
 control:
-	dla		$t0, ctrl_methods
-	dadd    $t0, $s4, $t0
-	dla		$t1, ctrl_methods_nb
-    dadd    $t1, $s4, $t1
+	la		$t0, ctrl_methods
+#dadd    $t0, $s4, $t0
+	la		$t1, ctrl_methods_nb
+#dadd    $t1, $s4, $t1
 	sub		$v0, $0, $v0
 call:
-	ld		$t1, 0($t1)
+	lw		$t1, 0($t1)
 	sub		$t1, $t1, $v0
 	blez		$t1, overflow
 	nop
 
 	#Save sync_token
-	dla		$t1, sync_token
-	dadd    $t1, $s4, $t1
+	la		$t1, sync_token
+#dadd    $t1, $s4, $t1
 	sd		$t2, 0($t1)
 
-	sll		$v0, $v0, REG_SIZE_BITS
+	sll		$v0, $v0, ADDR_SIZE_BITS
 	add		$t0, $t0, $v0
-	ld		$t9, 0($t0)
+	lw		$t9, 0($t0)
 	jalr    $t9
 	nop
 #b		end
-    dla $t9, end
-    dadd    $t9, $s4, $t9
+    la $t9, end
+#dadd    $t9, $s4, $t9
     jr  $t9
 	nop
 
@@ -97,15 +97,15 @@ overflow:
 	move		$v1, $0
 #	cfromptr	$c3, $c3, $0
 #b		end
-    dla $t9, end
-    dadd    $t9, $s4, $t9
+    la $t9, end
+#dadd    $t9, $s4, $t9
     jr  $t9
 	nop
 
 end:
 	#Restore sync_token
-	dla		$t1, sync_token
-	dadd    $t1, $s4, $t1
+	la		$t1, sync_token
+#dadd    $t1, $s4, $t1
 	ld		$t2, 0($t1)
 #jr  $ra
     li $v1, 1010
@@ -114,8 +114,8 @@ end:
 
 	#We are scheduled again: new message
 #b msg_entry
-    dla $t9, msg_entry
-    dadd    $t9, $s4, $t9
+    la $t9, msg_entry
+#dadd    $t9, $s4, $t9
     jr  $t9
 	nop
 msg_entry_end:

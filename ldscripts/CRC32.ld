@@ -33,7 +33,7 @@
  * 0x1000 byte "guard" region to catch NULL pointer dereferences.
  */
 
-__start = 0x89601000;
+__start = 0x8d601000;
 
 SECTIONS
 {

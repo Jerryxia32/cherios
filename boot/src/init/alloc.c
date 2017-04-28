@@ -47,8 +47,8 @@ static inline void *align_upwards(void *p, uintptr_t align)
 	return (void *)addr;
 }
 
-static const size_t pool_size = 1024*144;
-static char pool[pool_size];
+static const size_t pool_size = 1024*160;
+static char pool[pool_size] __attribute__((aligned(0x1000)));
 
 static char * pool_start = NULL;
 static char * pool_end = NULL;

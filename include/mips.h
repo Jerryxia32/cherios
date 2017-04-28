@@ -253,7 +253,7 @@ typedef uint64_t	u_int64_t;
 #define	MIPS_XKPHYS_CACHED_NC_BASE	0x9800000000000000
 
 #define PAGE_ALIGN 0x1000L
-#define MODULE_STACK_SIZE 0x10000L
+#define MODULE_STACK_SIZE 0x8000L
 #define MALLOC_HEADER_SIZE _MIPS_SZCAP/8
 
 static inline vaddr_t

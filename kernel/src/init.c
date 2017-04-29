@@ -61,6 +61,10 @@ static void install_exception_vectors(void) {
 	                (void *)(all_mem + MIPS_BEV0_CCALL_VECTOR);
 	memcpy(mips_bev0_ccall_vector_ptr, &kernel_ccall_trampoline,
 	    (char *)&kernel_ccall_trampoline_end - (char *)&kernel_ccall_trampoline);
+	void *mips_bev0_tlb_vector_ptr =
+	                (void *)(all_mem + MIPS_BEV0_TLB_VECTOR);
+	memcpy(mips_bev0_tlb_vector_ptr, &kernel_tlb_trampoline,
+	    (char *)&kernel_tlb_trampoline_end - (char *)&kernel_tlb_trampoline);
 
 	/* Invalidate I-cache */
 	__asm volatile("sync");

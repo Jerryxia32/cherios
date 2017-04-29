@@ -28,8 +28,8 @@ main() {
     // second, construct two capabilities to the two data regions.
     size_t cSize = &__adpcm_c_end - &__adpcm_c_start;
     size_t dSize = &__adpcm_d_end - &__adpcm_d_start;
-    char * __capability adpcmCcap = *((capability * __capability)0x200);
-    char * __capability adpcmDcap = *((capability * __capability)0x200);
+    char * __capability adpcmCcap = cheri_getdefault();
+    char * __capability adpcmDcap = cheri_getdefault();
     adpcmCcap = cheri_setoffset(adpcmCcap, (size_t)&__adpcm_c_start);
     adpcmCcap = cheri_setbounds(adpcmCcap, cSize);
     adpcmDcap = cheri_setoffset(adpcmDcap, (size_t)&__adpcm_d_start);

@@ -40,7 +40,7 @@ main() {
 	assert(helper_IDC != NULLCAP);
 
     size_t len = &__AES_end - &__AES_start;
-    char * __capability AES_data_cap = cheri_setbounds(cheri_setoffset(*((capability * __capability)0x200), (size_t)&__AES_start), len+1);
+    char * __capability AES_data_cap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)&__AES_start), len+1);
     size_t encdecOffset = 0, totalDeced = 0, remain = 0;
     int64_t encret;
     uint64_t decret;
@@ -53,7 +53,7 @@ main() {
     uint8_t * __capability encdec_out = cheri_andperm(encdec, ~CHERI_PERM_SOFT_0);
 
     const char *theKey = "0123456789ABCDEFFEDCBA98765432100123456789ABCDEFFEDCBA9876543210";
-    const char * __capability theKeyCap = cheri_setbounds(cheri_setoffset(*((capability * __capability)0x200), (size_t)theKey), strlen(theKey)+1);
+    const char * __capability theKeyCap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)theKey), strlen(theKey)+1);
 
     stats_init();
     for(int i=0; i<AES_ITER; i++) {

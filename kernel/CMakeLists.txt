@@ -3,7 +3,7 @@ include_directories(include ${CMAKE_SOURCE_DIR}/boot/include/boot)
 set(KERNEL_SRCS
     src/act.c
     src/ccall.c
-    #src/gc.c
+    src/gc.c
     src/init.c
     src/interrupts.c
     src/kernel_exceptions.c

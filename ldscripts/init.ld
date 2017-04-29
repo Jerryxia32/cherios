@@ -117,4 +117,6 @@ SECTIONS
 	__start_init_stack	= __stop_heap;
 	__stop_init_stack	= __start_init_stack + __size_init_stack;
 	__rest_of_memory	= __stop_init_stack;
+    __start_heap = __start_heap & 0x000000007fffffff;
+    __stop_heap = __stop_heap & 0x000000007fffffff;
 }

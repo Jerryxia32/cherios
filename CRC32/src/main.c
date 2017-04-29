@@ -125,7 +125,7 @@ WORD updateCRC32(unsigned char ch, WORD crc)
       return UPDC32(ch, crc);
 }
 
-Boolean_T crc32file(char * __capability uncachedC0, const char *name, unsigned long pcm_size, WORD *crc, unsigned long *charcnt)
+Boolean_T crc32file(char * __capability theC0, const char *name, unsigned long pcm_size, WORD *crc, unsigned long *charcnt)
 {
       WORD oldcrc32 = 0xffffffff;
       uint8_t c;
@@ -136,7 +136,7 @@ Boolean_T crc32file(char * __capability uncachedC0, const char *name, unsigned l
       while (1)
       {
           if(counter == REG_SIZE) {
-              readBuffer = *(register_t * __capability)(uncachedC0 + (size_t)ptr);
+              readBuffer = *(register_t * __capability)(theC0 + (size_t)ptr);
               counter = 0;
           }
           // The following only works for BIG ENDIAN!
@@ -175,11 +175,11 @@ main()
     WORD crc = 0;
     size_t charcnt = 0;
     size_t pcm_size = &__pcm_end - &__pcm_start;
-    capability uncachedC0 = *((capability * __capability)0x200);
+    capability theC0 = cheri_getdefault();
     int i;
     register int errors = 0;
     for(i=0; i<CRC32_ITER; i++) {
-        errors |= crc32file(uncachedC0, &__pcm_start, pcm_size, &crc, &charcnt);
+        errors |= crc32file(theC0, &__pcm_start, pcm_size, &crc, &charcnt);
         printf("CRC: %08X, char count: %7ld\n", crc, charcnt);
         printf("pcm size: %ld\n", &__pcm_end - &__pcm_start);
         charcnt = 0;

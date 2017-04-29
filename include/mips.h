@@ -102,6 +102,9 @@ typedef uint64_t	u_int64_t;
 /*
  * Useful addresses on MIPS.
  */
+#define	MIPS_BEV0_TLB_VECTOR	0xffffffff80000080
+#define	MIPS_BEV0_TLB_VECTOR_PTR	((void *)MIPS_BEV0_EXCEPTION_VECTOR)
+
 #define	MIPS_BEV0_EXCEPTION_VECTOR	0xffffffff80000180
 #define	MIPS_BEV0_EXCEPTION_VECTOR_PTR	((void *)MIPS_BEV0_EXCEPTION_VECTOR)
 

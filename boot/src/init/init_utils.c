@@ -70,21 +70,17 @@ static void * init_act_create(const char * name, void * __capability c0, void * 
 	/* set stack */
 	frame.mf_sp	= (size_t)stack;
 
-    /* set up per activation trusted stack */
+    /* set up per activation trusted stack
+     * the trusted stack is put in cached, unmapped kernel address space
+     * as we definitely do not want to sweep that region
+     */
     void * __capability temp = cheri_getdefault();
     temp = cheri_andperm(temp, cheri_getperm(c0));
-    temp = cheri_setoffset(temp, cheri_getbase(c0) - PAGE_ALIGN + MALLOC_HEADER_SIZE);
+    temp = cheri_setoffset(temp, (cheri_getbase(c0) - PAGE_ALIGN + MALLOC_HEADER_SIZE) | 0xffffffff80000000);
     frame.cf_kr1c = cheri_setbounds(temp, PAGE_ALIGN - MALLOC_HEADER_SIZE);
 
 	/* set c0 */
     frame.cf_c0 = c0;
-
-    /* ugly hack, get an uncached cap at a fixed location of c0 */
-    size_t uncachedBase = cheri_getbase(c0) + 0x20000000;
-    size_t uncachedLen = cheri_getlen(c0);
-    capability uncachedC0 = cheri_setbounds(cheri_setoffset(cheri_getdefault(), uncachedBase), uncachedLen);
-    uncachedC0 = cheri_andperm(uncachedC0, cheri_getperm(c0));
-    *((capability * __capability)c0 + 0x200/CAP_SIZE) = uncachedC0;
 
 	/* set cap */
 	frame.cf_c6	= act_cap;

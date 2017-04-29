@@ -28,52 +28,5 @@
  * SUCH DAMAGE.
  */
 
-#include "klib.h"
-
-/* Experimental. Should not be in kernel.
- * Todo: Needs a good memory model to be made safe
- */
-
-/* takes two tagged pointers */
-static inline register_t derives_of(void * c, void * p) {
-	size_t cb = cheri_getbase(c);
-	size_t pb = cheri_getbase(p);
-	size_t cl = cheri_getlen(c);
-	size_t pl = cheri_getlen(p);
-	size_t ce = cb+cl;
-	size_t pe = pb+pl;
-	#if 0
-	if(!((pb<=cb) || (pb>=ce))) {
-		CHERI_PRINT_CAP(c);
-		CHERI_PRINT_CAP(p);
-	}
-	#endif
-	kernel_assert((pb<=cb) || (pb>=ce)); /* cb pb   ce  */
-	kernel_assert(!((pb<=cb) && (cb<=pe) && (pe<ce))); /* pb cb pe ce */
-	if((cb>=pb) && (ce<=pe)) {
-		return 1;
-	}
-	return 0;
-}
-
-int try_gc(void * p, void * pool) {
-	#ifndef __LITE__
-	kernel_printf(KBLD KCYN "GC! b:%16lx l:%16lx"KRST"\n",
-	            cheri_getbase(p), cheri_getlen(p));
-	#endif
-	/*todo: (if userspace) we can be prempted here and memory could move */
-	/*todo: also gc saved regs in kernel*/
-	void **gc = pool;
-	size_t len = cheri_getlen(gc) * sizeof(char) / sizeof(void *);
-	for(size_t i=0; i<len; i++) {
-		void * c = gc[i];
-		if(!cheri_gettag(c)) {
-			continue;
-		}
-		if(derives_of(c, p)) {
-			gc[i] = cheri_cleartag(c);
-			//return 0;
-		}
-	}
-	return 1;
-}
+#define TTABLE_SIZE 1024
+char ttable[TTABLE_SIZE] = {0};

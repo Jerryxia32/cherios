@@ -84,6 +84,15 @@ cp0_badvaddr_get(void)
 	return (badvaddr);
 }
 
+static inline register_t
+cp0_entryhi_get(void)
+{
+	register_t entryhi;
+
+	__asm__ __volatile__ ("dmfc0 %0, $10" : "=r" (entryhi));
+	return (entryhi);
+}
+
 /*
  * Routines for managing the CP0 BadInstr register.
  */

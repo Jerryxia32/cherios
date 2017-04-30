@@ -71,6 +71,8 @@ static void regdump_c(const char * str_cap, int hl, const void * __capability ca
 	kernel_printf(KRST"\n");
 }
 
+extern char ttable[TTABLE_SIZE];
+
 void regdump(int reg_num) {
 	int creg = 0;
 
@@ -113,6 +115,36 @@ void regdump(int reg_num) {
      */
 
 	REG_DUMP_C(c25); REG_DUMP_C(idc); REG_DUMP_C(kr1c); creg = 31; REG_DUMP_C(pcc); kernel_printf("\n");
+    uint32_t haveTag = 0;
+    uint32_t total = 0;
+    for(int i=0; i<TTABLE_SIZE; i++) {
+        char theByte = ttable[i];
+        for(int j=0; j<8; j++) {
+            if((theByte>>j) & 0x1) {
+                kernel_putchar('&');
+                haveTag += 1;
+            } else {
+                kernel_putchar('-');
+            }
+            total += 1;
+        }
+    }
+    kernel_putchar('\n');
+    kernel_printf("Tag ratio is: 0x%x/0x%x\n", haveTag, total);
+
+    haveTag = 0;
+    total = 0;
+    capability *sweepPtr = (capability *)0xffffffff88000000;
+    for(int i=0; i<(32 << 8); i++) {
+        for(int j=0; j<(4096/16); j++) {
+            if(cheri_gettag(sweepPtr[(i<<8) + j])) {
+                haveTag++;
+                break;
+            }
+        }
+        total++;
+    }
+    kernel_printf("Tag ratio is: 0x%x/0x%x\n", haveTag, total);
 }
 
 #else

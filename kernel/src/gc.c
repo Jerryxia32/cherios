@@ -28,5 +28,5 @@
  * SUCH DAMAGE.
  */
 
-#define TTABLE_SIZE 1024
-char ttable[TTABLE_SIZE] = {0};
+#include"cheric.h"
+char ttable[TTABLE_SIZE];

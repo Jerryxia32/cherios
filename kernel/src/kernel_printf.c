@@ -49,6 +49,11 @@ static void uart_putchar(int c, __attribute__((unused)) void *arg) {
 	uart_putc(c);
 }
 
+int kernel_putchar(int character) {
+    uart_putchar(character, NULL);
+    return 0;
+}
+
 int kernel_vprintf(const char *fmt, va_list ap) {
 	return (kvprintf(fmt, uart_putchar, NULL, 10, ap));
 }

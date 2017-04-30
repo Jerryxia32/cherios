@@ -80,6 +80,7 @@ void	kernel_timer_init(void);
 void	kernel_timer(void);
 
 void	kernel_puts(const char *s);
+int kernel_putchar(int character);
 void	kernel_panic(const char *s) __dead2;
 #ifndef __LITE__
 int	kernel_printf(const char *fmt, ...);

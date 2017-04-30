@@ -57,6 +57,7 @@ kernel_exception_trampoline:
         j   kernel_cp2_exception_handler
         csetoffset  $kdc, $kdc, $0
 kernel_exception_trampoline_end:
+        nop
 		.global kernel_exception_trampoline_end
 		.end kernel_exception_trampoline
 		.size kernel_exception_trampoline, kernel_exception_trampoline_end - kernel_exception_trampoline
@@ -68,6 +69,7 @@ kernel_ccall_trampoline:
         j   kernel_cp2_ccall_handler
         li  $k1, 5
 kernel_ccall_trampoline_end:
+        nop
 		.global kernel_ccall_trampoline_end
 		.end kernel_ccall_trampoline
 		.size kernel_ccall_trampoline, kernel_ccall_trampoline_end - kernel_ccall_trampoline
@@ -76,9 +78,24 @@ kernel_ccall_trampoline_end:
 		.global kernel_tlb_trampoline
 		.ent kernel_tlb_trampoline
 kernel_tlb_trampoline:
-        j   kernel_cp2_tlb_handler
-        dmfc0   $k0, $8
+        dmfc0   $k0, $10
+        dli $k1, 0xffffffff80000000
+        and $k1, $k0, $k1
+        bnez    $k1, kernel_exception_trampoline
+        nop
+        dsrl $k0, $k0, 6
+        lui $k1, 0x8000
+        dsll32   $k1, $k1, 0
+        daddiu  $k1, $k1, 7
+        or  $k1, $k0, $k1
+        dmtc0   $k1, $2
+        ori $k1, $k1, 0x40
+        dmtc0   $k1, $3
+        nop
+        tlbwr
+        eret
 kernel_tlb_trampoline_end:
+        nop
 		.global kernel_tlb_trampoline_end
 		.end kernel_tlb_trampoline
 		.size kernel_tlb_trampoline, kernel_tlb_trampoline_end - kernel_tlb_trampoline
@@ -93,7 +110,6 @@ kernel_tlb_trampoline_end:
 # inherrently single-CPU.
 #
 		.text
-		.global kernel_cp2_exception_handler
 		.ent kernel_cp2_exception_handler
 kernel_cp2_exception_handler:
 
@@ -248,7 +264,6 @@ kernel_cp2_exception_handler_end:
 		.end kernel_cp2_exception_handler
 
 		.text
-		.global kernel_cp2_ccall_handler
 		.ent kernel_cp2_ccall_handler
 kernel_cp2_ccall_handler:
 		#
@@ -298,25 +313,3 @@ kernel_cp2_creturn:
 kernel_cp2_ccall_handler_end:
 		.size kernel_cp2_ccall_handler, kernel_cp2_ccall_handler_end - kernel_cp2_ccall_handler
 		.end kernel_cp2_ccall_handler
-
-		.text
-		.global kernel_cp2_tlb_handler
-		.ent kernel_cp2_tlb_handler
-kernel_cp2_tlb_handler:
-        srl $k0, $k0, 13
-        sll $k0, $k0, 13
-        dmtc0   $k0, $10
-        srl $k0, $k0, 6
-        daddiu  $k1, $0, 7
-        or  $k1, $k0, $k1
-        dmtc0   $k1, $2
-        ori $k0, $k0, 0x40
-        daddiu  $k1, $0, 7
-        or  $k1, $k0, $k1
-        dmtc0   $k1, $3
-        nop
-        tlbwr
-        eret
-kernel_cp2_tlb_handler_end:
-		.size kernel_cp2_tlb_handler, kernel_cp2_tlb_handler_end - kernel_cp2_tlb_handler
-		.end kernel_cp2_tlb_handler

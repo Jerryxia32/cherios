@@ -85,11 +85,37 @@ static inline const char * getcapcause(int cause) {
 	#endif
 }
 
+extern char ttable[TTABLE_SIZE];
 static void kernel_exception_capability(void) {
 	register_t capcause = cheri_getcause();
 	int cause = (capcause >> 8) & 0x1F;
 
-	if(cause == 5) { /* todo: give them their own handler */
+	if(cause == 9) { // cp2 TLB no cap store exception
+        // clear the store flag and update entrylos
+        __asm__ __volatile__("tlbp");
+        register_t theBadVaddr = cp0_badvaddr_get();
+        theBadVaddr >>= 12;
+        register_t tempLo1 = (theBadVaddr << 6) | 0x8000000000000047UL;
+        register_t tempLo0 = (tempLo1 & ~0x040UL);
+        register_t theMask = 0x7fffffffffffffff;
+        if(theBadVaddr & 0x1UL)
+            tempLo1 &= theMask;
+        else
+            tempLo0 &= theMask;
+        __asm__ __volatile__ ("dmtc0 %0, $2" : : "r" (tempLo0));
+        __asm__ __volatile__ ("dmtc0 %0, $3" : : "r" (tempLo1));
+
+        // write the corresponding bit in ttable
+        size_t charIndex = (theBadVaddr & 0x07fff) >> 3;
+        size_t bitIndex = theBadVaddr & 0x07;
+        char tempChar = ttable[charIndex];
+        tempChar |= (0x1 << bitIndex);
+        ttable[charIndex] = tempChar;
+        __asm__ __volatile__ ("tlbwi");
+		return;
+	}
+
+	if(cause == 5) {
         panic("CCall should not happen in the normal exception handler.");
 		return;
 	}

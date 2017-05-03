@@ -85,33 +85,40 @@ static inline const char * getcapcause(int cause) {
 	#endif
 }
 
-extern char ttable[TTABLE_SIZE];
+extern char * __capability ttableCap;
 static void kernel_exception_capability(void) {
 	register_t capcause = cheri_getcause();
 	int cause = (capcause >> 8) & 0x1F;
 
 	if(cause == 9) { // cp2 TLB no cap store exception
         // clear the store flag and update entrylos
-        __asm__ __volatile__("tlbp");
+        // need to extract the correct EntryHi before probing
         register_t theBadVaddr = cp0_badvaddr_get();
-        theBadVaddr >>= 12;
-        register_t tempLo1 = (theBadVaddr << 6) | 0x8000000000000047UL;
-        register_t tempLo0 = (tempLo1 & ~0x040UL);
-        register_t theMask = 0x7fffffffffffffff;
-        if(theBadVaddr & 0x1UL)
-            tempLo1 &= theMask;
-        else
-            tempLo0 &= theMask;
-        __asm__ __volatile__ ("dmtc0 %0, $2" : : "r" (tempLo0));
-        __asm__ __volatile__ ("dmtc0 %0, $3" : : "r" (tempLo1));
-
+        // check whether odd page or not
+        register_t oddPage = theBadVaddr & 0x1000;
+        register_t tempLo;
+        __asm__ __volatile__ ("tlbp\n tlbr");
+        if(oddPage) {
+            __asm__ __volatile__ ("dmfc0 %0, $3" : "=r" (tempLo));
+            tempLo <<= 1;
+            tempLo >>= 1;
+            __asm__ __volatile__ ("dmtc0 %0, $3" : :"r" (tempLo));
+        } else {
+            __asm__ __volatile__ ("dmfc0 %0, $2" : "=r" (tempLo));
+            tempLo <<= 1;
+            tempLo >>= 1;
+            __asm__ __volatile__ ("dmtc0 %0, $2" : :"r" (tempLo));
+        }
         // write the corresponding bit in ttable
+        theBadVaddr >>= 12;
         size_t charIndex = (theBadVaddr & 0x07fff) >> 3;
         size_t bitIndex = theBadVaddr & 0x07;
-        char tempChar = ttable[charIndex];
+        char tempChar = ttableCap[charIndex];
         tempChar |= (0x1 << bitIndex);
-        ttable[charIndex] = tempChar;
+        ttableCap[charIndex] = tempChar;
+
         __asm__ __volatile__ ("tlbwi");
+
 		return;
 	}
 

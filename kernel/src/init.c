@@ -78,8 +78,13 @@ static void install_exception_vectors(void) {
 /* Use linker allocated memory to store boot-info. */
 static boot_info_t boot_info;
 
+extern char * __capability ttableCap;
+extern char ttable[TTABLE_SIZE];
 int cherios_main(int argc, void *p) {
 	kernel_printf("Kernel Hello world: %d\n", argc);
+    ttableCap = cheri_getdefault();
+    ttableCap = cheri_setoffset(ttableCap, (size_t)ttable);
+    ttableCap = cheri_setbounds(ttableCap, TTABLE_SIZE);
 	/*
 	 * Copy boot_info from boot-loader memory to our own before
 	 * processing it.

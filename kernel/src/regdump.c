@@ -71,7 +71,7 @@ static void regdump_c(const char * str_cap, int hl, const void * __capability ca
 	kernel_printf(KRST"\n");
 }
 
-extern char ttable[TTABLE_SIZE];
+extern char * __capability ttableCap;
 
 void regdump(int reg_num) {
 	int creg = 0;
@@ -118,7 +118,7 @@ void regdump(int reg_num) {
     uint32_t haveTag = 0;
     uint32_t total = 0;
     for(int i=0; i<TTABLE_SIZE; i++) {
-        char theByte = ttable[i];
+        char theByte = ttableCap[i];
         for(int j=0; j<8; j++) {
             if((theByte>>j) & 0x1) {
                 kernel_putchar('&');

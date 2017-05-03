@@ -225,6 +225,7 @@ void kernel_ccall_fake(int cflags) {
 	if(cb->status != status_alive) {
 		KERNEL_ERROR("Trying to CCall revoked activation %s-%d",
 		             cb->name, cb->aid);
+        kernel_panic("revoked activation.\n");
 		return;
 	}
 

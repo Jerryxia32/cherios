@@ -30,3 +30,4 @@
 
 #include"cheric.h"
 char ttable[TTABLE_SIZE];
+char * __capability ttableCap;

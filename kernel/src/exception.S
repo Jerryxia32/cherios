@@ -80,9 +80,10 @@ kernel_ccall_trampoline_end:
 kernel_tlb_trampoline:
         dmfc0   $k0, $10
         dli $k1, 0xffffffff80000000
+        # generate an exception for addresses outside 0x0 - 0x7fffffff
         and $k1, $k0, $k1
-        bnez    $k1, kernel_exception_trampoline
-        nop
+        tne $k1, $0
+        # fill a TLB entry with the prohibit_cap_store set
         dsrl $k0, $k0, 6
         lui $k1, 0x8000
         dsll32   $k1, $k1, 0

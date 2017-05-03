@@ -93,6 +93,7 @@ kernel_tlb_trampoline:
         ori $k1, $k1, 0x40
         dmtc0   $k1, $3
         nop
+        nop
         tlbwr
         eret
 kernel_tlb_trampoline_end:

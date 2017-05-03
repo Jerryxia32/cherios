@@ -48,11 +48,12 @@ msg_entry:
 mutex_loop:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
-    ll  $t1, 0($t0)
-    bne $t1, $0, mutex_loop
+    lw  $t1, 0($t0)
+    bne $t1, $0, locked
     li  $t9, 1
+    ll  $t1, 0($t0)
     sc  $t9, 0($t0)
-    beq $t9, $0, mutex_loop
+    beq $t9, $0, locked
     nop
 
 	bltz		$v0, control
@@ -109,6 +110,15 @@ end:
 	#We are scheduled again: new message
     b msg_entry
 	nop
+
+locked:
+    li  $v1, 13
+    move    $a3, $a0
+    li  $a0, 0
+    syscall
+    b   mutex_loop
+    move    $a0, $a3
+
 msg_entry_end:
 	.end msg_entry
 	.size msg_entry, msg_entry_end - msg_entry
@@ -135,11 +145,12 @@ msg_entry_loopback:
 mutex_loop_loopback:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
-    ll  $t1, 0($t0)
-    bne $t1, $0, mutex_loop_loopback
+    lw  $t1, 0($t0)
+    bne $t1, $0, locked_loopback
     li  $t9, 1
+    ll  $t1, 0($t0)
     sc  $t9, 0($t0)
-    beq $t9, $0, mutex_loop_loopback
+    beq $t9, $0, locked_loopback
     nop
 
 	bltz		$v0, control_loopback
@@ -184,6 +195,14 @@ end_loopback:
     jr  $ra
     daddiu  $sp, $sp, 32
 
+locked_loopback:
+    li  $v1, 13
+    move    $a3, $a0
+    li  $a0, 0
+    syscall
+    b   mutex_loop_loopback
+    move    $a0, $a3
+
 msg_entry_end_loopback:
 	.end msg_entry_loopback
 	.size msg_entry_loopback, msg_entry_end_loopback - msg_entry_loopback
@@ -199,9 +218,10 @@ msg_entry_ccall:
 mutex_loop_ccall:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
-    ll  $t1, 0($t0)
+    lw  $t1, 0($t0)
     bne $t1, $0, locked_ccall
     li  $t9, 1
+    ll  $t1, 0($t0)
     sc  $t9, 0($t0)
     beq $t9, $0, locked_ccall
     nop

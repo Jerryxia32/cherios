@@ -79,7 +79,7 @@ kernel_ccall_trampoline_end:
 		.ent kernel_tlb_trampoline
 kernel_tlb_trampoline:
         dmfc0   $k0, $10
-        dli $k1, 0xffffffff80000000
+        dli $k1, 0xfffffffff0000000
         # generate an exception for addresses outside 0x0 - 0x7fffffff
         and $k1, $k0, $k1
         tne $k1, $0

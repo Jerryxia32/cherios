@@ -79,21 +79,45 @@ kernel_ccall_trampoline_end:
 		.ent kernel_tlb_trampoline
 kernel_tlb_trampoline:
         dmfc0   $k0, $10
-        dli $k1, 0xfffffffff0000000
+        dli     $k1, 0xfffffffff0000000
         # generate an exception for addresses outside 0x0 - 0x7fffffff
-        and $k1, $k0, $k1
-        tne $k1, $0
-        # fill a TLB entry with the prohibit_cap_store set
-        dsrl $k0, $k0, 6
-        lui $k1, 0x8000
-        dsll32   $k1, $k1, 0
-        daddiu  $k1, $k1, 7
-        or  $k1, $k0, $k1
-        dmtc0   $k1, $2
-        ori $k1, $k1, 0x40
-        dmtc0   $k1, $3
-        nop
-        nop
+        and     $k1, $k0, $k1
+        tne     $k1, $0
+        # set up a small stack
+        dla     $k1, __stop_exception_stack # $k1 becomes the stack pointer
+        csetoffset  $kdc, $kdc, $0
+        csd     $t0, $k1, -1*REG_SIZE($kdc)
+        csd     $t1, $k1, -2*REG_SIZE($kdc)
+        # retrieve the no_store_cap bit in the ttable
+        dsrl    $k0, $k0, 15
+        andi    $k0, $k0, 0xfff
+        dla     $t0, ttable
+        dadd    $t0, $t0, $k0
+        clbu    $t0, $t0, 0($kdc) # load the byte into $k1
+        xori    $t0, $t0, 0xff
+        dmfc0   $k0, $10
+        dsrl    $k0, $k0, 12
+        andi    $k0, $k0, 0x7
+        dsrl    $t0, $t0, $k0
+        csd     $t0, $k1, -3*REG_SIZE($kdc) # the shifted byte is stored
+
+        andi    $t0, $t0, 0x1
+        dsll32  $t0, $t0, 31
+        daddiu  $t0, $t0, 7
+        dmfc0   $k0, $10
+        dsrl    $k0, $k0, 6
+        or      $t0, $k0, $t0
+        dmtc0   $t0, $2
+        dsll    $t0, $t0, 1
+        dsrl    $t0, $t0, 1
+        cld     $t1, $k1, -3*REG_SIZE($kdc) # the shifted byte is loaded
+        andi    $t1, $t1, 0x2
+        dsll32  $t1, $t1, 30
+        or      $t1, $t1, $t0
+        ori     $t1, $t1, 0x40
+        dmtc0   $t1, $3
+        cld     $t0, $k1, -1*REG_SIZE($kdc)
+        cld     $t1, $k1, -2*REG_SIZE($kdc)
         tlbwr
         eret
 kernel_tlb_trampoline_end:

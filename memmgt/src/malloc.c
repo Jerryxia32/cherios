@@ -139,20 +139,13 @@ malloc_core(size_t nbytes)
 static int returnCapInited = 0;
 
 void * __capability
-malloc_c_c(size_t nbytes) {
+malloc_c(size_t nbytes) {
     if(returnCapInited == 0) {
         return_cap = namespace_get_IDC(7);
         returnCapInited = 1;
     }
     void * __capability ret = malloc_core(nbytes);
     return(cheri_andperm(ret, ~CHERI_PERM_STORE_LOCAL_CAP));
-}
-
-void * __capability
-malloc_c(size_t nbytes) {
-    void * __capability ret = malloc_c_c(nbytes);
-    ret = cheri_andperm(ret, cheri_getperm(ret) & ~CHERI_PERM_LOAD_CAP & ~CHERI_PERM_STORE_CAP);
-    return ret;
 }
 
 void * __capability
@@ -172,7 +165,7 @@ calloc_core(size_t num, size_t size)
 }
 
 void * __capability
-calloc_c_c(size_t num, size_t size)
+calloc_c(size_t num, size_t size)
 {
 	void * __capability ret;
 
@@ -181,17 +174,10 @@ calloc_c_c(size_t num, size_t size)
 		return (NULLCAP);
 	}
 
-	if ((ret = malloc_c_c(num * size)) != NULLCAP)
+	if ((ret = malloc_c(num * size)) != NULLCAP)
 		memset_c(ret, 0, num * size);
 
 	return (ret);
-}
-
-void * __capability
-calloc_c(size_t num, size_t nbytes) {
-    void * __capability ret = calloc_c_c(num, nbytes);
-    ret = cheri_andperm(ret, cheri_getperm(ret) & ~CHERI_PERM_LOAD_CAP & ~CHERI_PERM_STORE_CAP);
-    return ret;
 }
 
 /*
@@ -343,7 +329,7 @@ realloc_c(void * __capability cp, size_t nbytes)
 	return (res);
 #endif
     void * __capability res;
-	if((res = malloc_c_c(nbytes)) == NULLCAP)
+	if((res = malloc_c(nbytes)) == NULLCAP)
 		return (NULLCAP);
 	memcpy_c(res, cp, (nbytes <= cheri_getlen(cp)) ? nbytes : cheri_getlen(cp));
 	res = cheri_andperm(res, cheri_getperm(cp));

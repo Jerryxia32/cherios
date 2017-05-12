@@ -123,6 +123,7 @@ set(ASMC_COMPILER_FLAGS
     -mabi=n64
     -fno-PIC
     -integrated-as
+    -mllvm -cheri-exact-equals
     -msoft-float
     -fcolor-diagnostics
     -DHARDWARE_${HARDWARE}

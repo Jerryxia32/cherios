@@ -134,13 +134,14 @@ msg_entry_end:
 	.global msg_entry_loopback
 	.ent msg_entry_loopback
 msg_entry_loopback:
-    cgetdefault $c25
-    clc $c1, $sp, 0($c25)
-    clc $c2, $sp, CAP_SIZE($c25)
+    b       useless
     move    $v0, $a0
+useless:
     move    $a0, $a1
     move    $a1, $a2
+    b       useless2
     move    $a2, $a3
+useless2:
     li $t0, MUTEX_ADDR
 mutex_loop_loopback:
     # mutex to prevent module from receiving another message while still

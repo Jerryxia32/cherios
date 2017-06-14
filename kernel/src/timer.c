@@ -84,7 +84,7 @@ void kernel_timer(void)
         size_t oriOffset;
         if((oriOffset = cheri_getoffset(oriStack)) != 0) {
             //check if a random frame expires
-            size_t rand = cp0_count_get() % oriOffset;
+            size_t rand = (cp0_count_get() & 0xff) % oriOffset;
             rand &= ~(((size_t)CAP_SIZE<<2)-1);
             capability * __capability tStack = cheri_setoffset(oriStack, rand);
             int64_t * __capability remainTimep = (int64_t * __capability)((char * __capability)tStack + 2*CAP_SIZE);

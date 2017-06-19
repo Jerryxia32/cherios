@@ -48,11 +48,11 @@ mutex_loop:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
     lw  $t1, 0($t9)
-    bne $t1, $0, locked
+    bne $t1, $0, mutex_loop
     li  $t1, 1
     ll  $0, 0($t9)
     sc  $t1, 0($t9)
-    beq $t1, $0, locked
+    beq $t1, $0, mutex_loop
     nop
 
 	#Save sync_token
@@ -133,11 +133,11 @@ mutex_loop_dcall:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
     lw  $t1, 0($t9)
-    bne $t1, $0, locked_dcall
+    bne $t1, $0, mutex_loop_dcall
     li  $t1, 1
     ll  $0, 0($t9)
     sc  $t1, 0($t9)
-    beq $t1, $0, locked_dcall
+    beq $t1, $0, mutex_loop_dcall
     nop
 
     dla     $t1, act_self_stack

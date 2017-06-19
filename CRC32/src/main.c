@@ -1216,17 +1216,26 @@ WORD updateCRC32(unsigned char ch, WORD crc)
 
 Boolean_T crc32file(const char *name, unsigned long pcm_size, WORD *crc, unsigned long *charcnt)
 {
-      register WORD oldcrc32 = 0xffffffff;
-      register int c;
-      const char *ptr = name;
+      WORD oldcrc32 = 0xffffffff;
+      uint8_t c;
+      const char *ptr = NULL;
+      int counter = REG_SIZE;
+      register_t readBuffer = 0;
 
       while (1)
       {
-            c = *ptr;
-            if(*charcnt == pcm_size) break;
-            ++*charcnt;
-            ptr++;
-            oldcrc32 = UPDC32(c, oldcrc32);
+          if(counter == REG_SIZE) {
+              readBuffer = *(register_t *)(name + (size_t)ptr);
+              counter = 0;
+          }
+          // The following only works for BIG ENDIAN!
+          c = (readBuffer & (0xffUL<<((REG_SIZE-1)*8))) >> ((REG_SIZE-1)*8);
+          readBuffer <<= 8;
+          if(*charcnt == pcm_size) break;
+          ++*charcnt;
+          ptr++;
+          oldcrc32 = UPDC32(c, oldcrc32);
+          counter++;
       }
       *crc = oldcrc32 = ~oldcrc32;
 
@@ -1258,7 +1267,7 @@ main()
     int i;
     register int errors = 0;
     for(i=0; i<CRC32_ITER; i++) {
-        errors |= crc32file(&__pcm_start, pcm_size, &crc, &charcnt);
+        errors |= crc32file(&__pcm_start + 0x20000000, pcm_size, &crc, &charcnt);
         printf("CRC: %08X, char count: %7ld\n", crc, charcnt);
         printf("pcm size: %ld\n", &__pcm_end - &__pcm_start);
         charcnt = 0;

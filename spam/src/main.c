@@ -8,7 +8,7 @@
 #include<statcounters.h>
 #include<mibench_iter.h>
 
-#define EACH_BLOCK_SIZE 256
+#define EACH_BLOCK_SIZE 8192
 
 extern char __AES_start, __AES_end;
 
@@ -32,6 +32,11 @@ main() {
 	assert(sha_ref != NULL);
 	void * sha_id  = namespace_get_id(6);
 
+	void * sha_entry = namespace_get_entry(6);
+	assert(sha_entry != NULL);
+	void * sha_base  = namespace_get_base(6);
+	assert(sha_base != NULL);
+
     size_t len = &__AES_end - &__AES_start;
     size_t encdecOffset = 0, totalDeced = 0, remain = 0;
     int64_t encret;
@@ -48,13 +53,13 @@ main() {
 		totalDeced = 0;
 		remain = 0;
 		while((remain = len-encdecOffset) > EACH_BLOCK_SIZE) {
-			encret = dcall_4(0, ((size_t)&__AES_start + encdecOffset), (register_t)enc, EACH_BLOCK_SIZE, (register_t)theKey, u_entry, u_base);
-			decret = dcall_4(0, (register_t)enc, (size_t)encdec + totalDeced, -encret, (register_t)theKey, u_entry, u_base);
+			encret = dcall_4(0, ((size_t)&__AES_start + encdecOffset + 0x20000000), (register_t)enc, EACH_BLOCK_SIZE, (register_t)theKey + 0x20000000, u_entry, u_base);
+			decret = dcall_4(0, (register_t)enc, (size_t)encdec + totalDeced, -encret, (register_t)theKey + 0x20000000, u_entry, u_base);
 			encdecOffset += EACH_BLOCK_SIZE;
 			totalDeced += decret;
 		}
-		encret = dcall_4(0, ((size_t)&__AES_start + encdecOffset), (register_t)enc, remain, (register_t)theKey, u_entry, u_base);
-		decret = dcall_4(0, (register_t)enc, (size_t)encdec + totalDeced, -encret, (register_t)theKey, u_entry, u_base);
+		encret = dcall_4(0, ((size_t)&__AES_start + encdecOffset + 0x20000000), (register_t)enc, remain, (register_t)theKey + 0x20000000, u_entry, u_base);
+		decret = dcall_4(0, (register_t)enc, (size_t)encdec + totalDeced, -encret, (register_t)theKey + 0x20000000, u_entry, u_base);
 		totalDeced += decret;
 	}
     printf("Size of the original: %ld, Total bytes decrypted: %ld\n", len, totalDeced);
@@ -63,9 +68,15 @@ main() {
     SHA_INFO theinfo;
     stats_init();
 	for(int i=0; i<SHA_ITER; i++) {
-		ccall_4(sha_ref, sha_id, 0, (register_t)&theinfo, (register_t)&__AES_start, (size_t)len, 0);
+		encdecOffset = 0;
+        remain = 0;
+		while((remain = len-encdecOffset) > EACH_BLOCK_SIZE) {
+            dcall_4(0, (register_t)&theinfo, (register_t)&__AES_start + 0x20000000 + encdecOffset, EACH_BLOCK_SIZE, 0, sha_entry, sha_base);
+			encdecOffset += EACH_BLOCK_SIZE;
+        }
+        dcall_4(0, (register_t)&theinfo, (register_t)&__AES_start + 0x20000000 + encdecOffset, remain, 0, sha_entry, sha_base);
+        dcall_4(1, (register_t)&theinfo, 0, 0, 0, sha_entry, sha_base);
 	}
-    ccall_4(sha_ref, sha_id, 1, (register_t)&theinfo, 0, 0, 0);
     stats_display();
 
     return 0;

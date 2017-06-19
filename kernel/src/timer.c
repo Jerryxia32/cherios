@@ -58,7 +58,7 @@ void kernel_timer(void)
 	/*
 	 * Forced context switch of user process.
 	 */
-	sched_reschedule(0);
+	//sched_reschedule(0);
 
 	/*
 	 * Reschedule timer for a future date -- if we've almost missed a

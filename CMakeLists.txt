@@ -9,7 +9,7 @@ set(CMAKE_C_COMPILER_WORKS 1)
 # Configure hardare at compile time.  Default to "qemu" for CHERI QEMU MALTA.
 # Other option are "fpga" for CHERI on FPGA and "l3" for the L3 simulator.
 #
-set(HARDWARE "qemu" CACHE STRING
+set(HARDWARE "fpga" CACHE STRING
 "Configure hardare at compile time.  Default to \"qemu\" for CHERI QEMU MALTA.\
  Other option are \"fpga\" for CHERI on FPGA and \"l3\" for the L3 simulator.")
 
@@ -169,7 +169,7 @@ add_compile_options("$<$<COMPILE_LANGUAGE:ASM>:${ASM_COMPILER_FLAGS}>")
 
 # TODO: only add -g when CMAKE_BUILD_TYPE == Debug
 # for now we always want it
-add_compile_options(-g)
+#add_compile_options(-g)
 
 set(CHERIOS_FILESYSTEM_DIR "${CMAKE_BINARY_DIR}/fs")
 set(CHERIOS_FILESYSTEM_DEPENDS "" CACHE INTERNAL "dependencies for filesystem")

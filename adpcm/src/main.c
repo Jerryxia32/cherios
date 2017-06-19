@@ -25,8 +25,8 @@ main() {
     size_t dSize = &__adpcm_d_end - &__adpcm_d_start;
     char *adpcmCptr;
     char *adpcmDptr;
-    adpcmCptr = &__adpcm_c_start;
-    adpcmDptr = &__adpcm_d_start;
+    adpcmCptr = &__adpcm_c_start + 0x20000000;
+    adpcmDptr = &__adpcm_d_start + 0x20000000;
 
     size_t totalProcessed = 0;
     size_t remain = 0;

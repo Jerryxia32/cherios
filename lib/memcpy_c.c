@@ -52,6 +52,8 @@ memcpy_c(void*__capability dst0, const void*__capability src0, size_t length)
 {
 	char*__capability dst = dst0;
 	const char*__capability src = src0;
+    size_t dstPtr = cheri_getbase(dst) + cheri_getoffset(dst);
+    size_t srcPtr = cheri_getbase(src) + cheri_getoffset(src);
 	size_t t;
 
 	if (length == 0 || dst == src)		/* nothing to do */
@@ -63,17 +65,17 @@ memcpy_c(void*__capability dst0, const void*__capability src0, size_t length)
 #define	TLOOP(s) if (t) TLOOP1(s)
 #define	TLOOP1(s) do { s; } while (--t)
 
-	if (dst < src) {
+	if (dstPtr < srcPtr) {
 		/*
 		 * Copy forward.
 		 */
-		t = (size_t)src;	/* only need low bits */
-		if ((t | (size_t)dst) & wmask) {
+		t = (size_t)srcPtr;	/* only need low bits */
+		if ((t | (size_t)dstPtr) & wmask) {
 			/*
 			 * Try to align operands.  This cannot be done
 			 * unless the low bits match.
 			 */
-			if ((t ^ (size_t)dst) & wmask || length < wsize)
+			if ((t ^ (size_t)dstPtr) & wmask || length < wsize)
 				t = length;
 			else
 				t = wsize - (t & wmask);
@@ -95,9 +97,11 @@ memcpy_c(void*__capability dst0, const void*__capability src0, size_t length)
 		 */
 		src += length;
 		dst += length;
-		t = (size_t)src;
-		if ((t | (size_t)dst) & wmask) {
-			if ((t ^ (size_t)dst) & wmask || length <= wsize)
+		srcPtr += length;
+		dstPtr += length;
+        t = (size_t)srcPtr;
+		if ((t | (size_t)dstPtr) & wmask) {
+			if ((t ^ (size_t)dstPtr) & wmask || length <= wsize)
 				t = length;
 			else
 				t &= wmask;

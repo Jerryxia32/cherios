@@ -47,9 +47,10 @@ msg_entry:
 mutex_loop:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
-    ll  $t1, 0($t9)
+    lw  $t1, 0($t9)
     bne $t1, $0, locked
     li  $t1, 1
+    ll  $0, 0($t9)
     sc  $t1, 0($t9)
     beq $t1, $0, locked
     nop
@@ -131,9 +132,10 @@ msg_entry_dcall:
 mutex_loop_dcall:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
-    ll  $t1, 0($t9)
+    lw  $t1, 0($t9)
     bne $t1, $0, locked_dcall
     li  $t1, 1
+    ll  $0, 0($t9)
     sc  $t1, 0($t9)
     beq $t1, $0, locked_dcall
     nop

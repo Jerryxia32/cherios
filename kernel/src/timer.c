@@ -59,8 +59,8 @@ void kernel_timer(void)
 	/*
 	 * Forced context switch of user process.
 	 */
-	aid_t hint = sched_reschedule(0);
-	//aid_t hint = kernel_curr_act;
+	//aid_t hint = sched_reschedule(0);
+	aid_t hint = kernel_curr_act;
 
     /*
      * Scan the context's trusted stack to check for expired ccalls.
@@ -91,7 +91,7 @@ void kernel_timer(void)
             *remainTimep -= TIMER_INTERVAL;
 #endif
             // timeout reached, force return
-            if(*remainTimep <= 0) {
+            if(0) {
                 // timing failed, signal the assembly to clear registers.
                 timingFailed = 1;
 

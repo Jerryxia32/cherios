@@ -54,7 +54,8 @@
 		.global kernel_exception_trampoline
 		.ent kernel_exception_trampoline
 kernel_exception_trampoline:
-        j   kernel_cp2_exception_handler
+        dla $k0, kernel_cp2_exception_handler
+        jr  $k0
         csetoffset  $kdc, $kdc, $0
 kernel_exception_trampoline_end:
 		nop
@@ -66,7 +67,8 @@ kernel_exception_trampoline_end:
 		.global kernel_ccall_trampoline
 		.ent kernel_ccall_trampoline
 kernel_ccall_trampoline:
-        j   kernel_cp2_ccall_handler
+        dla $k0, kernel_cp2_ccall_handler
+        jr  $k0
         li  $k1, 5
 kernel_ccall_trampoline_end:
 		nop

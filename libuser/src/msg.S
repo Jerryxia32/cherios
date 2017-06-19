@@ -48,9 +48,10 @@ msg_entry:
 mutex_loop:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
-    ll  $t1, 0($t0)
+    lw  $t1, 0($t0)
     bne $t1, $0, mutex_loop
     li  $t9, 1
+    ll  $t1, 0($t0)
     sc  $t9, 0($t0)
     beq $t9, $0, mutex_loop
     nop
@@ -135,9 +136,10 @@ msg_entry_loopback:
 mutex_loop_loopback:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
-    ll  $t1, 0($t0)
+    lw  $t1, 0($t0)
     bne $t1, $0, mutex_loop_loopback
     li  $t9, 1
+    ll  $t1, 0($t0)
     sc  $t9, 0($t0)
     beq $t9, $0, mutex_loop_loopback
     nop
@@ -199,11 +201,12 @@ msg_entry_ccall:
 mutex_loop_ccall:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
-    ll  $t1, 0($t0)
-    bne $t1, $0, locked_ccall
+    lw  $t1, 0($t0)
+    bne $t1, $0, mutex_loop_ccall
     li  $t9, 1
+    ll  $t1, 0($t0)
     sc  $t9, 0($t0)
-    beq $t9, $0, locked_ccall
+    beq $t9, $0, mutex_loop_ccall
     nop
 
 	bltz		$v0, control_ccall

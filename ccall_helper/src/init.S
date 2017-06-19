@@ -49,7 +49,7 @@ ccall_helper:
     csetoffset  $c25, $c25, $sp
     csc $c25, $0, CAP_SIZE($kr1c)
     csd $v1, $0, 2*CAP_SIZE($kr1c)
-//#define REAL_TIME
+#define REAL_TIME
 #ifdef REAL_TIME
     dmfc0   $t0, $9 # read the current count register
     csw $t0, $0, 2*CAP_SIZE+REG_SIZE($kr1c)

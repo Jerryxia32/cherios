@@ -1,5 +1,5 @@
 set(LIB_SRCS
-    ${CMAKE_SOURCE_DIR}/lib/memcpy_c.S
+    ${CMAKE_SOURCE_DIR}/lib/memcpy_c.c
     ${CMAKE_SOURCE_DIR}/lib/memcpy.c
     ${CMAKE_SOURCE_DIR}/lib/memset.c
     ${CMAKE_SOURCE_DIR}/lib/strlen.c

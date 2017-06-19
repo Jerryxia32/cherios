@@ -72,22 +72,6 @@ void free_c(void * __capability ptr) {
 	ccall_4(memmgt_ref, memmgt_id, 3, 0, 0, 0, ptr, NULLCAP, NULLCAP);
 }
 
-void * __capability malloc_c_c(size_t length) {
-	if(memmgt_ref == NULL) {
-		memmgt_ref = namespace_get_ref(3);
-		memmgt_id  = namespace_get_id(3);
-	}
-	return ccall_4(memmgt_ref, memmgt_id, 4, length, 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
-}
-
-void * __capability calloc_c_c(size_t items, size_t length) {
-	if(memmgt_ref == NULL) {
-		memmgt_ref = namespace_get_ref(3);
-		memmgt_id  = namespace_get_id(3);
-	}
-	return ccall_4(memmgt_ref, memmgt_id, 5, items, length, 0, NULLCAP, NULLCAP, NULLCAP).cret;
-}
-
 #else /* ifdef MALLOC_FASTPATH */
 static int mallocInit = 0;
 static void * __capability memmgt_PCC = NULLCAP;
@@ -125,18 +109,6 @@ void free_c(void * __capability ptr) {
         init_memmgt();
 	ccall_real_4_c(3, LONG_MAX, 0, 0, 0, ptr, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, helper_cap);
 }
-
-void * __capability malloc_c_c(size_t length) {
-    if(mallocInit == 0)
-        init_memmgt();
-	return ccall_real_4_c(4, LONG_MAX, length, 0, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, helper_cap);
-}
-
-void * __capability calloc_c_c(size_t items, size_t length) {
-    if(mallocInit == 0)
-        init_memmgt();
-	return ccall_real_4_c(5, LONG_MAX, items, length, 0, NULLCAP, NULLCAP, NULLCAP, memmgt_PCC, memmgt_IDC, helper_cap);
-}
 #endif /* MALLOC_FASTPATH */
 
 void memmgt_set_act(void * ref, void * id) {
@@ -149,7 +121,7 @@ void * __capability calloc_core(size_t items, size_t length) {
 		memmgt_ref = namespace_get_ref(3);
 		memmgt_id  = namespace_get_id(3);
 	}
-	return ccall_4(memmgt_ref, memmgt_id, 6, items, length, 0, NULLCAP, NULLCAP, NULLCAP).cret;
+	return ccall_4(memmgt_ref, memmgt_id, 4, items, length, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }
 
 void free_core(void * __capability ptr) {

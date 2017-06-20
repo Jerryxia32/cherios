@@ -50,8 +50,6 @@
 
 #include"aes.h"
 
-#define memcpy_c memcpy_c_hack
-
 int main_aes(byte * __capability in, byte * __capability out, int64_t length, char * __capability givenKey);
 
 void empty_entry() {

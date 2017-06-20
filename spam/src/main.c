@@ -34,6 +34,11 @@ main() {
 	void * __capability aes_IDC = namespace_get_IDC(5);
 	assert(aes_IDC != NULLCAP);
 
+	void * __capability sha_PCC = namespace_get_PCC(6);
+	assert(sha_PCC != NULLCAP);
+	void * __capability sha_IDC = namespace_get_IDC(6);
+	assert(sha_IDC != NULLCAP);
+
 	void * __capability helper_PCC = namespace_get_PCC(7);
 	assert(helper_PCC != NULLCAP);
 	void * __capability helper_IDC = namespace_get_IDC(7);
@@ -55,6 +60,7 @@ main() {
     const char *theKey = "0123456789ABCDEFFEDCBA98765432100123456789ABCDEFFEDCBA9876543210";
     const char * __capability theKeyCap = cheri_setbounds(cheri_setoffset(cheri_getdefault(), (size_t)theKey), strlen(theKey)+1);
 
+    /* AES benchmark begins */
     stats_init();
     for(int i=0; i<AES_ITER; i++) {
         totalDeced = 0;
@@ -72,15 +78,24 @@ main() {
     }
     printf("Size of the original: %ld, Total bytes decrypted: %ld\n", len, totalDeced);
     stats_display();
+    /* AES benchmark ends */
 
+    /* SHA benchmark begins */
     SHA_INFO * __capability theinfo = (SHA_INFO * __capability)malloc_c(sizeof(SHA_INFO)+1);
     uint8_t * __capability theinfo_out = cheri_andperm(theinfo, ~CHERI_PERM_SOFT_0);
     stats_init();
     for(int i=0; i<SHA_ITER; i++) {
-        ccall_4(sha_ref, sha_id, 0, len, 0, 0, theinfo_out, AES_data_cap, NULLCAP);
+        encdecOffset = 0;
+        remain = 0;
+        while((remain = len-encdecOffset) > EACH_BLOCK_SIZE) {
+            ccall_real_4_strong_r(0, LONG_MAX, EACH_BLOCK_SIZE, 0, 0, theinfo_out, (AES_data_cap + encdecOffset), NULLCAP, sha_PCC, sha_IDC, helper_PCC);
+            encdecOffset += EACH_BLOCK_SIZE;
+        }
+        ccall_real_4_strong_r(0, LONG_MAX, remain, 0, 0, theinfo_out, (AES_data_cap + encdecOffset), NULLCAP, sha_PCC, sha_IDC, helper_PCC);
+        ccall_real_4_strong_r(1, LONG_MAX, 0, 0, 0, theinfo_out, NULLCAP, NULLCAP, sha_PCC, sha_IDC, helper_PCC);
     }
-    ccall_4(sha_ref, sha_id, 1, 0, 0, 0, theinfo_out, NULLCAP, NULLCAP);
     stats_display();
+    /* SHA benchmark ends */
 
     printf("Cross domain (ccall safe) for %d times.\n", DOMAIN_TIMES);
     stats_init();

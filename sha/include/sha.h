@@ -17,6 +17,7 @@ typedef uint32_t LONG;
 typedef struct {
     LONG digest[5];		/* message digest */
     LONG count_lo, count_hi;	/* 64-bit bit count */
+    LONG padding;
     LONG data[16];		/* SHA data buffer */
 } SHA_INFO;
 

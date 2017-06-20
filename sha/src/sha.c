@@ -41,9 +41,23 @@ static void sha_transform(SHA_INFO * __capability sha_info)
     int i;
     LONG temp, A, B, C, D, E, W[80];
 
-    for (i = 0; i < 16; ++i) {
-	W[i] = sha_info->data[i];
-    }
+	W[0] = sha_info->data[0];
+	W[1] = sha_info->data[1];
+	W[2] = sha_info->data[2];
+	W[3] = sha_info->data[3];
+	W[4] = sha_info->data[4];
+	W[5] = sha_info->data[5];
+	W[6] = sha_info->data[6];
+	W[7] = sha_info->data[7];
+	W[8] = sha_info->data[8];
+	W[9] = sha_info->data[9];
+	W[10] = sha_info->data[10];
+	W[11] = sha_info->data[11];
+	W[12] = sha_info->data[12];
+	W[13] = sha_info->data[13];
+	W[14] = sha_info->data[14];
+	W[15] = sha_info->data[15];
+
     for (i = 16; i < 80; ++i) {
 	W[i] = W[i-3] ^ W[i-8] ^ W[i-14] ^ W[i-16];
 #ifdef USE_MODIFIED_SHA

@@ -87,6 +87,10 @@ memcpy_c(void*__capability dst0, const void*__capability src0, size_t length)
 		 */
 		t = length / wsize;
 		TLOOP(*(word*__capability)dst = *(word*__capability)src; src += wsize; dst += wsize);
+		t = length / wsize;
+        dst -= t * wsize;
+        src -= t * wsize;
+		TLOOP(*(word*__capability)dst = *(word*__capability)src; src += wsize; dst += wsize);
 		t = length & wmask;
 		TLOOP(*dst++ = *src++);
 	} else {
@@ -109,6 +113,10 @@ memcpy_c(void*__capability dst0, const void*__capability src0, size_t length)
 			TLOOP1(*--dst = *--src);
 		}
 		t = length / wsize;
+		TLOOP(src -= wsize; dst -= wsize; *(word*__capability)dst = *(word*__capability)src);
+		t = length / wsize;
+        src += t * wsize;
+        dst += t * wsize;
 		TLOOP(src -= wsize; dst -= wsize; *(word*__capability)dst = *(word*__capability)src);
 		t = length & wmask;
 		TLOOP(*--dst = *--src);

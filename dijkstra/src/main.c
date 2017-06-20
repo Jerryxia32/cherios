@@ -16,9 +16,9 @@ typedef struct _NODE NODE;
 
 struct _QITEM
 {
+  struct _QITEM *qNext;
   int iNode;
   int iDist;
-  struct _QITEM *qNext;
   int iPrev;
 }__attribute__((aligned(REG_SIZE)));
 typedef struct _QITEM QITEM;
@@ -145,6 +145,7 @@ void print_path (NODE *rgnNodes_l, int chNode)
 }
 
 
+void enqueue (int iNode_l, int iDist_l, int iPrev_l) __attribute__((noinline));
 void enqueue (int iNode_l, int iDist_l, int iPrev_l)
 {
   QITEM *qNew = (QITEM *) malloc(sizeof(QITEM));

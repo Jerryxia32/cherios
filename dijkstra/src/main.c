@@ -14,16 +14,16 @@ struct _NODE
 {
   int iDist;
   int iPrev;
-} __attribute__((aligned(8)));
+} __attribute__((aligned(REG_SIZE)));
 typedef struct _NODE NODE;
 
 struct _QITEM
 {
+  struct _QITEM * __capability qNext;
   int iNode;
   int iDist;
   int iPrev;
-  struct _QITEM * __capability qNext;
-};
+}__attribute__((aligned(CAP_SIZE)));
 typedef struct _QITEM QITEM;
 
 QITEM * __capability qHead = NULLCAP;
@@ -148,16 +148,12 @@ void print_path (NODE *rgnNodes_l, int chNode)
 }
 
 
+void enqueue (int iNode_l, int iDist_l, int iPrev_l) __attribute__((noinline));
 void enqueue (int iNode_l, int iDist_l, int iPrev_l)
 {
   QITEM * __capability qNew = (QITEM * __capability)malloc_c(sizeof(QITEM));
   QITEM * __capability qLast = qHead;
   
-  if (!qNew) 
-    {
-      printf("Out of memory.\n");
-      exit(1);
-    }
   qNew->iNode = iNode_l;
   qNew->iDist = iDist_l;
   qNew->iPrev = iPrev_l;

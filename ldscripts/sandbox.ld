@@ -34,13 +34,18 @@
  */
 
 __start = 0x1000;
+CAP_ALIGN = 0x20;
 
 SECTIONS
 {
 	. = __start;
-	.text ALIGN(0x10): { *(.text) }
-	.bss  ALIGN(0x10): { *(.bss) }
-	.data ALIGN(0x10): { *(.data) }
+	.text ALIGN(CAP_ALIGN): { *(.text) }
+	.rodata ALIGN(CAP_ALIGN): { *(.rodata) }
+	.got ALIGN(CAP_ALIGN): { *(.got) }
+	.bss  ALIGN(CAP_ALIGN): { *(.bss) }
+	.data ALIGN(CAP_ALIGN): { *(.data) }
+	.ctors ALIGN(CAP_ALIGN): { *(.ctors) }
+	.dtors ALIGN(CAP_ALIGN): { *(.dtors) }
 
 	/*
 	 * Force zero-filling of previous segments in generated image.
@@ -50,5 +55,5 @@ SECTIONS
 	}
 
 	__start_bss = ADDR(.bss);
-	__stop_bss = ALIGN(__start_bss + SIZEOF(.bss), 0x10);
+	__stop_bss = ALIGN(__start_bss + SIZEOF(.bss),CAP_ALIGN);
 }

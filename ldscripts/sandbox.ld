@@ -39,11 +39,13 @@ __start = 0x1000;
 SECTIONS
 {
 	. = __start;
+    /*
 	.text ALIGN(CAP_ALIGN): { *(.text) }
 	.bss  ALIGN(CAP_ALIGN): { *(.bss) }
 	.data ALIGN(CAP_ALIGN): { *(.data) }
 	.ctors ALIGN(CAP_ALIGN): { *(.ctors) }
 	.dtors ALIGN(CAP_ALIGN): { *(.dtors) }
+     */
 
 	/*
 	 * Force zero-filling of previous segments in generated image.

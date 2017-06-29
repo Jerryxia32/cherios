@@ -30,7 +30,7 @@
 
 __cached_base = 0xffffffff80000000;
 
-CAP_ALIGN = 0x20;
+CAP_ALIGN = 0x8;
 PAGE_ALIGN = 0x1000;
 
 /*

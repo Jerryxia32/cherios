@@ -259,7 +259,7 @@ function(add_cherios_module _target)
   add_custom_command(TARGET ${_target} POST_BUILD
     # remove some sections to save place (TODO: make this depend on the configuration)
     COMMAND "${CheriSDK_TOOLCHAIN_DIR}/strip" "${CMAKE_CURRENT_BINARY_DIR}/${_target}.elf"
-    COMMAND "${CheriSDK_TOOLCHAIN_DIR}/objcopy" -R .comment -R .apple_names -R .apple_objc -R .apple_namespaces -R .apple_types -R .MIPS.options -R .MIPS.abiflags "${_target}.elf"
+    COMMAND "${CheriSDK_TOOLCHAIN_DIR}/objcopy" -R .reginfo -R .comment -R .apple_names -R .apple_objc -R .apple_namespaces -R .apple_types -R .MIPS.options -R .MIPS.abiflags "${_target}.elf"
     )
   # add it to the filesystem dir if requested
   if(add_exe_ADD_TO_FILESYSTEM)

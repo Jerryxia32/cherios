@@ -50,17 +50,17 @@ start_common:
 	# runtime) for granted.
 
 	# Zero BSS.
-    dla     $t9, crt_init_bss
+    la     $t9, crt_init_bss
     jalr    $t9
     nop
 
 	# Initialise globals.
-    dla     $t9, crt_init_globals
+    la     $t9, crt_init_globals
     jalr    $t9
     nop
 
 	# Call C constructors.
-    dla     $t9, crt_call_constructors
+    la     $t9, crt_call_constructors
     jalr    $t9
     nop
 
@@ -68,28 +68,28 @@ start_common:
 	move		$a0, $s2
     cmove       $c3, $c6
     cgetpcc $c4
-    dla $t0, msg_entry_ccall
+    la $t0, msg_entry_ccall
     csetoffset $c4, $c4, $t0
     cgetdefault $c5
     csetoffset  $c5, $c5, $sp
 	move		$a1, $s0
 	move		$a2, $s1
-    dla     $t9, libuser_init
+    la     $t9, libuser_init
     jalr    $t9
     nop
 
 	# Call main().
-    dla     $t9, main
+    la      $t9, main
     jalr    $t9
     nop
 
 	# main() done. Exit or CReturn
-	dla		$t0, msg_enable
-    ld  $t0, 0($t0)
+	la		$t0, msg_enable
+    lw  $t0, 0($t0)
 	bne		$t0, $zero, to_msg
 	nop
-	dla		$t0, act_self_ctrl
-    ld  $a0, 0($t0)
+	la		$t0, act_self_ctrl
+    lw  $a0, 0($t0)
 	li		$v1, 26
 	syscall
     nop
@@ -102,6 +102,6 @@ to_msg:
     nop
 
 	#First 'real' message. Go to appropriate handler
-    dla $t9, msg_entry
+    la $t9, msg_entry
     jr  $t9
     nop

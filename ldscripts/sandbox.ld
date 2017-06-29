@@ -39,8 +39,8 @@ __start = 0x1000;
 SECTIONS
 {
 	. = __start;
-    /*
 	.text ALIGN(CAP_ALIGN): { *(.text) }
+    /*
 	.bss  ALIGN(CAP_ALIGN): { *(.bss) }
 	.data ALIGN(CAP_ALIGN): { *(.data) }
 	.ctors ALIGN(CAP_ALIGN): { *(.ctors) }

@@ -50,7 +50,7 @@ start:
 	dmtc0	$k1, $14
 
 	#Save register frame
-	dla	$k0, kernel_init_save_frame
+	la	$k0, kernel_init_save_frame
 
     csc $c1, $k0, 1*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     csc $c2, $k0, 2*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
@@ -94,24 +94,24 @@ start:
 
 	# Set up a boot-time stack using memory allocated by the linker;
 	# assume that $c0 is a sensible starting capability for this.
-	dla		$sp, __stop_exception_stack
+	la		$sp, __stop_exception_stack
 
 	# Initialise BSS and globals before running C constructors, so that C
 	# constructors can take them (and other aspects of the conventional C
 	# runtime) for granted.
 
 	# Zero BSS.
-	dla		$t9, crt_init_bss
+	la		$t9, crt_init_bss
     jalr    $t9
 	nop
 
 	# Initialise globals.
-	dla		$t9, crt_init_globals
+	la		$t9, crt_init_globals
     jalr    $t9
 	nop
 
 	# Call C constructors.
-	dla		$t9, crt_call_constructors
+	la		$t9, crt_call_constructors
     jalr    $t9
 	nop
 
@@ -120,13 +120,13 @@ start:
 	cld		$a1, $k0, 4*REG_SIZE($kdc)
 
 	# Call cherios_main().
-	dla		$t9, cherios_main
+	la		$t9, cherios_main
 	jalr		$t9
 	nop
 
 	# Restore context from the register frame set by the scheduler,
 	# typically pointing to an init activation.
-	dla	$k0, kernel_exception_framep_ptr
+	la	$k0, kernel_exception_framep_ptr
     cld	$k0, $k0, 0($kdc)
 
     cld $at, $k0, 0*REG_SIZE($kdc)

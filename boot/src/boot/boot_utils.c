@@ -86,10 +86,8 @@ void load_kernel() {
 	}
 
 	if(&__kernel_entry_point != prgmp + entry) {
-		boot_printf(KRED"Bad kernel entry point:"KRST"\n");
-		//BOOT_PRINT_CAP(prgmp);
-		boot_printf("Expected kernel entry point:\n");
-		//BOOT_PRINT_CAP(&__kernel_entry_point);
+		boot_printf(KRED"Bad kernel entry point: %p"KRST"\n", (void *)(prgmp+entry));
+		boot_printf("Expected kernel entry point: %p\n", &__kernel_entry_point);
 		goto err;
 	}
 

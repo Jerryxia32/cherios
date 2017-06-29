@@ -66,18 +66,18 @@ start:
 
 	# W^X for pointers: ensure $c0 is never executable.
 	cgetdefault	$c3
-	dli		$t0, ~(1<<1)
+	li		$t0, ~(1<<1)
 	candperm	$c3, $c3, $t0
 	csetdefault	$c3
 
 	# Implement W^X for pointers: trim store permissions from $pcc to
 	# prevent it from becoming writable in the future.
 	cgetpcc		$c3
-	dli		$t0, ~((1<<3) | (1<<5))
+	li		$t0, ~((1<<3) | (1<<5))
 	candperm	$c3, $c3, $t0
 
 	# Jump to write-free $pcc.
-	dla		$t0, cherios_init_jump_target
+	la		$t0, cherios_init_jump_target
 	csetoffset	$c3, $c3, $t0
 	cjr		$c3
     nop
@@ -90,7 +90,7 @@ cherios_init_jump_target:
 
 	# Set up a boot-time stack using memory allocated by the linker;
 	# assume that $c0 is a sensible starting capability for this.
-	dla		$t0, __stop_boot_stack
+	la		$t0, __stop_boot_stack
 	move		$sp, $t0
 
 	# Initialise BSS and globals before running C constructors, so that C
@@ -98,17 +98,17 @@ cherios_init_jump_target:
 	# runtime) for granted.
 
 	# Zero BSS.
-	dla		$t9, crt_init_bss
+	la		$t9, crt_init_bss
     jalr    $t9
 	nop
 
 	# Initialise globals.
-	dla		$t9, crt_init_globals
+	la		$t9, crt_init_globals
     jalr    $t9
 	nop
 
 	# Call C constructors.
-	dla		$t9, crt_call_constructors
+	la		$t9, crt_call_constructors
     jalr    $t9
 	nop
 
@@ -117,7 +117,7 @@ cherios_init_jump_target:
 	dli		$a0, 0
 
 	# Call cherios_main().
-	dla		$t9, cherios_main
+	la		$t9, cherios_main
     jalr    $t9
 	nop
 

@@ -33,8 +33,6 @@ INCLUDE "common.ld"
 __size_memory		= 0x1000000;	/* Start simple: 16M above load address */
 __size_boot_stack	= 0x10000;	/* Start simple: 64K */
 
-OUTPUT_FORMAT("elf64-tradbigmips");
-OUTPUT_ARCH(mips)
 ENTRY(start)
 SECTIONS
 {

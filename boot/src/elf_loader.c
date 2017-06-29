@@ -75,6 +75,7 @@ int elf_check_supported(Elf_Env *env, Elf64_Ehdr *hdr) {
 		ERROR("Bad magic number");
 		return 0;
 	}
+    return 1;
 	if(hdr->e_ident[EI_CLASS] != 2) {
 		ERROR("Bad EI_CLASS");
 		return 0;

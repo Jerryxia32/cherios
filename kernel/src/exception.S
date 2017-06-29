@@ -145,7 +145,7 @@ kernel_cp2_exception_handler:
 		# relative to KDC.  First save and clear CP2 context, then
 		# move on to general-purpose registers.
 		#
-		dla	$k0, kernel_exception_framep_ptr
+		la	$k0, kernel_exception_framep_ptr
         cld	$k0, $k0, 0($kdc)
 
         csc $c1, $k0, 1*CAP_SIZE+MIPS_FRAME_SIZE($kdc)

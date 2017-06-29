@@ -79,7 +79,7 @@ typedef struct
 	/* CCall related */
 	sync_t sync_token;		/* Helper for the synchronous CCall mecanism */
 	void * act_reference;		/* Sealed reference for the activation */
-	uint64_t act_default_id;		/* Default object identifier */
+	size_t act_default_id;		/* Default object identifier */
 	#ifndef __LITE__
 	char name[ACT_NAME_MAX_LEN];	/* Activation name (for debuging) */
 	#endif

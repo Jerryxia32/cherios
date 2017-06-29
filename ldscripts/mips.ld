@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-__cached_base = 0xffffffff80000000;
+__cached_base = 0x80000000;
 
 CAP_ALIGN = 0x8;
 PAGE_ALIGN = 0x1000;
@@ -36,7 +36,7 @@ PAGE_ALIGN = 0x1000;
 /*
  * Configure cached (BEV=0) exception vectors at the following addresses.
  */
-__cached_exception_vector_base = 0xffffffff80000000;
+__cached_exception_vector_base = 0x80000000;
 __cached_exception_vector_tlbrefill =
     __cached_exception_vector_base + 0x000;
 __cached_exception_vector_xtlbrefill =

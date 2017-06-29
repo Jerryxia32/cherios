@@ -4,9 +4,7 @@
 		.global kernel_trampoline
 		.ent kernel_trampoline
 kernel_trampoline:
-		dla	$k0, __kernel_entry_point
-		jr	$k0
-		nop
+		j       __kernel_entry_point
 kernel_trampoline_end:
 		nop
 		.global kernel_trampoline_end

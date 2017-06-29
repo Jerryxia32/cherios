@@ -76,7 +76,7 @@ static void * init_act_create(const char * name, void * __capability c0, void * 
      */
     void * __capability temp = cheri_getdefault();
     temp = cheri_andperm(temp, cheri_getperm(c0));
-    temp = cheri_setoffset(temp, (cheri_getbase(c0) - PAGE_ALIGN + MALLOC_HEADER_SIZE) | 0xffffffff80000000);
+    temp = cheri_setoffset(temp, (cheri_getbase(c0) - PAGE_ALIGN + MALLOC_HEADER_SIZE) | 0x80000000);
     frame.cf_kr1c = cheri_setbounds(temp, PAGE_ALIGN - MALLOC_HEADER_SIZE);
 
 	/* set c0 */

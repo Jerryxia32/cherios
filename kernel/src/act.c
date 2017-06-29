@@ -43,7 +43,7 @@ act_t				kernel_acts[MAX_ACTIVATIONS];
 aid_t 				kernel_curr_act;
 aid_t				kernel_next_act;
 
-static uint64_t            act_default_id = 0;
+static size_t            act_default_id = 0;
 
 void act_init(boot_info_t *bi) {
 	KERNEL_TRACE("init", "activation init");
@@ -163,7 +163,7 @@ void * act_get_ref(act_t * ctrl) {
 	return kernel_acts[aid].act_reference;
 }
 
-uint64_t act_get_id(act_t * ctrl) {
+size_t act_get_id(act_t * ctrl) {
 	aid_t aid = ctrl->aid;
 	return kernel_acts[aid].act_default_id;
 }

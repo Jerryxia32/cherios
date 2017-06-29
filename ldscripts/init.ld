@@ -36,8 +36,6 @@ INCLUDE "common.ld"
 __size_memory		= 0x2000000;	/* Start simple: 32M above load address */
 __size_init_stack	= 0x10000;	/* Start simple: 64K */
 
-OUTPUT_FORMAT("elf64-tradbigmips");
-OUTPUT_ARCH(mips)
 ENTRY(start)
 SECTIONS
 {
@@ -110,13 +108,13 @@ SECTIONS
 	 * No need to include anything after the following in the binary --
 	 * we just define symbols, and don't move '.'.
 	 */
-	__start_heap = ALIGN(0xffffffff88000000, PAGE_ALIGN);
-	__stop_heap = ALIGN((0xffffffff88000000 + __size_memory) - __size_init_stack, PAGE_ALIGN);
+	__start_heap = ALIGN(0x88000000, PAGE_ALIGN);
+	__stop_heap = ALIGN((0x88000000 + __size_memory) - __size_init_stack, PAGE_ALIGN);
 	__size_heap = __stop_heap - __start_heap;
 
 	__start_init_stack	= __stop_heap;
 	__stop_init_stack	= __start_init_stack + __size_init_stack;
 	__rest_of_memory	= __stop_init_stack;
-    __start_heap = __start_heap & 0x000000007fffffff;
-    __stop_heap = __stop_heap & 0x000000007fffffff;
+    __start_heap = __start_heap & 0x7fffffff;
+    __stop_heap = __stop_heap & 0x7fffffff;
 }

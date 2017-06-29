@@ -32,8 +32,6 @@ INCLUDE "common.ld"
 
 __size_exception_stack	= 0x1000;	/* Start simple: 4K */
 
-OUTPUT_FORMAT("elf64-tradbigmips");
-OUTPUT_ARCH(mips)
 ENTRY(start)
 SECTIONS
 {

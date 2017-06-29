@@ -84,7 +84,7 @@ kernel_tlb_trampoline:
         and     $k1, $k0, $k1
         tne     $k1, $0
         # set up a small stack
-        dla     $k1, __stop_exception_stack # $k1 becomes the stack pointer
+        la     $k1, __stop_exception_stack # $k1 becomes the stack pointer
         csetoffset  $kdc, $kdc, $0
         csd     $t0, $k1, -1*REG_SIZE($kdc)
         csd     $t1, $k1, -2*REG_SIZE($kdc)
@@ -107,6 +107,7 @@ kernel_tlb_trampoline:
         dmfc0   $k0, $10
         dsrl    $k0, $k0, 6
         or      $t0, $k0, $t0
+        ori     $t0, $t0, 0x18
         dmtc0   $t0, $2
         dsll    $t0, $t0, 1
         dsrl    $t0, $t0, 1
@@ -114,7 +115,7 @@ kernel_tlb_trampoline:
         andi    $t1, $t1, 0x2
         dsll32  $t1, $t1, 30
         or      $t1, $t1, $t0
-        ori     $t1, $t1, 0x40
+        ori     $t1, $t1, 0x58
         dmtc0   $t1, $3
         cld     $t0, $k1, -1*REG_SIZE($kdc)
         cld     $t1, $k1, -2*REG_SIZE($kdc)

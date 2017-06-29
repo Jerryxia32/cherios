@@ -70,8 +70,13 @@ static void install_exception_vectors(void) {
 	__asm volatile("sync");
 	__asm__ __volatile__ (
 		"cache 0b10000, 0(%[line]) \n"
-		:: [line]"r" (MIPS_BEV0_EXCEPTION_VECTOR & 0xFFFF));
-	/* does not work with kseg0 address, hence the `& 0xFFFF` */
+		:: [line]"r" (MIPS_BEV0_EXCEPTION_VECTOR));
+	__asm__ __volatile__ (
+		"cache 0b10000, 0(%[line]) \n"
+		:: [line]"r" (MIPS_BEV0_CCALL_VECTOR));
+	__asm__ __volatile__ (
+		"cache 0b10000, 0(%[line]) \n"
+		:: [line]"r" (MIPS_BEV0_TLB_VECTOR));
 	__asm volatile("sync");
 }
 

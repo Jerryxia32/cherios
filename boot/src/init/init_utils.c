@@ -65,10 +65,10 @@ static void * init_act_create(const char * name, void * __capability c0, void * 
 
 	/* set pc */
     frame.cf_pcc = pcc;
-	frame.mf_pc	= cheri_getoffset(pcc);
+	frame.mf_pc	= addr_to_reg(cheri_getoffset(pcc));
 
 	/* set stack */
-	frame.mf_sp	= (size_t)stack;
+	frame.mf_sp	= addr_to_reg((size_t)stack);
 
     /* set up per activation trusted stack
      * the trusted stack is put in cached, unmapped kernel address space
@@ -105,7 +105,7 @@ static void * __capability get_act_cap(module_t type) {
 #define	UART_BASE	0x180003f8
 #define	UART_SIZE	0x40
 #elif defined(CONSOLE_altera)
-#define	UART_BASE	0x7f000000
+#define	UART_BASE	0x18000000
 #define	UART_SIZE	0x08
 #else
 #error UART type not found

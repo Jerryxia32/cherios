@@ -261,6 +261,14 @@ typedef uint64_t	u_int64_t;
 #define	MIPS_KSEG_UNCACHED_BASE	0xa0000000
 #define	MIPS_KSEG_CACHED_NC_BASE	0x80000000
 
+static inline register_t
+addr_to_reg(size_t in) {
+	register_t out;
+	__asm__ __volatile__("dsll32 %0, %1, 0" : "=r" (out) : "r" (in));
+	__asm__ __volatile__("dsra32 %0, %1, 0" : "=r" (out) : "r" (out));
+	return out;
+}
+
 static inline vaddr_t
 mips_phys_to_cached(paddr_t phys)
 {

@@ -45,9 +45,9 @@
 	.ent start
 start:
 	#Add 4 to EPCC
-	dmfc0	$k1, $14
+	mfc0	$k1, $14
 	addi	$k1, $k1, 4
-	dmtc0	$k1, $14
+	mtc0	$k1, $14
 
 	#Save register frame
 	la	$k0, kernel_init_save_frame
@@ -89,7 +89,7 @@ start:
 	csd	$k1, $k0, 18*REG_SIZE($kdc)
 	mflo	$k1
 	csd	$k1, $k0, 19*REG_SIZE($kdc)
-	dmfc0	$k1, $14		# EPC
+	mfc0	$k1, $14		# EPC
 	csd	$k1, $k0, 20*REG_SIZE($kdc)
 
 	# Set up a boot-time stack using memory allocated by the linker;
@@ -127,7 +127,7 @@ start:
 	# Restore context from the register frame set by the scheduler,
 	# typically pointing to an init activation.
 	la	$k0, kernel_exception_framep_ptr
-    cld	$k0, $k0, 0($kdc)
+    clw	$k0, $k0, 0($kdc)
 
     cld $at, $k0, 0*REG_SIZE($kdc)
     cld $v0, $k0, 1*REG_SIZE($kdc)
@@ -152,7 +152,7 @@ start:
 	cld	$k1, $k0, 19*REG_SIZE($kdc)
 	mtlo	$k1
 	cld	$k1, $k0, 20*REG_SIZE($kdc)
-	dmtc0	$k1, $14		# EPC
+	mtc0	$k1, $14		# EPC
 
     # avoid "direct c0 access deprecated" warning
     clc $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)

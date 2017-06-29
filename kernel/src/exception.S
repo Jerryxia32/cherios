@@ -146,7 +146,7 @@ kernel_cp2_exception_handler:
 		# move on to general-purpose registers.
 		#
 		la	$k0, kernel_exception_framep_ptr
-        cld	$k0, $k0, 0($kdc)
+        clw	$k0, $k0, 0($kdc)
 
         csc $c1, $k0, 1*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
         csc $c2, $k0, 2*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
@@ -185,11 +185,11 @@ kernel_cp2_exception_handler:
         csd	$k1, $k0, 18*REG_SIZE($kdc)
         mflo	$k1
         csd	$k1, $k0, 19*REG_SIZE($kdc)
-        dmfc0	$k1, $14		# EPC
+        mfc0	$k1, $14		# EPC
         csd	$k1, $k0, 20*REG_SIZE($kdc)
 
 		# Set up exception stack
-        dla     $sp, __stop_exception_stack
+        la     $sp, __stop_exception_stack
 
 		#
 		# Restore the kernel's C0 after returning from the user
@@ -203,7 +203,7 @@ kernel_cp2_exception_handler:
 		#
 		# Normal function invocation of kernel_exception().
 		#
-		dla		$t9, kernel_exception
+		la		$t9, kernel_exception
 		jalr		$t9
 		nop
 
@@ -212,8 +212,8 @@ kernel_cp2_exception_handler:
 		# its contents replaced by the kernel.  Notice correspondence
 		# to the layout of struct reg_frame.
 		#
-		dla	$k0, kernel_exception_framep_ptr
-        cld	$k0, $k0, 0($kdc)
+		la	$k0, kernel_exception_framep_ptr
+        clw	$k0, $k0, 0($kdc)
 
         dla $k1, timingFailed
         ld  $k1, 0($k1)
@@ -242,7 +242,7 @@ kernel_cp2_exception_handler:
         cld	$k1, $k0, 19*REG_SIZE($kdc)
         mtlo	$k1
         cld	$k1, $k0, 20*REG_SIZE($kdc)
-        dmtc0	$k1, $14		# EPC
+        mtc0	$k1, $14		# EPC
 
         # avoid "direct c0 access deprecated" warning
         clc $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)

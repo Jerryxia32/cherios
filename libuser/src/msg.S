@@ -59,29 +59,29 @@ mutex_loop:
 	bltz		$v0, control
 	nop
 
-	dla		$t0, msg_methods
-	dla		$t1, msg_methods_nb
+	la		$t0, msg_methods
+	la		$t1, msg_methods_nb
     b		call
 	nop
 
 control:
-	dla		$t0, ctrl_methods
-	dla		$t1, ctrl_methods_nb
+	la		$t0, ctrl_methods
+	la		$t1, ctrl_methods_nb
 	sub		$v0, $0, $v0
 call:
-	ld		$t1, 0($t1)
+	lw		$t1, 0($t1)
 	sub		$t1, $t1, $v0
 	blez		$t1, overflow
 	nop
 
 	#Save sync_token
-	dla		$t1, sync_token
+	la		$t1, sync_token
     cgetdefault $c1
 	csc		$c2, $t1, 0($c1)
 
-	sll		$v0, $v0, REG_SIZE_BITS
+	sll		$v0, $v0, SIZET_SIZE_BITS
 	add		$t0, $t0, $v0
-	ld		$t9, 0($t0)
+	lw		$t9, 0($t0)
 	jalr    $t9
 	nop
     b		end
@@ -95,7 +95,7 @@ overflow:
 
 end:
 	#Restore sync_token
-	dla		$t1, sync_token
+	la		$t1, sync_token
     cgetdefault $c1
 	clc		$c2, $t1, 0($c1)
 
@@ -157,26 +157,26 @@ mutex_loop_loopback:
 	bltz		$v0, control_loopback
 	nop
 
-	dla		$t0, msg_methods
-	dla		$t1, msg_methods_nb
+	la		$t0, msg_methods
+	la		$t1, msg_methods_nb
     b		call_loopback
 	nop
 
 control_loopback:
-	dla		$t0, ctrl_methods
-	dla		$t1, ctrl_methods_nb
+	la		$t0, ctrl_methods
+	la		$t1, ctrl_methods_nb
 	sub		$v0, $0, $v0
 call_loopback:
-	ld		$t1, 0($t1)
+	lw		$t1, 0($t1)
 	sub		$t1, $t1, $v0
 	blez		$t1, overflow_loopback
 	nop
 
-    daddiu  $sp, $sp, -32
+    addiu  $sp, $sp, -32
     sd  $ra, 0($sp)
-	sll		$v0, $v0, REG_SIZE_BITS
+	sll		$v0, $v0, SIZET_SIZE_BITS
 	add		$t0, $t0, $v0
-	ld		$t9, 0($t0)
+	lw		$t9, 0($t0)
 	jalr    $t9
 	nop
     b		end_loopback
@@ -228,27 +228,27 @@ mutex_loop_ccall:
     nop
 
 	bltz		$v0, control_ccall
-    daddiu  $sp, $sp, -CAP_SIZE
+    addiu  $sp, $sp, -CAP_SIZE
 
-	dla		$t0, msg_methods
-	dla		$t1, msg_methods_nb
+	la		$t0, msg_methods
+	la		$t1, msg_methods_nb
     b   call_ccall
 	nop
 
 control_ccall:
-	dla		$t0, ctrl_methods
-	dla		$t1, ctrl_methods_nb
+	la		$t0, ctrl_methods
+	la		$t1, ctrl_methods_nb
 	sub		$v0, $0, $v0
 call_ccall:
-	ld		$t1, 0($t1)
+	lw		$t1, 0($t1)
 	sub		$t1, $t1, $v0
 	blez		$t1, overflow_ccall
 	nop
 
     sd  $ra, 0($sp)
-	sll		$v0, $v0, REG_SIZE_BITS
+	sll		$v0, $v0, SIZET_SIZE_BITS
 	add		$t0, $t0, $v0
-	ld		$t9, 0($t0)
+	lw		$t9, 0($t0)
 	jalr    $t9
 	nop
     ld  $ra, 0($sp)

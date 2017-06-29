@@ -76,7 +76,7 @@ main() {
         decret = ccall_real_4_strong_r(0, LONG_MAX, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap, aes_PCC, aes_IDC, helper_PCC);
         totalDeced += decret;
     }
-    printf("Size of the original: %ld, Total bytes decrypted: %ld\n", len, totalDeced);
+    printf("Size of the original: %d, Total bytes decrypted: %d\n", len, totalDeced);
     stats_display();
     /* AES benchmark ends */
 

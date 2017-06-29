@@ -200,11 +200,11 @@ void kernel_exception_syscall(void)
 
 /* Creates a token for synchronous CCalls. This ensures the answer is unique. */
 static void * __capability get_sync_token(aid_t ccaller) {
-	static uint32_t unique = 0;
+	static uint16_t unique = 0;
 	unique++;
 	kernel_acts[ccaller].sync_token.expected_reply  = unique;
 
-	uint64_t token_offset = (((u64)ccaller) << 32) + unique;
+	uint32_t token_offset = (((u32)ccaller) << 16) + unique;
 	void * __capability sync_token = cheri_andperm(cheri_getdefault(), 0);
 	#ifdef _CHERI256_
 	sync_token = cheri_setbounds(sync_token, 0);
@@ -280,8 +280,8 @@ void kernel_creturn_fake(void) {
 	/* Check if we expect this anwser */
 	sync_token = kernel_unseal(sync_token, 42000);
 	size_t sync_offset = cheri_getoffset(sync_token);
-	aid_t ccaller = sync_offset >> 32;
-	uint64_t unique = sync_offset & 0xFFFFFFF;
+	aid_t ccaller = sync_offset >> 16;
+	uint16_t unique = sync_offset & 0xFFFF;
 	if(kernel_acts[ccaller].sync_token.expected_reply != unique ) {
 		KERNEL_ERROR("bad sync creturn");
 		kernel_freeze();

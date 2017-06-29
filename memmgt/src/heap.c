@@ -68,7 +68,7 @@ __init_heap(void * __capability heap)
 	/*
 	 * XXXBD: assumes DDC is page aligned.
 	 */
-	assert((size_t)heap == roundup2((size_t)heap, pagesz));
+	assert((size_t)(void *)heap == roundup2((size_t)(void *)heap, pagesz));
 
 	assert(cheri_getoffset(heap) == 0);
 	size_t heaplen = cheri_getlen(heap);

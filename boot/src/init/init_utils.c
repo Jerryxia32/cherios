@@ -200,7 +200,7 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 	};
 
 	char * __capability prgmp = elf_loader(&env, file, &allocsize, &entry);
-    printf(KWHT"Module loaded at %p, entry: %lx, size: %lx"KRST"\n", (void *)cheri_getbase(prgmp), entry, allocsize);
+    printf(KWHT"Module loaded at %p, entry: %x, size: %x"KRST"\n", (void *)cheri_getbase(prgmp), entry, allocsize);
 	if(!prgmp) {
 		assert(0);
 		return NULL;

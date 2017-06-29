@@ -136,8 +136,10 @@
 #define CHERI_TB_WIDTH 8
 #if (_MIPS_SZCAP != 64)
 #define CHERI_OTYPE_WIDTH 24
+#else
+#define CHERI_OTYPE_WIDTH 8
 #endif
-#define	NULLCAP		((void * __capability)0)
+#define	NULLCAP		((void * __capability)0L)
 #define TTABLE_SIZE 1024
 
 /*
@@ -239,14 +241,14 @@ cheri_zerocap(void)
 } while (0)
 
 #define CHERI_PRINT_PTR(ptr)						\
-	printf("%s: " #ptr " b:%016jx l:%016zx o:%jx\n", __func__,	\
+	printf("%s: " #ptr " b:%016x l:%016zx o:%x\n", __func__,	\
 	   cheri_getbase((const void * __capability)(ptr)),		\
 	   cheri_getlen((const void * __capability)(ptr)),		\
 	   cheri_getoffset((const void * __capability)(ptr)))
 
 #define CHERI_PRINT_CAP(cap)						\
-	printf("%-20s: %-16s t:%lx s:%lx p:%08jx "			\
-	       "b:%016jx l:%016zx o:%jx\n",				\
+	printf("%-20s: %-16s t:%x s:%x p:%08x "			\
+	       "b:%016x l:%016zx o:%x\n",				\
 	   __func__,							\
 	   #cap,							\
 	   cheri_gettag(cap),						\
@@ -257,7 +259,7 @@ cheri_zerocap(void)
 	   cheri_getoffset(cap))
 
 #define CHERI_PRINT_CAP_LITE(cap)					\
-	printf("t:%x s:%x b:0x%16jx l:0x%16zx o:0x%jx",			\
+	printf("t:%x s:%x b:0x%16x l:0x%16zx o:0x%x",			\
 	   cheri_gettag(cap),						\
 	   cheri_getsealed(cap),					\
 	   cheri_getbase(cap),						\

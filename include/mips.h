@@ -42,14 +42,14 @@
  * 64-bit MIPS types.
  */
 #define REG_SIZE 8
-typedef unsigned long	register_t;		/* 64-bit MIPS register */
-typedef unsigned long	paddr_t;		/* Physical address */
-typedef unsigned long	vaddr_t;		/* Virtual address */
+typedef unsigned long long  register_t;		/* 64-bit MIPS register */
+typedef unsigned int        paddr_t;		/* Physical address */
+typedef unsigned int        vaddr_t;		/* Virtual address */
 
-typedef long		ssize_t;
-typedef	unsigned long	size_t;
+typedef int		ssize_t;
+typedef	unsigned int	size_t;
 
-typedef long		off_t;
+typedef int		off_t;
 
 /*
  * Useful integer type names that we can't pick up from the compile-time
@@ -64,18 +64,17 @@ typedef unsigned short	uint16_t;
 typedef int		int32_t;
 typedef unsigned int	u_int;
 typedef unsigned int	uint32_t;
-typedef long		intmax_t;
-typedef long		quad_t;
-typedef long		ptrdiff_t;
-typedef long		int64_t;
+typedef long long		intmax_t;
+typedef long long		quad_t;
+typedef int		ptrdiff_t;
+typedef long long		int64_t;
 typedef unsigned long	u_long;
-typedef unsigned long	uint64_t;
-typedef	unsigned long	uintmax_t;
-typedef unsigned long	u_quad_t;
-typedef unsigned long	uintptr_t;
-typedef long	intptr_t;
-//typedef unsigned long	uintptr_t;
-typedef unsigned long	caddr_t;
+typedef unsigned long long	uint64_t;
+typedef	unsigned long long	uintmax_t;
+typedef unsigned long long	u_quad_t;
+typedef unsigned int	uintptr_t;
+typedef int	intptr_t;
+typedef unsigned int	caddr_t;
 
 typedef u_long		ulong;
 typedef u_char		uchar;
@@ -102,13 +101,13 @@ typedef uint64_t	u_int64_t;
 /*
  * Useful addresses on MIPS.
  */
-#define	MIPS_BEV0_TLB_VECTOR	0xffffffff80000080
+#define	MIPS_BEV0_TLB_VECTOR	0x80000080
 #define	MIPS_BEV0_TLB_VECTOR_PTR	((void *)MIPS_BEV0_EXCEPTION_VECTOR)
 
-#define	MIPS_BEV0_EXCEPTION_VECTOR	0xffffffff80000180
+#define	MIPS_BEV0_EXCEPTION_VECTOR	0x80000180
 #define	MIPS_BEV0_EXCEPTION_VECTOR_PTR	((void *)MIPS_BEV0_EXCEPTION_VECTOR)
 
-#define	MIPS_BEV0_CCALL_VECTOR		0xffffffff80000280
+#define	MIPS_BEV0_CCALL_VECTOR		0x80000280
 #define	MIPS_BEV0_CCALL_VECTOR_PTR	((void *)MIPS_BEV0_EXCEPTION_VECTOR)
 
 /*
@@ -252,27 +251,29 @@ typedef uint64_t	u_int64_t;
 /*
  * MIPS address space layout.
  */
-#define	MIPS_XKPHYS_UNCACHED_BASE	0x9000000000000000
-#define	MIPS_XKPHYS_CACHED_NC_BASE	0x9800000000000000
-
 #define PAGE_ALIGN 0x1000L
 #define MODULE_STACK_SIZE 0x8000L
 #define MALLOC_HEADER_SIZE _MIPS_SZCAP/8
+
+/*
+ * MIPS address space layout.
+ */
+#define	MIPS_KSEG_UNCACHED_BASE	0xa0000000
+#define	MIPS_KSEG_CACHED_NC_BASE	0x80000000
 
 static inline vaddr_t
 mips_phys_to_cached(paddr_t phys)
 {
 
-	return (phys | MIPS_XKPHYS_CACHED_NC_BASE);
+	return (phys | MIPS_KSEG_CACHED_NC_BASE);
 }
 
 static inline vaddr_t
 mips_phys_to_uncached(paddr_t phys)
 {
 
-	return (phys | MIPS_XKPHYS_UNCACHED_BASE);
+	return (phys | MIPS_KSEG_UNCACHED_BASE);
 }
-
 /*
  * Endian conversion routines for use in I/O -- most Altera devices are little
  * endian, but our processor is big endian.

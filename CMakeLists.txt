@@ -119,9 +119,10 @@ endif()
 include_directories(include)
 # set up the right flags for C and ASM sources
 set(ASMC_COMPILER_FLAGS
-    -mcpu=cheri128
-    -mabi=n64
+    -mcpu=cheri64
+    -mabi=n32
     -fno-PIC
+    -mno-abicalls
     -integrated-as
     -mllvm -cheri-exact-equals
     -msoft-float
@@ -157,6 +158,7 @@ set(C_WARNING_FLAGS
     -Wno-error=unused-function
     -Wno-error=unused-variable
     -Wno-error=unused-parameter
+    -Wno-error=incompatible-library-redeclaration
 )
 set(C_COMPILER_FLAGS ${C_COMPILER_FLAGS} ${C_WARNING_FLAGS})
 

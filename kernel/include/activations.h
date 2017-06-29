@@ -37,7 +37,7 @@ typedef u32 aid_t;
 
 typedef struct
 {
-	uint32_t expected_reply;
+	uint16_t expected_reply;
 }  sync_t;
 
 /*

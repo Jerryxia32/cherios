@@ -54,7 +54,7 @@ main() {
         adpcm_coder(sbufcap, abufcap, remain/2, &state);
         memcpy_c(cheri_getdefault(), abufcap, remain/4);
         totalProcessed += remain;
-        printf("adpcm encoded %ld bytes in total.\n", totalProcessed);
+        printf("adpcm encoded %d bytes in total.\n", totalProcessed);
 
         /* decode stage, reinitialize variables. */
         totalProcessed = 0;
@@ -69,7 +69,7 @@ main() {
         adpcm_decoder(abufcap, sbufcap, remain*2, &state);
         memcpy_c(cheri_getdefault(), sbufcap, remain*4);
         totalProcessed += remain;
-        printf("adpcm decoded %ld bytes in total.\n", totalProcessed);
+        printf("adpcm decoded %d bytes in total.\n", totalProcessed);
     }
     stats_display();
 

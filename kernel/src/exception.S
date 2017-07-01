@@ -216,8 +216,8 @@ kernel_cp2_exception_handler:
 		la	$k0, kernel_exception_framep_ptr
         clw	$k0, $k0, 0($kdc)
 
-        dla $k1, timingFailed
-        ld  $k1, 0($k1)
+        la $k1, timingFailed
+        lw  $k1, 0($k1)
         bne $k1, $0, timing_failed_restore
 
         cld $at, $k0, 0*REG_SIZE($kdc)

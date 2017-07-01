@@ -33,7 +33,7 @@
 #include "cp0.h"
 
 static register_t		kernel_last_timer;
-int timingFailed = 0;
+uint32_t timingFailed = 0;
 
 void kernel_timer_init(void) {
 	/*

@@ -149,3 +149,15 @@ slow_memcpy_loop:                # byte-by-byte copy
 memcpy_c_end:
 .size memcpy_c, memcpy_c_end - memcpy_c
 .end memcpy_c
+
+		.text
+		.global memcpy
+		.ent memcpy
+memcpy:
+    cfromptr    $c3, $c0, $a0
+    cfromptr    $c4, $c0, $a1
+    b           memcpy_c
+    move        $a0, $a2
+memcpy_end:
+.size memcpy, memcpy_end - memcpy
+.end memcpy

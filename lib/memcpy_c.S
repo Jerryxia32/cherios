@@ -154,8 +154,9 @@ memcpy_c_end:
 		.global memcpy
 		.ent memcpy
 memcpy:
-    cfromptr    $c3, $c0, $a0
-    cfromptr    $c4, $c0, $a1
+    cgetdefault $c1
+    cfromptr    $c3, $c1, $a0
+    cfromptr    $c4, $c1, $a1
     b           memcpy_c
     move        $a0, $a2
 memcpy_end:

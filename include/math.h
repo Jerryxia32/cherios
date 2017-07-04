@@ -50,7 +50,7 @@ static inline size_t umin(size_t a, size_t b) {
 	return (a<b ? a : b);
 }
 
-static inline int slog2(size_t s) {
+static inline int slog2(register_t s) {
 	int i=0;
 	while(s) {
 		i++;

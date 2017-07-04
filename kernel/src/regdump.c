@@ -38,18 +38,18 @@
 
 #define REG_DUMP_M(_reg) {\
 	register_t reg = kernel_exception_framep_ptr->mf_##_reg; \
-	__REGDUMP(reg, reg, #_reg, 64); \
+	__REGDUMP(reg, reg, #_reg, 64, 1); \
 	}
 
 #define REG_DUMP_C(_reg) \
 	regdump_c(#_reg, creg++==reg_num, \
 		kernel_exception_framep_ptr->cf_##_reg);
 
-#define __REGDUMP(elem, cond, name, bits) { \
+#define __REGDUMP(elem, cond, name, bits, reg) { \
 	kernel_printf("%s"name":"KFNT"0x", cond?"":KFNT,elem); \
 	int elem_lead_0 = bits - 3 - slog2(elem); \
 	for(int i=0; i<elem_lead_0; i+=4) { kernel_printf("0");} \
-	if(elem) { kernel_printf(KREG"%jx ", elem); } else { kernel_printf(" "KREG);} \
+	if(elem) { if(reg) kernel_printf(KREG"%jx ", elem); else kernel_printf(KREG"%zx ", elem);} else { kernel_printf(" "KREG);} \
 	}
 
 static void regdump_c(const char * str_cap, int hl, const void * __capability cap) {
@@ -57,17 +57,17 @@ static void regdump_c(const char * str_cap, int hl, const void * __capability ca
 	int tag  = cheri_gettag(cap);
 	kernel_printf("%s", tag?" t:1 ":KFNT" t:0 "KREG);
 	size_t base = cheri_getbase(cap);
-	__REGDUMP(base, base||tag, "b", 32);
+	__REGDUMP(base, base||tag, "b", 32, 0);
 	size_t len = cheri_getlen(cap);
-	__REGDUMP(len, len, "l", 32);
+	__REGDUMP(len, len, "l", 32, 0);
 	size_t offset = cheri_getoffset(cap);
-	__REGDUMP(offset, offset, "o", 32);
+	__REGDUMP(offset, offset, "o", 32, 0);
 	size_t perm = cheri_getperm(cap);
-	__REGDUMP(perm, perm||tag, "p", 32);
+	__REGDUMP(perm, perm||tag, "p", 32, 0);
 	int seal = cheri_getsealed(cap);
 	kernel_printf("%s", seal?"s:1 ":KFNT"s:0 "KREG);
 	size_t otype = cheri_gettype(cap);
-	__REGDUMP(otype, otype||seal, "otype", 8);
+	__REGDUMP(otype, otype||seal, "otype", 32, 0);
 	kernel_printf(KRST"\n");
 }
 

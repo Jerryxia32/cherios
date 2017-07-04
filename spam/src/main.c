@@ -10,7 +10,7 @@
 #include<statcounters.h>
 #include<mibench_iter.h>
 
-#define EACH_BLOCK_SIZE 256
+#define EACH_BLOCK_SIZE 8192
 #define DOMAIN_TIMES 100000
 
 extern char __AES_start, __AES_end;

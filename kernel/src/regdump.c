@@ -57,17 +57,17 @@ static void regdump_c(const char * str_cap, int hl, const void * __capability ca
 	int tag  = cheri_gettag(cap);
 	kernel_printf("%s", tag?" t:1 ":KFNT" t:0 "KREG);
 	size_t base = cheri_getbase(cap);
-	__REGDUMP(base, base||tag, "b", 64);
+	__REGDUMP(base, base||tag, "b", 32);
 	size_t len = cheri_getlen(cap);
-	__REGDUMP(len, len, "l", 64);
+	__REGDUMP(len, len, "l", 32);
 	size_t offset = cheri_getoffset(cap);
-	__REGDUMP(offset, offset, "o", 64);
+	__REGDUMP(offset, offset, "o", 32);
 	size_t perm = cheri_getperm(cap);
 	__REGDUMP(perm, perm||tag, "p", 32);
 	int seal = cheri_getsealed(cap);
 	kernel_printf("%s", seal?"s:1 ":KFNT"s:0 "KREG);
 	size_t otype = cheri_gettype(cap);
-	__REGDUMP(otype, otype||seal, "otype", 24);
+	__REGDUMP(otype, otype||seal, "otype", 8);
 	kernel_printf(KRST"\n");
 }
 
@@ -134,7 +134,7 @@ void regdump(int reg_num) {
 
     haveTag = 0;
     total = 0;
-    capability *sweepPtr = (capability *)0xffffffff88000000;
+    capability *sweepPtr = (capability *)0x88000000;
     for(int i=0; i<(32 << 8); i++) {
         for(int j=0; j<(4096/16); j++) {
             if(cheri_gettag(sweepPtr[(i<<8) + j])) {

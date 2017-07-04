@@ -241,14 +241,14 @@ cheri_zerocap(void)
 } while (0)
 
 #define CHERI_PRINT_PTR(ptr)						\
-	printf("%s: " #ptr " b:%016x l:%016zx o:%x\n", __func__,	\
+	printf("%s: " #ptr " b:0x%08x l:0x%08zx o:0x%x\n", __func__,	\
 	   cheri_getbase((const void * __capability)(ptr)),		\
 	   cheri_getlen((const void * __capability)(ptr)),		\
 	   cheri_getoffset((const void * __capability)(ptr)))
 
 #define CHERI_PRINT_CAP(cap)						\
-	printf("%-20s: %-16s t:%x s:%x p:%08x "			\
-	       "b:%016x l:%016zx o:%x\n",				\
+	printf("%-20s: %-16s t:%x s:%x p:0x%08x "			\
+	       "b:0x%08x l:0x%08zx o:0x%x\n",				\
 	   __func__,							\
 	   #cap,							\
 	   cheri_gettag(cap),						\
@@ -259,7 +259,7 @@ cheri_zerocap(void)
 	   cheri_getoffset(cap))
 
 #define CHERI_PRINT_CAP_LITE(cap)					\
-	printf("t:%x s:%x b:0x%16x l:0x%16zx o:0x%x",			\
+	printf("t:%x s:%x b:0x%08x l:0x%08zx o:0x%x\n",			\
 	   cheri_gettag(cap),						\
 	   cheri_getsealed(cap),					\
 	   cheri_getbase(cap),						\

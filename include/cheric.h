@@ -298,6 +298,14 @@ static inline int VCAPS(const void * cap, size_t len, unsigned flags) {
 	return VCAP_I(cap, len, flags, 1);
 }
 
+static inline int
+cheri_cap_exeq(void*__capability a, void*__capability b)
+{
+	int ret;
+	__asm__ __volatile__ ("cexeq %0, %1, %2" : "=r" (ret): "C"(a), "C"(b));
+	return ret;
+}
+
 //todo: have real one in compiler
 #ifdef _CHERI128_
 #define	__sealable	__attribute__((aligned(0x1000)))

@@ -124,7 +124,6 @@ set(ASMC_COMPILER_FLAGS
     -fno-PIC
     -mno-abicalls
     -integrated-as
-    -mllvm -cheri-exact-equals
     -msoft-float
     -fcolor-diagnostics
     -DHARDWARE_${HARDWARE}

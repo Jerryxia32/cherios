@@ -245,7 +245,7 @@ find_overhead(void * __capability cp)
 	}
 	op--;
 
-    if(cheri_setoffset(op->sentinel, 0) == cheri_getdefault())
+    if(cheri_cap_exeq(cheri_setoffset(op->sentinel, 0), cheri_getdefault()))
 		return (op);
 
 	/*

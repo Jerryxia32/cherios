@@ -42,12 +42,15 @@
 #if _MIPS_SZCAP == 256
 	#define _CHERI256_
     #define CAP_SIZE 32
+    #define CAP_SIZE_BITS 5
 #elif _MIPS_SZCAP == 128
 	#define _CHERI128_
     #define CAP_SIZE 16
+    #define CAP_SIZE_BITS 4
 #elif _MIPS_SZCAP == 64
 	#define _CHERI64_
     #define CAP_SIZE 8
+    #define CAP_SIZE_BITS 3
 #else
 	#error Unknown capability size
 #endif
@@ -123,21 +126,24 @@
 #define CHERI_PERM_STORE_CAP		(1 <<  5)
 #define CHERI_PERM_STORE_LOCAL_CAP	(1 <<  6)
 #define CHERI_PERM_SEAL			(1 <<  7)
-#define CHERI_PERM_ACCESS_SYS_REGS	(1 << 10)
 #if (_MIPS_SZCAP == 64)
-#define CHERI_PERM_SOFT_0		(1 << 11)
+#define CHERI_PERM_ACCESS_SYS_REGS	(1 << 8)
+#define CHERI_PERM_SOFT_0		(1 << 15)
+#define CHERI_PERM_SOFT_1		(1 << 16)
 #else
+#define CHERI_PERM_ACCESS_SYS_REGS	(1 << 10)
 #define CHERI_PERM_SOFT_0		(1 << 15)
 #define CHERI_PERM_SOFT_1		(1 << 16)
 #define CHERI_PERM_SOFT_2		(1 << 17)
 #define CHERI_PERM_SOFT_3		(1 << 18)
 #endif
 
-#define CHERI_TB_WIDTH 8
 #if (_MIPS_SZCAP != 64)
 #define CHERI_OTYPE_WIDTH 24
+#define CHERI_TB_WIDTH 20
 #else
-#define CHERI_OTYPE_WIDTH 8
+#define CHERI_OTYPE_WIDTH 6
+#define CHERI_TB_WIDTH 6
 #endif
 #define	NULLCAP		((void * __capability)0L)
 #define TTABLE_SIZE 1024

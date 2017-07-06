@@ -31,7 +31,7 @@
 #include "mips.h"
 #include "uart.h"
 
-#define	CHERI_UART_BASE			0x18000000	/* JTAG UART */
+#define	CHERI_UART_BASE			0xff000000	/* JTAG UART */
 
 /*-
  * Routines for interacting with the CHERI console UART.  Programming details

@@ -34,7 +34,7 @@ INCLUDE "common.ld"
  * go wrong, therefore this is the largest __size_memory we can get
  */
 __size_memory		= 0x8000000;	/* Start simple: 128M above load address */
-__size_init_stack	= 0x10000;	/* Start simple: 64K */
+__size_init_stack	= 0x400000;	/* Start simple: 4M */
 
 ENTRY(start)
 SECTIONS

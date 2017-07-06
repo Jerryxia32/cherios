@@ -58,8 +58,8 @@ static char * pool_next = NULL;
 static int system_alloc = 0;
 
 static void * __capability init_alloc_core(size_t s) {
-    size_t roundedSize = round_size(s, CHERI_SEAL_TB_WIDTH);
-	pool_next = align_upwards(pool_next, align_chunk(s, CHERI_SEAL_TB_WIDTH));
+    size_t roundedSize = round_size(s, CHERI_SEAL_TB_WIDTH-1);
+	pool_next = align_upwards(pool_next, align_chunk(s, CHERI_SEAL_TB_WIDTH-1));
 	if(pool_next + roundedSize >= pool_end) {
 		return NULLCAP;
 	}

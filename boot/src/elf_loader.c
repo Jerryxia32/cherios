@@ -178,18 +178,7 @@ void * __capability elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_
 
     char * __capability prgmp;
     if(kernelMode == 0) {
-        prgmp = env->alloc(allocsize + MODULE_STACK_SIZE + 2*PAGE_ALIGN); //over provision for a 64KiB stack and a 4KiB trusted stack
-
-        /*
-         * bump to the next page alignment so that pcc and idc could be page aligned
-         */
-        size_t thePointer = cheri_getbase(prgmp) + cheri_getoffset(prgmp);
-        thePointer += PAGE_ALIGN;
-        thePointer &= ~(PAGE_ALIGN - 1);
-        thePointer -= cheri_getbase(prgmp);
-        prgmp = cheri_setoffset(prgmp, thePointer);
-        size_t newBound = cheri_getlen(prgmp) - cheri_getoffset(prgmp);
-        prgmp = cheri_setbounds(prgmp, newBound);
+        prgmp = env->alloc(allocsize + MODULE_STACK_SIZE); //over provision for a 64KiB stack
     } else {
         prgmp = env->alloc(allocsize);
     }

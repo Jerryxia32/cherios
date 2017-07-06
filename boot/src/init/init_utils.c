@@ -40,6 +40,7 @@
 #include "assert.h"
 #include "stdio.h"
 #include "elf.h"
+#include"precision.h"
 
 static uint32_t sealing_tool_no = 1;
 
@@ -74,10 +75,7 @@ static void * init_act_create(const char * name, void * __capability c0, void * 
      * the trusted stack is put in cached, unmapped kernel address space
      * as we definitely do not want to sweep that region
      */
-    void * __capability temp = cheri_getdefault();
-    temp = cheri_andperm(temp, cheri_getperm(c0));
-    temp = cheri_setoffset(temp, (cheri_getbase(c0) - PAGE_ALIGN + MALLOC_HEADER_SIZE) | 0x80000000);
-    frame.cf_kr1c = cheri_setbounds(temp, PAGE_ALIGN - MALLOC_HEADER_SIZE);
+    frame.cf_kr1c = init_alloc(32*CAP_SIZE);
 
 	/* set c0 */
     frame.cf_c0 = c0;
@@ -216,7 +214,7 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 	void * stack = (void *)(cheri_getlen(prgmp) - 2*_MIPS_SZCAP/8);
     printf(KWHT"Stack bottom at %p"KRST"\n", stack);
 	void * __capability pcc = cheri_getpcc();
-	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), (allocsize + PAGE_ALIGN) & ~(PAGE_ALIGN-1));
+	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), round_size(allocsize, CHERI_SEAL_TB_WIDTH-1));
 	pcc = cheri_incoffset(pcc, entry);
 	pcc = cheri_andperm(pcc, (CHERI_PERM_ACCESS_SYS_REGS | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
 				  | CHERI_PERM_LOAD_CAP));

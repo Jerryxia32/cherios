@@ -27,11 +27,14 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+#ifndef _PRECISION_H_
+#define	_PRECISION_H_
+
 #include"mips.h"
 #include"cheric.h"
 
 //count trailing zeroes in unsigned ints
-size_t ctz(size_t input)
+static inline size_t ctz(size_t input)
 {
     size_t result=0, count=0;
     while((input&1) == 0 && count < 8*sizeof(size_t)) {   
@@ -44,7 +47,7 @@ size_t ctz(size_t input)
 
 //determine whether this start address and chunk size can be precisely
 //represented by a cap with manWidth mantissa bits.
-int can_represent(size_t size, size_t startAddr, size_t tbWidth)
+static inline int can_represent(size_t size, size_t startAddr, size_t tbWidth)
 {
     size_t endAddr = startAddr + size;
     size_t startTz = ctz(startAddr);
@@ -59,7 +62,7 @@ int can_represent(size_t size, size_t startAddr, size_t tbWidth)
 //this function takes the requested malloc size as input
 //and outputs the alignment requirement for caps with manWidth
 //bits of mantissa
-size_t align_chunk(size_t reqSize, size_t tbWidth)
+static inline size_t align_chunk(size_t reqSize, size_t tbWidth)
 {
     if(!reqSize) return 0;
     size_t result = 1;
@@ -72,7 +75,7 @@ size_t align_chunk(size_t reqSize, size_t tbWidth)
 }
 
 //this function rounds up the size to the next alignment boundary
-size_t round_size(size_t reqSize, size_t tbWidth)
+static inline size_t round_size(size_t reqSize, size_t tbWidth)
 {
     size_t align = align_chunk(reqSize, tbWidth);
     if(align==0) align+=1;
@@ -84,3 +87,4 @@ size_t round_size(size_t reqSize, size_t tbWidth)
     return result;
 }
 
+#endif

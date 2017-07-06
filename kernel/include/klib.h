@@ -114,12 +114,12 @@ void *	act_seal_identifier(void * identifier);
 void	regdump(int reg_num);
 void	framedump(const struct reg_frame *frame);
 
-static inline void * __capability kernel_seal(const void * __capability p, uint64_t otype) {
+static inline void * __capability kernel_seal(const void * __capability p, uint32_t otype) {
 	void * __capability seal = cheri_setoffset(cheri_getdefault(), otype);
 	return cheri_seal(p, seal);
 }
 
-static inline void * __capability kernel_unseal(void * __capability p, uint64_t otype) {
+static inline void * __capability kernel_unseal(void * __capability p, uint32_t otype) {
 	void * __capability seal = cheri_setoffset(cheri_getdefault(), otype);
 	return cheri_unseal(p, seal);
 }

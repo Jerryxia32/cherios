@@ -78,12 +78,26 @@ kernel_ccall_trampoline_end:
 		.global kernel_tlb_trampoline
 		.ent kernel_tlb_trampoline
 kernel_tlb_trampoline:
+        j   kernel_tlb_handler
         dmfc0   $k0, $10
-        dli     $k1, 0xfffffffff0000000
-        # generate an exception for addresses outside 0x0 - 0x7fffffff
+kernel_tlb_trampoline_end:
+        nop
+		.global kernel_tlb_trampoline_end
+		.end kernel_tlb_trampoline
+		.size kernel_tlb_trampoline, kernel_tlb_trampoline_end - kernel_tlb_trampoline
+		.size kernel_tlb_trampoline_end, 1 # 0 triggers capsizefix warning
+
+		.ent kernel_tlb_handler
+kernel_tlb_handler:
+        # generate an exception for addresses outside 0x08000000 - 0x0fffffff
+        li      $k1, 0xf0000000
         and     $k1, $k0, $k1
         tne     $k1, $0
+        li      $k1, 0x08000000
+        and     $k1, $k0, $k1
+        teq     $k1, $0
         # set up a small stack
+        dmfc0   $k0, $10
         la     $k1, __stop_exception_stack # $k1 becomes the stack pointer
         csetoffset  $kdc, $kdc, $0
         csd     $t0, $k1, -1*REG_SIZE($kdc)
@@ -121,12 +135,10 @@ kernel_tlb_trampoline:
         cld     $t1, $k1, -2*REG_SIZE($kdc)
         tlbwr
         eret
-kernel_tlb_trampoline_end:
+kernel_tlb_handler_end:
         nop
-		.global kernel_tlb_trampoline_end
-		.end kernel_tlb_trampoline
-		.size kernel_tlb_trampoline, kernel_tlb_trampoline_end - kernel_tlb_trampoline
-		.size kernel_tlb_trampoline_end, 1 # 0 triggers capsizefix warning
+		.end kernel_tlb_handler
+		.size kernel_tlb_handler, kernel_tlb_handler_end - kernel_tlb_handler
 
 #
 # Assembly-level exception handler routine -- save context, invoke

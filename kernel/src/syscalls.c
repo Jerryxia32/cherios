@@ -210,7 +210,7 @@ static void * __capability get_sync_token(aid_t ccaller) {
 	sync_token = cheri_setbounds(sync_token, 0);
 	#endif
 	sync_token = cheri_setoffset(sync_token, token_offset);
-	return kernel_seal(sync_token, 42000);
+	return kernel_seal(sync_token, 42);
 }
 
 void kernel_ccall_fake(int cflags) {

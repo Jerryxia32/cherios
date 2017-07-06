@@ -36,6 +36,7 @@
 #include "sys/mman.h"
 #include "object.h"
 #include"stdio.h"
+#include"precision.h"
 
 static inline void *align_upwards(void *p, uintptr_t align)
 {
@@ -57,13 +58,15 @@ static char * pool_next = NULL;
 static int system_alloc = 0;
 
 static void * __capability init_alloc_core(size_t s) {
-	if(pool_next + s >= pool_end) {
+    size_t roundedSize = round_size(s, CHERI_SEAL_TB_WIDTH);
+	pool_next = align_upwards(pool_next, 1<<align_chunk(s, CHERI_SEAL_TB_WIDTH));
+	if(pool_next + roundedSize >= pool_end) {
 		return NULLCAP;
 	}
     void * __capability p = cheri_getdefault();
     p = cheri_setoffset(p, (size_t)pool_next);
-	pool_next = align_upwards(pool_next+s, 4096);
-    p = cheri_setbounds(p, (size_t)pool_next - cheri_getoffset(p));
+    p = cheri_setbounds(p, roundedSize);
+	pool_next = (void *)((size_t)pool_next + roundedSize);
 	return p;
 }
 

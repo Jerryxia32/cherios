@@ -135,7 +135,7 @@ void regdump(int reg_num) {
     haveTag = 0;
     total = 0;
     capability *sweepPtr = (capability *)0x88000000;
-    for(int i=0; i<(32 << 8); i++) {
+    for(int i=0; i<((TTABLE_SIZE*4*8)>>10 << 8); i++) {
         for(int j=0; j<(4096/CAP_SIZE); j++) {
             if(cheri_gettag(sweepPtr[(i<<8) + j])) {
                 haveTag++;

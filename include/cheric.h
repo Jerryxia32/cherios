@@ -145,8 +145,9 @@
 #define CHERI_OTYPE_WIDTH 6
 #define CHERI_TB_WIDTH 6
 #endif
+#define CHERI_SEAL_TB_WIDTH (CHERI_TB_WIDTH - CHERI_OTYPE_WIDTH/2)
 #define	NULLCAP		((void * __capability)0L)
-#define TTABLE_SIZE 1024
+#define TTABLE_SIZE 4096
 
 /*
  * Two variations on cheri_ptr() based on whether we are looking for a code or

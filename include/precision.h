@@ -44,7 +44,7 @@ size_t ctz(size_t input)
 
 //determine whether this start address and chunk size can be precisely
 //represented by a cap with manWidth mantissa bits.
-int can_represent(size_t size, size_t startAddr)
+int can_represent(size_t size, size_t startAddr, size_t tbWidth)
 {
     size_t endAddr = startAddr + size;
     size_t startTz = ctz(startAddr);
@@ -52,14 +52,14 @@ int can_represent(size_t size, size_t startAddr)
     startTz = (startTz<endTz)? startTz : endTz;
     startAddr >>= startTz;
     endAddr >>= startTz;
-    if(endAddr-startAddr>((1<<CHERI_TB_WIDTH)-1)) return 0;
+    if(endAddr-startAddr>((1<<tbWidth)-1)) return 0;
     else return 1;
 }
 
 //this function takes the requested malloc size as input
 //and outputs the alignment requirement for caps with manWidth
 //bits of mantissa
-size_t align_chunk(size_t reqSize)
+size_t align_chunk(size_t reqSize, size_t tbWidth)
 {
     if(!reqSize) return 0;
     size_t result = 1;
@@ -68,13 +68,13 @@ size_t align_chunk(size_t reqSize)
         reqSize >>= 1;
     }
 
-    return result>>CHERI_TB_WIDTH;
+    return result>>tbWidth;
 }
 
 //this function rounds up the size to the next alignment boundary
-size_t round_size(size_t reqSize)
+size_t round_size(size_t reqSize, size_t tbWidth)
 {
-    size_t align = align_chunk(reqSize);
+    size_t align = align_chunk(reqSize, tbWidth);
     if(align==0) align+=1;
     size_t result;
     result = reqSize & ~(align-1);

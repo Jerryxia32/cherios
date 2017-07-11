@@ -160,7 +160,6 @@ void * get_cookie(void * cb, void * cs) {
 #define CCALL_INSTR(n) \
         "li $v1, " #n "\n" \
         "syscall \n" \
-        "nop \n" \
 
 #define CCALL_INOPS [cb]"r" (cb), [cs]"r" (cs), [method_nb]"r" (method_nb)
 #define CCALL_CLOBS "$c3","$c4","$c5", "v0","v1","a0","a1","a2", "t0", "t1"

@@ -87,4 +87,13 @@ static inline size_t round_size(size_t reqSize, size_t tbWidth)
     return result;
 }
 
+static inline size_t align_upwards(size_t p, size_t align) {
+	size_t addr = p;
+	size_t offset = addr - (addr & ~(align-1));
+	if(offset > 0) {
+		addr += align - offset;
+	}
+	return addr;
+}
+
 #endif

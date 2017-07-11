@@ -30,17 +30,6 @@
 
 #include "mips.h"
 
-static inline void *align_upwards(void *p, uintptr_t align)
-{
-    align = 1 << align;
-    uint8_t * addr = (uint8_t *)p;
-    uintptr_t offset = (uintptr_t)addr - ((uintptr_t)addr & ~(align-1));
-    if(offset > 0) {
-    	addr += align - offset;
-    }
-    return (void *)addr;
-}
-
 #define	roundup(x, y)	((((x)+((y)-1))/(y))*(y))  /* to any y */
 #define	roundup2(x, y)	(((x)+((y)-1))&(~((y)-1))) /* if y is powers of two */
 

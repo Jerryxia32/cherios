@@ -105,7 +105,6 @@ end:
 
     li $v1, 1010
     syscall
-    nop
 
 	#We are scheduled again: new message
     b msg_entry

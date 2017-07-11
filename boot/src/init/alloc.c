@@ -38,16 +38,6 @@
 #include"stdio.h"
 #include"precision.h"
 
-static inline void *align_upwards(void *p, uintptr_t align)
-{
-	uint8_t * addr = (uint8_t *)p;
-	uintptr_t offset = (uintptr_t)addr - ((uintptr_t)addr & ~(align-1));
-	if(offset > 0) {
-		addr += align - offset;
-	}
-	return (void *)addr;
-}
-
 static const size_t pool_size = 1024*160;
 static char pool[pool_size] __attribute__((aligned(0x1000)));
 
@@ -59,7 +49,7 @@ static int system_alloc = 0;
 
 static void * __capability init_alloc_core(size_t s) {
     size_t roundedSize = round_size(s, CHERI_SEAL_TB_WIDTH-1);
-	pool_next = align_upwards(pool_next, align_chunk(s, CHERI_SEAL_TB_WIDTH-1));
+	pool_next = (void *)align_upwards((size_t)pool_next, align_chunk(s, CHERI_SEAL_TB_WIDTH-1));
 	if(pool_next + roundedSize >= pool_end) {
 		return NULLCAP;
 	}

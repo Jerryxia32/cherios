@@ -49,6 +49,7 @@ static char *rcsid = "$FreeBSD$";
 #include "mips.h"
 #include "cheric.h"
 #include "malloc_heap.h"
+#include"precision.h"
 
 #pragma clang diagnostic ignored "-Wsign-compare"
 
@@ -106,8 +107,8 @@ malloc_core(size_t nbytes)
 	 * Account for space used per block for accounting.
 	 */
 	if (nbytes <= pagesz - sizeof (*op)) {
-		amt = 32;	/* size of first bucket */
-		bucket = 2;
+		amt = CAP_SIZE*2;	/* size of first bucket */
+		bucket = ctz(amt)-3;
 	} else {
 		amt = pagesz;
 		bucket = pagebucket;
@@ -129,10 +130,13 @@ malloc_core(size_t nbytes)
 	}
 	/* remove from linked list */
 	nextf[bucket] = op->ov_next;
+#if 0
     op->sentinel = cheri_setoffset(cheri_getdefault(), bucket);
-	//return cheri_setbounds(op + 1, nbytes);
     op += 1;
 	void * __capability ret = cheri_setbounds(op, (1<<(bucket+3)) - MALLOC_HEADER_SIZE);
+#else
+	void * __capability ret = cheri_setbounds(op, 1<<(bucket+3));
+#endif
     return ret;
 }
 
@@ -207,13 +211,18 @@ morecore(int bucket)
 		amt = pagesz;
 		nblks = amt / sz;
 	} else {
+#if 0
 		amt = sz + pagesz;
+#else
+		amt = sz;
+#endif
 		nblks = 1;
 	}
 	if (amt > pagepool_end - pagepool_start)
 		if (__morepages(amt/pagesz) == 0)
 			return;
 
+    pagepool_start = align_upwards(pagepool_start, align_chunk(amt, CHERI_SEAL_TB_WIDTH-1));
 	buf = cheri_setoffset(pool, pagepool_start);
 	buf = cheri_setbounds(buf, amt);
 	pagepool_start += amt;
@@ -256,7 +265,7 @@ find_overhead(void * __capability cp)
 	 */
 	CHERI_PRINT_PTR(cp);
 	panic(
-	    KRED"malloc: attempting to free or realloc unallocated memory!\n");
+	    KRED"malloc: attempting to free or realloc unallocated memory!"KRST"\n");
 	return (NULLCAP);
 }
 
@@ -265,18 +274,29 @@ free_c(void * __capability cp)
 {
     if(!(cheri_getperm(cp) & CHERI_PERM_SOFT_0)) {
         CHERI_PRINT_PTR(cp);
-        panic(KRED"malloc: capability permit free not set!\n");
+        panic(KRED"malloc: capability permit free not set!"KRST"\n");
     }
 	int bucket;
 	union overhead * __capability op;
 
 	if (cp == NULLCAP)
 		return;
+
+#if 0
 	op = find_overhead(cp);
 	if (op == NULLCAP)
 		return;
     bucket = cheri_getoffset(op->sentinel);
 	ASSERT(bucket < NBUCKETS);
+#else
+    op = cp;
+    size_t len = cheri_getlen(op);
+    if((len & (len-1)) != 0 || len < CAP_SIZE*2) // check if power of two
+        panic(KRED"free_c: length not power of two or too small!"KRST"\n");
+    if(cheri_getbase(op) < cheri_getbase(pool) || cheri_getbase(op) + cheri_getlen(op) > cheri_getbase(pool) + cheri_getlen(pool))
+        panic(KRED"free_c: freed chunk outside the heap!"KRST"\n");
+    bucket = ctz(len) - 3;
+#endif
 	op->ov_next = nextf[bucket];	/* also clobbers ov_magic */
 	nextf[bucket] = op;
 }

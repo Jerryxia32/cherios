@@ -47,7 +47,7 @@ void act_init(boot_info_t *bi) {
 	KERNEL_TRACE("init", "activation init");
 
 	/* initialize the default identifier to a known value */
-	act_default_id = cheri_setbounds(cheri_getdefault(), 0);
+	act_default_id = cheri_setbounds(cheri_getdefault(), 0x1000);
 
 	/*
 	 * create kernel activation

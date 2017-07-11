@@ -28,5 +28,7 @@
  * SUCH DAMAGE.
  */
 
+char tolower(char c);
+char * strtolower(char * s);
 char toupper(char c);
 char * strtoupper(char * s);

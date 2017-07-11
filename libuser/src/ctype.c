@@ -44,3 +44,20 @@ char * strtoupper(char * s) {
 
 	return s;
 }
+
+char tolower(char c) {
+	if(c>='A' && c<='Z') {
+		c += 'a'-'A';
+	}
+	return c;
+}
+
+char * strtolower(char * s) {
+	char* p = s;
+	while (*p != '\0') {
+		*p = tolower(*p);
+		p++;
+	}
+
+	return s;
+}

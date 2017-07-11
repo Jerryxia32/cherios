@@ -90,8 +90,10 @@ typedef uint8_t		u_int8_t;
 typedef uint16_t	u_int16_t;
 typedef uint32_t	u_int32_t;
 typedef uint64_t	u_int64_t;
+#define UCHAR_MAX   255
 #define ULONG_MAX	4294967295UL
 #define UINT_MAX	ULONG_MAX
+#define CHAR_BIT	8
 
 #define	NBBY		8	/* Number of bits per byte. */
 #define	NULL		((void *)0)

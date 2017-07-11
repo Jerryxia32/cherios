@@ -33,6 +33,7 @@
 
 void *	malloc(size_t n);
 void *	calloc(size_t n, size_t s);
+void *  realloc(void *ptr, size_t size);
 void 	free(void * p);
 
 void 	abort(void);

@@ -41,8 +41,13 @@
 
 #if _MIPS_SZCAP == 256
 	#define _CHERI256_
+    #define CAP_SIZE 32
 #elif _MIPS_SZCAP == 128
 	#define _CHERI128_
+    #define CAP_SIZE 16
+#elif _MIPS_SZCAP == 64
+	#define _CHERI64_
+    #define CAP_SIZE 8
 #else
 	#error Unknown capability size
 #endif
@@ -120,6 +125,8 @@
 #define CHERI_PERM_SOFT_2		(1 << 16)
 #define CHERI_PERM_SOFT_3		(1 << 17)
 #define CHERI_PERM_SOFT_4		(1 << 18)
+
+#define NULLCAP ((void*__capability)0)
 
 /*
  * Two variations on cheri_ptr() based on whether we are looking for a code or

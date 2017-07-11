@@ -40,9 +40,6 @@
 #define B_SO 1
 #define B_ZL 1
 #define B_BN 1
-#define B_T1 0
-#define B_T2 0
-#define B_T3 0
 
 #define B_ENTRY(_type, _name, _arg, _daemon, _cond) \
 	{_type,	_cond, _name, _arg, _daemon, 0, NULL},
@@ -60,6 +57,10 @@ init_elem_t init_list[] = {
 	//B_DENTRY(m_core,	"sockets.elf",		0,	B_SO)
 	B_FENCE
 	B_PENTRY(m_user,	"CRC32.elf",		0,	B_BN)
+	B_PENTRY(m_user,	"adpcm.elf",		0,	B_BN)
+	B_PENTRY(m_user,	"bitcount.elf",		0,	B_BN)
+	B_PENTRY(m_user,	"dijkstra.elf",		0,	B_BN)
+	B_PENTRY(m_user,	"stringsearch.elf",		0,	B_BN)
 
 #if 0
 	#define T3(_arg) \

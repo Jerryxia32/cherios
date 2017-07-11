@@ -30,6 +30,7 @@
 
 #include "mips.h"
 #include "dlmalloc.h"
+#include"string.h"
 
 static mspace mymspace = NULL;
 #define mymalloc(bytes)  mspace_malloc(mymspace, bytes)
@@ -50,6 +51,18 @@ void * malloc(size_t n) {
 void * calloc(size_t n, size_t s) {
 	alloc_init();
 	return mycalloc(n, s);
+}
+
+void free(void * p);
+void * realloc(void * cp, size_t nbytes) {
+	alloc_init();
+    void * __capability res;
+	if((res = malloc(nbytes)) == NULLCAP)
+		return (NULLCAP);
+	memcpy(res, cp, (nbytes <= cheri_getlen(cp)) ? nbytes : cheri_getlen(cp));
+	res = cheri_andperm(res, cheri_getperm(cp));
+	free(cp);
+    return(res);
 }
 
 void free(void * p) {

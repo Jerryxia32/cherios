@@ -42,6 +42,10 @@
 	.global start
 	.ent start
 start:
+    dla     $t0, __fs_start
+    csc     $c13, $t0, 0($c0)
+    dla     $t0, __fs_end
+    csc     $c14, $t0, 0($c0)
 	# W^X for pointers: ensure $c0 is never executable.
 	cgetdefault	$c3
 	dli		$t0, ~(1<<1)

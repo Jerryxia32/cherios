@@ -124,6 +124,9 @@ static void load_modules(void) {
 	}
 }
 
+u8*__capability  __fs_start;
+u8*__capability  __fs_end;
+
 int init_main() {
   	stats_init();
 

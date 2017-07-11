@@ -24,6 +24,7 @@ set(BOOT_SRCS
 )
 
 set(BOOT_ASM_SRCS
+    src/boot/fs.S
     src/boot/boot_init.S
     src/boot/kernel_elf.S
     src/boot/init_elf.S
@@ -42,7 +43,6 @@ set(INIT_SRCS
 )
 
 set(INIT_ASM_SRCS
-    src/init/fs.S
     src/init/init_init.S
 )
 

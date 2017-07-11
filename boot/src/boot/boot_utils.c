@@ -130,6 +130,8 @@ static void *make_free_mem_cap(const char *start) {
 	return cap;
 }
 
+extern u8 __fs_start, __fs_end;
+
 boot_info_t *load_init() {
 	extern u8 __init_elf_start, __init_elf_end;
 	size_t minaddr, maxaddr, entry;
@@ -171,6 +173,8 @@ boot_info_t *load_init() {
 	bi.init_frame.cf_c11 = stack;
 	bi.init_frame.mf_sp  = cheri_getlen(stack);
 	bi.init_frame.cf_c12 = pcc;
+	bi.init_frame.cf_c13 = &__fs_start;
+	bi.init_frame.cf_c14 = &__fs_end;
 	bi.init_frame.cf_c0  = cheri_setoffset(prgmp, 0);
 
 	return &bi;

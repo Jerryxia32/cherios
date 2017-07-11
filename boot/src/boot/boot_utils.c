@@ -107,7 +107,7 @@ err:
 
 static void *make_aligned_data_cap(const char *start, size_t len) {
 	size_t desired_ofs = (cheri_getbase(start) + cheri_getoffset(start) + PAGE_ALIGN);
-	desired_ofs &= ~ PAGE_ALIGN;
+	desired_ofs &= ~ (PAGE_ALIGN-1);
 
 	char *cap = (char *)cheri_getdefault();
 	cap += desired_ofs - cheri_getbase(cap);
@@ -119,8 +119,8 @@ static void *make_aligned_data_cap(const char *start, size_t len) {
 
 static void *make_free_mem_cap(const char *start) {
 	char *cap  = (char *)cheri_getdefault();
-	size_t len = cheri_getlen(cap);
-	size_t ofs = cheri_getbase(start) - cheri_getbase(cap);
+	size_t len = cheri_getlen(cap) & ~(PAGE_ALIGN-1);
+	size_t ofs = (cheri_getbase(start) - cheri_getbase(cap) + PAGE_ALIGN) & ~(PAGE_ALIGN-1);
 
 	cap += ofs;
 	len -= ofs;
@@ -160,9 +160,8 @@ boot_info_t *load_init() {
 
 	/* set up pcc */
 	void *pcc = cheri_getpcc();
-	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)),
-			      cheri_getlen(prgmp));
-	pcc = cheri_andperm(pcc, (CHERI_PERM_GLOBAL | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
+	pcc = cheri_setoffset(pcc, cheri_getbase(prgmp));
+    pcc = cheri_andperm(pcc, (CHERI_PERM_GLOBAL | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
 				  | CHERI_PERM_LOAD_CAP));
 
 	/* populate frame */

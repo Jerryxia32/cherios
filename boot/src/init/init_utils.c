@@ -108,8 +108,8 @@ static void * get_act_cap(module_t type) {
 		cap = cheri_setbounds(cap, UART_SIZE);
 		break;
 	case m_memmgt:{}
-		size_t heaplen = (size_t)&__stop_heap - (size_t)&__start_heap;
-		void * heap = cheri_setoffset(cheri_getdefault(), (size_t)&__start_heap);
+		size_t heaplen = ((size_t)&__stop_heap - (size_t)&__start_heap - 0x1000) & ~0xfff;
+		void * heap = cheri_setoffset(cheri_getdefault(), ((size_t)&__start_heap+0xfff) & ~0xfff);
 		heap = cheri_setbounds(heap, heaplen);
 		cap = cheri_andperm(heap, (CHERI_PERM_GLOBAL | CHERI_PERM_LOAD | CHERI_PERM_STORE
 					   | CHERI_PERM_LOAD_CAP | CHERI_PERM_STORE_CAP
@@ -174,7 +174,7 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 		return NULL;
 	}
 	void * pcc = cheri_getpcc();
-	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), allocsize);
+	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), (allocsize+0x1000) & ~0xfff);
 	pcc = cheri_setoffset(pcc, cheri_getoffset(prgmp));
 	pcc = cheri_andperm(pcc, (CHERI_PERM_GLOBAL | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
 				  | CHERI_PERM_LOAD_CAP));

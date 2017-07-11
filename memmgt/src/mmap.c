@@ -176,6 +176,7 @@ void mfree(void *addr) {
 }
 
 void minit(char *heap) {
+    CHERI_PRINT_CAP(heap);
 	assert((size_t)heap == roundup2((size_t)heap, pagesz));
 	assert(cheri_getoffset(heap) == 0);
 

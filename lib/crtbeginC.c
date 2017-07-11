@@ -29,6 +29,7 @@
  */
 
 #include "mips.h"
+#include"cheric.h"
 #include "string.h"
 
 extern void	__start_bss;
@@ -101,8 +102,8 @@ crt_call_constructors(void)
 	    func++) {
 		if (*func != (mips_function_ptr)-1) {
 			cheri_function_ptr cheri_func =
-				(cheri_function_ptr)__builtin_memcap_offset_set(
-						__builtin_memcap_program_counter_get(), *func);
+				(cheri_function_ptr)cheri_setoffset(
+						cheri_getpcc(), *func);
 			cheri_func();
 		}
 	}
@@ -121,36 +122,36 @@ crt_init_bss(void)
 	 * script rather than the compiler.
 	 */
 	bss_len = (size_t)&__stop_bss - (size_t)&__start_bss;
-	bzero(&__start_bss, bss_len);
+	//bzero(&__start_bss, bss_len);
 }
 
 void
 crt_init_globals()
 {
-	void *gdc = __builtin_memcap_global_data_get();
-	void *pcc = __builtin_memcap_program_counter_get();
+	void *gdc = cheri_getdefault();
+	void *pcc = cheri_getpcc();
 
-	gdc = __builtin_memcap_perms_and(gdc, global_pointer_permissions);
-	pcc = __builtin_memcap_perms_and(pcc, function_pointer_permissions);
+	gdc = cheri_andperm(gdc, global_pointer_permissions);
+	pcc = cheri_andperm(pcc, function_pointer_permissions);
 
 	for (struct capreloc *reloc = &__start___cap_relocs ;
 	     reloc < &__stop___cap_relocs ; reloc++)
 	{
 		_Bool isFunction = (reloc->permissions & function_reloc_flag) ==
 			function_reloc_flag;
-		void **dest = __builtin_memcap_offset_set(gdc, reloc->capability_location);
+		void **dest = cheri_setoffset(gdc, reloc->capability_location);
 		void *base = isFunction ? pcc : gdc;
-		void *src = __builtin_memcap_offset_set(base, reloc->object);
+		void *src = cheri_setoffset(base, reloc->object);
 
 		if (reloc->object == 0x4cd70) {
-			base = __builtin_memcap_offset_set(base, reloc->permissions);
+			base = cheri_setoffset(base, reloc->permissions);
 			_int = *(int *)base;
 		}
 		if (!isFunction && (reloc->size != 0))
 		{
-			src = __builtin_memcap_bounds_set(src, reloc->size);
+			src = cheri_setbounds(src, reloc->size);
 		}
-		src = __builtin_memcap_offset_increment(src, reloc->offset);
+		src = cheri_incoffset(src, reloc->offset);
 		*dest = src;
 	}
 }

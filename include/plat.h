@@ -28,72 +28,8 @@
  * SUCH DAMAGE.
  */
 
-#include "mips.h"
-#include "cheric.h"
-#include "string.h"
-#include "stdlib.h"
-#include "sys/mman.h"
-#include "object.h"
+#include"mips.h"
+#include"cdefs.h"
 
-static inline void *align_upwards(void *p, uintptr_t align)
-{
-	uint8_t * addr = (uint8_t *)p;
-	uintptr_t offset = (uintptr_t)addr - ((uintptr_t)addr & ~(align-1));
-	if(offset > 0) {
-		addr += align - offset;
-	}
-	return (void *)addr;
-}
-
-static const size_t pool_size = 1024*1024;
-static char pool[pool_size];
-
-static char * pool_start = NULL;
-static char * pool_end = NULL;
-static char * pool_next = NULL;
-
-static int system_alloc = 0;
-
-static void *init_alloc_core(size_t s) {
-	if(pool_next + s >= pool_end) {
-		return NULL;
-	}
-	void * p = pool_next;
-    size_t upSize = (s + 0x1000) & ~0xfff;
-	p = cheri_setbounds(p, upSize);
-	pool_next = align_upwards(pool_next+s, 4096);
-	return p;
-}
-
-void init_alloc_init(void) {
-	pool_start = (char *)(pool);
-	pool_end = pool + pool_size;
-	pool_start = cheri_setbounds(pool_start, pool_size);
-	pool_start = cheri_andperm(pool_start, ~ CHERI_PERM_EXECUTE);
-	pool_next = pool_start;
-	bzero(pool, pool_size);
-	system_alloc = 0;
-}
-
-void init_alloc_enable_system(void * c_memmgt) {
-	mmap_set_act(act_ctrl_get_ref(c_memmgt), act_ctrl_get_id(c_memmgt));
-	system_alloc = 1;
-}
-
-void *init_alloc(size_t s) {
-	if(system_alloc == 1) {
-		void * p = mmap(NULL, s, PROT_RW, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-		if(p == MAP_FAILED) {
-			return NULL;
-		}
-		return p;
-	}
-	return init_alloc_core(s);
-}
-
-void init_free(void * p __unused) {
-	if(system_alloc == 1) {
-		/* fixme: use munmap */
-	}
-	/* init alloc has no free */
-}
+void hw_reboot(void) __dead2;
+void caches_invalidate(void * addr, size_t size);

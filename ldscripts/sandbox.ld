@@ -33,14 +33,12 @@
  * 0x1000 byte "guard" region to catch NULL pointer dereferences.
  */
 
-__code_base__ = 0x1000;
+__start = 0x1000;
 
 SECTIONS
 {
-	. = __code_base__;
+	. = __start;
 	.text ALIGN(0x8): { *(.text) }
-	.bss  ALIGN(0x8): { *(.bss) }
-	.data ALIGN(0x8): { *(.data) }
 
 	/*
 	 * Force zero-filling of previous segments in generated image.

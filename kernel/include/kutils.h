@@ -45,8 +45,7 @@ static inline void * kernel_cap_to_exec(const void * p) {
 	*/
 	void * c = cheri_getpcc();
 	c = cheri_setoffset(c, cheri_getbase(p));
-	c = cheri_setbounds(c, cheri_getlen(p));
-	c = cheri_setoffset(c, cheri_getoffset(p));
+	c = cheri_incoffset(c, cheri_getoffset(p));
 	return c;
 }
 

@@ -71,16 +71,16 @@ void act_init(boot_info_t *bi) {
 void kernel_skip_instr(aid_t act) {
 	kernel_exception_framep[act].mf_pc += 4; /* assumes no branch delay slot */
 	void * pcc = (void *) kernel_exception_framep[act].cf_pcc;
-	pcc = __builtin_memcap_offset_increment(pcc, 4);
+	pcc = cheri_incoffset(pcc, 4);
 	kernel_exception_framep[act].cf_pcc = pcc;
 }
 
 static void * act_create_ref(aid_t aid) {
-	return kernel_seal(kernel_cap_to_exec(kernel_acts + aid), aid);
+	return kernel_seal(kernel_cap_to_exec(cheri_setoffset(cheri_getdefault(), (size_t)(kernel_acts + aid))), aid);
 }
 
 static void * act_create_ctrl_ref(aid_t aid) {
-	return kernel_seal(kernel_acts + aid, 42001);
+	return kernel_seal(cheri_setoffset(cheri_getdefault(), (size_t)(kernel_acts + aid)), 42001);
 }
 
 void * act_register(const reg_frame_t * frame, const char * name) {

@@ -68,7 +68,6 @@ int main(void) {
 	#endif
 
 	/* init release mecanism */
-	release_init();
 
 	syscall_puts("memmgt: setup done\n");
 

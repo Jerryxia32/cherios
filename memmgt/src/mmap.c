@@ -165,7 +165,6 @@ int __munmap(void *addr, size_t length) {
 	size_t page = addr2chunk(addr, length);
 
 	book[page].status = page_released;
-	release(addr);
 	return 0;
 }
 

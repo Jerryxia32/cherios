@@ -29,6 +29,7 @@ set(LIBUSER_SRCS
     src/panic.c
     src/printf.c
     src/ssleep.c
+    src/stats.c
     src/statcounters.c
     src/stdio.c
     src/stdlib.c

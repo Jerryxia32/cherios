@@ -70,6 +70,17 @@ enum {
     CAP_WRITE   = 9
 };
 
+/* Master counters */
+enum
+{
+    READ_REQ       = 0,
+    WRITE_REQ      = 1,
+    WRITE_REQ_FLIT = 2,
+    READ_RSP       = 3,
+    READ_RSP_FLIT  = 4,
+    WRITE_RSP      = 5
+};
+
 /* Assembly primitives to access the hardware counters */
 
 /* TODO the itlbmiss/dtlbmiss/cycle/inst counters are not reset with that */
@@ -79,10 +90,8 @@ static inline void resetStatCounters (void)
 }
 
 #include <inttypes.h>
-#define DECLARE_GET_STAT_COUNTER(name,X,Y)  \
-inline uint64_t get_##name##_count (void);
 #define DEFINE_GET_STAT_COUNTER(name,X,Y)   \
-inline uint64_t get_##name##_count (void)					\
+static inline uint64_t get_##name##_count (void)					\
 {										\
 	uint64_t ret;								\
 	__asm __volatile(".word (0x1f << 26) | (0x0 << 21) | (12 << 16) | ("#X" << 11) | ( "#Y"  << 6) | 0x3b\n" \
@@ -91,50 +100,6 @@ inline uint64_t get_##name##_count (void)					\
 	return ret;								\
 }
 
-/*
- * exported libstatcounters API
- */
-
-/* Map to appropriate RDHWR indices */
-
-DECLARE_GET_STAT_COUNTER(cycle,2,0);
-DECLARE_GET_STAT_COUNTER(inst,4,0);
-DECLARE_GET_STAT_COUNTER(itlb_miss,5,0);
-DECLARE_GET_STAT_COUNTER(dtlb_miss,6,0);
-DECLARE_GET_STAT_COUNTER(icache_write_hit,8,0);
-DECLARE_GET_STAT_COUNTER(icache_write_miss,8,1);
-DECLARE_GET_STAT_COUNTER(icache_read_hit,8,2);
-DECLARE_GET_STAT_COUNTER(icache_read_miss,8,3);
-DECLARE_GET_STAT_COUNTER(icache_evict,8,6);
-DECLARE_GET_STAT_COUNTER(dcache_write_hit,9,0);
-DECLARE_GET_STAT_COUNTER(dcache_write_miss,9,1);
-DECLARE_GET_STAT_COUNTER(dcache_read_hit,9,2);
-DECLARE_GET_STAT_COUNTER(dcache_read_miss,9,3);
-DECLARE_GET_STAT_COUNTER(dcache_evict,9,6);
-DECLARE_GET_STAT_COUNTER(dcache_set_tag_write,9,8);
-DECLARE_GET_STAT_COUNTER(dcache_set_tag_read,9,9);
-DECLARE_GET_STAT_COUNTER(l2cache_write_hit,10,0);
-DECLARE_GET_STAT_COUNTER(l2cache_write_miss,10,1);
-DECLARE_GET_STAT_COUNTER(l2cache_read_hit,10,2);
-DECLARE_GET_STAT_COUNTER(l2cache_read_miss,10,3);
-DECLARE_GET_STAT_COUNTER(l2cache_evict,10,6);
-DECLARE_GET_STAT_COUNTER(l2cache_set_tag_write,10,8);
-DECLARE_GET_STAT_COUNTER(l2cache_set_tag_read,10,9);
-DECLARE_GET_STAT_COUNTER(mem_byte_read,11,0);
-DECLARE_GET_STAT_COUNTER(mem_byte_write,11,1);
-DECLARE_GET_STAT_COUNTER(mem_hword_read,11,2);
-DECLARE_GET_STAT_COUNTER(mem_hword_write,11,3);
-DECLARE_GET_STAT_COUNTER(mem_word_read,11,4);
-DECLARE_GET_STAT_COUNTER(mem_word_write,11,5);
-DECLARE_GET_STAT_COUNTER(mem_dword_read,11,6);
-DECLARE_GET_STAT_COUNTER(mem_dword_write,11,7);
-DECLARE_GET_STAT_COUNTER(mem_cap_read,11,8);
-DECLARE_GET_STAT_COUNTER(mem_cap_write,11,9);
-DECLARE_GET_STAT_COUNTER(tagcache_write_hit,12,0);
-DECLARE_GET_STAT_COUNTER(tagcache_write_miss,12,1);
-DECLARE_GET_STAT_COUNTER(tagcache_read_hit,12,2);
-DECLARE_GET_STAT_COUNTER(tagcache_read_miss,12,3);
-DECLARE_GET_STAT_COUNTER(tagcache_evict,12,6);
 
 /* statcounters_bank */
 #define MAX_MOD_CNT 10
@@ -149,6 +114,8 @@ typedef struct statcounters_bank
     uint64_t l2cache[MAX_MOD_CNT];
     uint64_t mipsmem[MAX_MOD_CNT];
     uint64_t tagcache[MAX_MOD_CNT];
+    uint64_t l2cachemaster[MAX_MOD_CNT];
+    uint64_t tagcachemaster[MAX_MOD_CNT];
 } statcounters_bank_t;
 
 // reset statcounters XXX this literally resets the hardware counters (allowed
@@ -172,5 +139,8 @@ int dump_statcounters (
 static inline const char * getprogname(void) {
 	return "progname";
 }
+
+void stats_init(void);
+void stats_display(void);
 
 #endif

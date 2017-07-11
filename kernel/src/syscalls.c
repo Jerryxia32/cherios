@@ -100,12 +100,6 @@ static void syscall_interrupt_enable(void) {
 		kernel_interrupt_enable(kernel_exception_framep_ptr->mf_a0);
 }
 
-static void syscall_gc(void) {
-	kernel_exception_framep_ptr->mf_v0 =
-	  try_gc(kernel_exception_framep_ptr->cf_c3,
-	         kernel_exception_framep_ptr->cf_c4);
-}
-
 /*
  * Syscall demux
  */
@@ -162,10 +156,6 @@ void kernel_exception_syscall(void)
 	case 51:
 		KERNEL_TRACE("exception", "Syscall %ld (interrupt_enable)", sysn);
 		syscall_interrupt_enable();
-		break;
-	case 66:
-		KERNEL_TRACE("exception", "Syscall %ld (gc)", sysn);
-		syscall_gc();
 		break;
 	default:
 		KERNEL_ERROR("unknown syscall '%d'", sysn);

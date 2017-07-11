@@ -28,6 +28,7 @@
  * SUCH DAMAGE.
  */
 
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
 #include <stdio.h>
 //#include <unistd.h>
 #include <stdlib.h>
@@ -79,6 +80,18 @@ DEFINE_GET_STAT_COUNTER(tagcache_write_miss,12,1);
 DEFINE_GET_STAT_COUNTER(tagcache_read_hit,12,2);
 DEFINE_GET_STAT_COUNTER(tagcache_read_miss,12,3);
 DEFINE_GET_STAT_COUNTER(tagcache_evict,12,6);
+DEFINE_GET_STAT_COUNTER(l2cachemaster_read_req,13,0);
+DEFINE_GET_STAT_COUNTER(l2cachemaster_write_req,13,1);
+DEFINE_GET_STAT_COUNTER(l2cachemaster_write_req_flit,13,2);
+DEFINE_GET_STAT_COUNTER(l2cachemaster_read_rsp,13,3);
+DEFINE_GET_STAT_COUNTER(l2cachemaster_read_rsp_flit,13,4);
+DEFINE_GET_STAT_COUNTER(l2cachemaster_write_rsp,13,5);
+DEFINE_GET_STAT_COUNTER(tagcachemaster_read_req,14,0);
+DEFINE_GET_STAT_COUNTER(tagcachemaster_write_req,14,1);
+DEFINE_GET_STAT_COUNTER(tagcachemaster_write_req_flit,14,2);
+DEFINE_GET_STAT_COUNTER(tagcachemaster_read_rsp,14,3);
+DEFINE_GET_STAT_COUNTER(tagcachemaster_read_rsp_flit,14,4);
+DEFINE_GET_STAT_COUNTER(tagcachemaster_write_rsp,14,5);
 
 /* reset the hardware statcounters */
 void reset_statcounters (void)
@@ -103,44 +116,56 @@ void sample_statcounters (statcounters_bank_t * const cnt_bank)
         errno = -1;
     else
     {
-        cnt_bank->icache[WRITE_HIT]         = get_icache_write_hit_count();
-        cnt_bank->icache[WRITE_MISS]        = get_icache_write_miss_count();
-        cnt_bank->icache[READ_HIT]          = get_icache_read_hit_count();
-        cnt_bank->icache[READ_MISS]         = get_icache_read_miss_count();
-        cnt_bank->icache[EVICT]             = get_icache_evict_count();
-        cnt_bank->dcache[WRITE_HIT]         = get_dcache_write_hit_count();
-        cnt_bank->dcache[WRITE_MISS]        = get_dcache_write_miss_count();
-        cnt_bank->dcache[READ_HIT]          = get_dcache_read_hit_count();
-        cnt_bank->dcache[READ_MISS]         = get_dcache_read_miss_count();
-        cnt_bank->dcache[EVICT]             = get_dcache_evict_count();
-        cnt_bank->dcache[SET_TAG_WRITE]     = get_dcache_set_tag_write_count();
-        cnt_bank->dcache[SET_TAG_READ]      = get_dcache_set_tag_read_count();
-        cnt_bank->l2cache[WRITE_HIT]        = get_l2cache_write_hit_count();
-        cnt_bank->l2cache[WRITE_MISS]       = get_l2cache_write_miss_count();
-        cnt_bank->l2cache[READ_HIT]         = get_l2cache_read_hit_count();
-        cnt_bank->l2cache[READ_MISS]        = get_l2cache_read_miss_count();
-        cnt_bank->l2cache[EVICT]            = get_l2cache_evict_count();
-        cnt_bank->l2cache[SET_TAG_WRITE]    = get_l2cache_set_tag_write_count();
-        cnt_bank->l2cache[SET_TAG_READ]     = get_l2cache_set_tag_read_count();
-        cnt_bank->tagcache[WRITE_HIT]       = get_tagcache_write_hit_count();
-        cnt_bank->tagcache[WRITE_MISS]      = get_tagcache_write_miss_count();
-        cnt_bank->tagcache[READ_HIT]        = get_tagcache_read_hit_count();
-        cnt_bank->tagcache[READ_MISS]       = get_tagcache_read_miss_count();
-        cnt_bank->tagcache[EVICT]           = get_tagcache_evict_count();
-        cnt_bank->mipsmem[BYTE_READ]        = get_mem_byte_read_count();
-        cnt_bank->mipsmem[BYTE_WRITE]       = get_mem_byte_write_count();
-        cnt_bank->mipsmem[HWORD_READ]       = get_mem_hword_read_count();
-        cnt_bank->mipsmem[HWORD_WRITE]      = get_mem_hword_write_count();
-        cnt_bank->mipsmem[WORD_READ]        = get_mem_word_read_count();
-        cnt_bank->mipsmem[WORD_WRITE]       = get_mem_word_write_count();
-        cnt_bank->mipsmem[DWORD_READ]       = get_mem_dword_read_count();
-        cnt_bank->mipsmem[DWORD_WRITE]      = get_mem_dword_write_count();
-        cnt_bank->mipsmem[CAP_READ]         = get_mem_cap_read_count();
-        cnt_bank->mipsmem[CAP_WRITE]        = get_mem_cap_write_count();
-        cnt_bank->dtlb_miss                 = get_dtlb_miss_count();
-        cnt_bank->itlb_miss                 = get_itlb_miss_count();
-        cnt_bank->inst                      = get_inst_count();
-        cnt_bank->cycle                     = get_cycle_count();
+        cnt_bank->icache[WRITE_HIT]              = get_icache_write_hit_count();
+        cnt_bank->icache[WRITE_MISS]             = get_icache_write_miss_count();
+        cnt_bank->icache[READ_HIT]               = get_icache_read_hit_count();
+        cnt_bank->icache[READ_MISS]              = get_icache_read_miss_count();
+        cnt_bank->icache[EVICT]                  = get_icache_evict_count();
+        cnt_bank->dcache[WRITE_HIT]              = get_dcache_write_hit_count();
+        cnt_bank->dcache[WRITE_MISS]             = get_dcache_write_miss_count();
+        cnt_bank->dcache[READ_HIT]               = get_dcache_read_hit_count();
+        cnt_bank->dcache[READ_MISS]              = get_dcache_read_miss_count();
+        cnt_bank->dcache[EVICT]                  = get_dcache_evict_count();
+        cnt_bank->dcache[SET_TAG_WRITE]          = get_dcache_set_tag_write_count();
+        cnt_bank->dcache[SET_TAG_READ]           = get_dcache_set_tag_read_count();
+        cnt_bank->l2cache[WRITE_HIT]             = get_l2cache_write_hit_count();
+        cnt_bank->l2cache[WRITE_MISS]            = get_l2cache_write_miss_count();
+        cnt_bank->l2cache[READ_HIT]              = get_l2cache_read_hit_count();
+        cnt_bank->l2cache[READ_MISS]             = get_l2cache_read_miss_count();
+        cnt_bank->l2cache[EVICT]                 = get_l2cache_evict_count();
+        cnt_bank->l2cache[SET_TAG_WRITE]         = get_l2cache_set_tag_write_count();
+        cnt_bank->l2cache[SET_TAG_READ]          = get_l2cache_set_tag_read_count();
+        cnt_bank->l2cachemaster[READ_REQ]        = get_l2cachemaster_read_req_count();
+        cnt_bank->l2cachemaster[WRITE_REQ]       = get_l2cachemaster_write_req_count();
+        cnt_bank->l2cachemaster[WRITE_REQ_FLIT]  = get_l2cachemaster_write_req_flit_count();
+        cnt_bank->l2cachemaster[READ_RSP]        = get_l2cachemaster_read_rsp_count();
+        cnt_bank->l2cachemaster[READ_RSP_FLIT]   = get_l2cachemaster_read_rsp_flit_count();
+        cnt_bank->l2cachemaster[WRITE_RSP]       = get_l2cachemaster_write_rsp_count();
+        cnt_bank->tagcache[WRITE_HIT]            = get_tagcache_write_hit_count();
+        cnt_bank->tagcache[WRITE_MISS]           = get_tagcache_write_miss_count();
+        cnt_bank->tagcache[READ_HIT]             = get_tagcache_read_hit_count();
+        cnt_bank->tagcache[READ_MISS]            = get_tagcache_read_miss_count();
+        cnt_bank->tagcache[EVICT]                = get_tagcache_evict_count();
+        cnt_bank->tagcachemaster[READ_REQ]       = get_tagcachemaster_read_req_count();
+        cnt_bank->tagcachemaster[WRITE_REQ]      = get_tagcachemaster_write_req_count();
+        cnt_bank->tagcachemaster[WRITE_REQ_FLIT] = get_tagcachemaster_write_req_flit_count();
+        cnt_bank->tagcachemaster[READ_RSP]       = get_tagcachemaster_read_rsp_count();
+        cnt_bank->tagcachemaster[READ_RSP_FLIT]  = get_tagcachemaster_read_rsp_flit_count();
+        cnt_bank->tagcachemaster[WRITE_RSP]      = get_tagcachemaster_write_rsp_count();
+        cnt_bank->mipsmem[BYTE_READ]             = get_mem_byte_read_count();
+        cnt_bank->mipsmem[BYTE_WRITE]            = get_mem_byte_write_count();
+        cnt_bank->mipsmem[HWORD_READ]            = get_mem_hword_read_count();
+        cnt_bank->mipsmem[HWORD_WRITE]           = get_mem_hword_write_count();
+        cnt_bank->mipsmem[WORD_READ]             = get_mem_word_read_count();
+        cnt_bank->mipsmem[WORD_WRITE]            = get_mem_word_write_count();
+        cnt_bank->mipsmem[DWORD_READ]            = get_mem_dword_read_count();
+        cnt_bank->mipsmem[DWORD_WRITE]           = get_mem_dword_write_count();
+        cnt_bank->mipsmem[CAP_READ]              = get_mem_cap_read_count();
+        cnt_bank->mipsmem[CAP_WRITE]             = get_mem_cap_write_count();
+        cnt_bank->dtlb_miss                                   = get_dtlb_miss_count();
+        cnt_bank->itlb_miss                                   = get_itlb_miss_count();
+        cnt_bank->inst                                        = get_inst_count();
+        cnt_bank->cycle                                       = get_cycle_count();
     }
 }
 
@@ -165,16 +190,17 @@ void diff_statcounters (
             bd->l2cache[i]   = be->l2cache[i] - bs->l2cache[i];
             bd->mipsmem[i]   = be->mipsmem[i] - bs->mipsmem[i];
             bd->tagcache[i]  = be->tagcache[i] - bs->tagcache[i];
+            bd->l2cachemaster[i]  = be->l2cachemaster[i] - bs->l2cachemaster[i];
+            bd->tagcachemaster[i]  = be->tagcachemaster[i] - bs->tagcachemaster[i];
         }
     }
 }
 
 int	kernel_vprintf(const char *fmt, va_list ap);
-#define vprintf kernel_vprintf
+//#define vprintf kernel_vprintf
 // fixme ^
 
-static int
-echo(FILE *f, const char *fmt, ...)
+int echo(FILE *f, const char *fmt, ...)
 {
 	if(f != NULL) {
 		panic("not implememted");
@@ -302,6 +328,18 @@ int dump_statcounters (
 			echo(fp, "%lu,",b->mipsmem[DWORD_WRITE]);
 			echo(fp, "%lu,",b->mipsmem[CAP_READ]);
 			echo(fp, "%lu" ,b->mipsmem[CAP_WRITE]);
+            echo(fp, "%lu,",b->l2cachemaster[READ_REQ]);
+            echo(fp, "%lu,",b->l2cachemaster[WRITE_REQ]);
+            echo(fp, "%lu,",b->l2cachemaster[WRITE_REQ_FLIT]);
+            echo(fp, "%lu,",b->l2cachemaster[READ_RSP]);
+            echo(fp, "%lu,",b->l2cachemaster[READ_RSP_FLIT]);
+            echo(fp, "%lu,",b->l2cachemaster[WRITE_RSP]);
+            echo(fp, "%lu,",b->tagcachemaster[READ_REQ]);
+            echo(fp, "%lu,",b->tagcachemaster[WRITE_REQ]);
+            echo(fp, "%lu,",b->tagcachemaster[WRITE_REQ_FLIT]);
+            echo(fp, "%lu,",b->tagcachemaster[READ_RSP]);
+            echo(fp, "%lu,",b->tagcachemaster[READ_RSP_FLIT]);
+            echo(fp, "%lu",b->tagcachemaster[WRITE_RSP]);
 			echo(fp, "\n");
 	}
 	else
@@ -326,7 +364,7 @@ int dump_statcounters (
 		echo(fp, "dcache_set_tag_write: \t%lu\n",b->dcache[SET_TAG_WRITE]);
 		echo(fp, "dcache_set_tag_read:  \t%lu\n",b->dcache[SET_TAG_READ]);
 		echo(fp, "\n");
-		#if 0
+		//#if 0
 		echo(fp, "l2cache_write_hit:    \t%lu\n",b->l2cache[WRITE_HIT]);
 		echo(fp, "l2cache_write_miss:   \t%lu\n",b->l2cache[WRITE_MISS]);
 		echo(fp, "l2cache_read_hit:     \t%lu\n",b->l2cache[READ_HIT]);
@@ -335,7 +373,7 @@ int dump_statcounters (
 		echo(fp, "l2cache_set_tag_write:\t%lu\n",b->l2cache[SET_TAG_WRITE]);
 		echo(fp, "l2cache_set_tag_read: \t%lu\n",b->l2cache[SET_TAG_READ]);
 		echo(fp, "\n");
-		#endif
+		//#endif
 		echo(fp, "tagcache_write_hit:   \t%lu\n",b->tagcache[WRITE_HIT]);
 		echo(fp, "tagcache_write_miss:  \t%lu\n",b->tagcache[WRITE_MISS]);
 		echo(fp, "tagcache_read_hit:    \t%lu\n",b->tagcache[READ_HIT]);
@@ -352,6 +390,20 @@ int dump_statcounters (
 		echo(fp, "mem_dword_write:      \t%lu\n",b->mipsmem[DWORD_WRITE]);
 		echo(fp, "mem_cap_read:         \t%lu\n",b->mipsmem[CAP_READ]);
 		echo(fp, "mem_cap_write:        \t%lu\n",b->mipsmem[CAP_WRITE]);
+        echo(fp, "\n");
+        echo(fp, "l2cachemaster_read_req:       \t%lu\n",b->l2cachemaster[READ_REQ]);
+        echo(fp, "l2cachemaster_write_req:      \t%lu\n",b->l2cachemaster[WRITE_REQ]);
+        echo(fp, "l2cachemaster_write_req_flit: \t%lu\n",b->l2cachemaster[WRITE_REQ_FLIT]);
+        echo(fp, "l2cachemaster_read_rsp:       \t%lu\n",b->l2cachemaster[READ_RSP]);
+        echo(fp, "l2cachemaster_read_rsp_flit:  \t%lu\n",b->l2cachemaster[READ_RSP_FLIT]);
+        echo(fp, "l2cachemaster_write_rsp:      \t%lu\n",b->l2cachemaster[WRITE_RSP]);
+        echo(fp, "\n");
+        echo(fp, "tagcachemaster_read_req:      \t%lu\n",b->tagcachemaster[READ_REQ]);
+        echo(fp, "tagcachemaster_write_req:     \t%lu\n",b->tagcachemaster[WRITE_REQ]);
+        echo(fp, "tagcachemaster_write_req_flit:\t%lu\n",b->tagcachemaster[WRITE_REQ_FLIT]);
+        echo(fp, "tagcachemaster_read_rsp:      \t%lu\n",b->tagcachemaster[READ_RSP]);
+        echo(fp, "tagcachemaster_read_rsp_flit: \t%lu\n",b->tagcachemaster[READ_RSP_FLIT]);
+        echo(fp, "tagcachemaster_write_rsp:     \t%lu\n",b->tagcachemaster[WRITE_RSP]);
 		echo(fp, "\n");
 	}
 	return 0;

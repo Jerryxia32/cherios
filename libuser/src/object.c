@@ -276,3 +276,9 @@ register_t ccall_rrcc_r(void * cb, void * cs, int method_nb,
 	ret_t ret = CCALLS(cb, cs, method_nb, rarg1, rarg2, 0, carg1, carg2, NULL);
 	return ret.rret;
 }
+
+register_t ccall_rccc_r(void * cb, void * cs, int method_nb,
+                    register_t rarg1, void * carg1, void * carg2, void * carg3) {
+	ret_t ret = CCALLS(cb, cs, method_nb, rarg1, 0, 0, carg1, carg2, carg3);
+	return ret.rret;
+}

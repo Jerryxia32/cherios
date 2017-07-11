@@ -31,6 +31,8 @@
 #ifndef __STDLIB_H__
 #define	__STDLIB_H__
 
+#include"mips.h"
+
 void *	malloc(size_t n);
 void *	calloc(size_t n, size_t s);
 void *  realloc(void *ptr, size_t size);
@@ -38,5 +40,5 @@ void 	free(void * p);
 
 void 	abort(void);
 void	exit(int status);
-
+void qsort(void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
 #endif /* !__STDLIB_H__ */

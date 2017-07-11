@@ -54,6 +54,8 @@ init_elem_t init_list[] = {
 	B_DENTRY(m_memmgt,	"memmgt.elf",		0, 	1)
 	B_DENTRY(m_namespace,	"namespace.elf",	0,	1)
 	B_DENTRY(m_uart,	"uart.elf",		0,	1)
+	B_DENTRY(m_uart,	"AES.elf",		0,	1)
+	B_DENTRY(m_uart,	"sha.elf",		0,	1)
 	//B_DENTRY(m_core,	"sockets.elf",		0,	B_SO)
 	B_FENCE
 	B_PENTRY(m_user,	"CRC32.elf",		0,	B_BN)
@@ -61,6 +63,8 @@ init_elem_t init_list[] = {
 	B_PENTRY(m_user,	"bitcount.elf",		0,	B_BN)
 	B_PENTRY(m_user,	"dijkstra.elf",		0,	B_BN)
 	B_PENTRY(m_user,	"stringsearch.elf",		0,	B_BN)
+	B_PENTRY(m_user,	"qsort.elf",		0,	B_BN)
+	B_PENTRY(m_user,	"spam.elf",		0,	B_BN)
 
 #if 0
 	#define T3(_arg) \

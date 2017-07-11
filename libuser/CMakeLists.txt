@@ -28,6 +28,7 @@ set(LIBUSER_SRCS
     src/object.c
     src/panic.c
     src/printf.c
+    src/qsort.c
     src/ssleep.c
     src/stats.c
     src/statcounters.c

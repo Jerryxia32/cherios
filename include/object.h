@@ -88,4 +88,6 @@ void *	ccall_rrrc_c(void * cb, void * cs, int method_nb,
 register_t ccall_rrcc_r(void * cb, void * cs, int method_nb,
                     register_t rarg1, register_t rarg2, void * carg1, void * carg2);
 
+register_t ccall_rccc_r(void * cb, void * cs, int method_nb,
+                    register_t rarg1, void * carg1, void * carg2, void * carg3);
 #endif

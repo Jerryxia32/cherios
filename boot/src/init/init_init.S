@@ -42,10 +42,9 @@
 	.global start
 	.ent start
 start:
-    dla     $t0, __fs_start
-    csc     $c13, $t0, 0($c0)
-    dla     $t0, __fs_end
-    csc     $c14, $t0, 0($c0)
+    # backup c13 and c14, they are the fs ranges.
+    cmove   $c23, $c13
+    cmove   $c24, $c14
 	# W^X for pointers: ensure $c0 is never executable.
 	cgetdefault	$c3
 	dli		$t0, ~(1<<1)
@@ -97,6 +96,11 @@ cherios_init_jump_target:
 	csetoffset	$c12, $c12, $t0
 	cjalr		$c12, $c17
 	nop
+
+    dla     $t0, __fs_start
+    csc     $c23, $t0, 0($c0)
+    dla     $t0, __fs_end
+    csc     $c24, $t0, 0($c0)
 
 	# On the off chance that cherios_main() has been defined as having
 	# arguments, set the first argument (argc) to 0.

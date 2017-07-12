@@ -122,7 +122,7 @@ crt_init_bss(void)
 	 * script rather than the compiler.
 	 */
 	bss_len = (size_t)&__stop_bss - (size_t)&__start_bss;
-	//bzero(&__start_bss, bss_len);
+	bzero(&__start_bss, bss_len);
 }
 
 void

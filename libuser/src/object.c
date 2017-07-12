@@ -148,7 +148,9 @@ void * get_cookie(void * cb, void * cs) {
  */
 
 #define CCALL_ASM_CSCB "cmove $c1, %[cb] \n" "cmove $c2, %[cs] \n" "move $v0, %[method_nb] \n"
-#define CCALL_INSTR(n) "ccall $c1, $c2, " #n "\n"
+#define CCALL_INSTR(n) "li $v1, "#n"\n" \
+                       "ccall $c1, $c2, 0\n" \
+
 #define CCALL_INOPS [cb]"C" (cb), [cs]"C" (cs), [method_nb]"r" (method_nb)
 #define CCALL_CLOBS "$c1","$c2","$c3","$c4","$c5","v0","v1","a0","a1","a2"
 #define CCALL_TOP \

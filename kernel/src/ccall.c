@@ -108,13 +108,7 @@ static void kernel_ccall_core(int cflags) {
 void kernel_ccall(void) {
 	KERNEL_TRACE(__func__, "in %s", kernel_acts[kernel_curr_act].name);
 
-	register_t ccall_selector =
-	#ifdef HARDWARE_fpga
-	        cp0_badinstr_get();
-	#else
-	        *((uint32_t *)kernel_exception_framep_ptr->cf_pcc);
-	#endif
-	ccall_selector &= 0x7FF;
+	register_t ccall_selector = kernel_exception_framep_ptr->mf_v1;
 
 	/* Ack ccall instruction */
 	kernel_skip_instr(kernel_curr_act);

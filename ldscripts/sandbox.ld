@@ -48,5 +48,5 @@ SECTIONS
 	}
 
 	__start_bss = ADDR(.bss);
-	__stop_bss = ALIGN(__start_bss + SIZEOF(.bss), 0x8);
+	__stop_bss = __start_bss + SIZEOF(.bss);
 }

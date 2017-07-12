@@ -128,8 +128,6 @@ u8*__capability  __fs_start;
 u8*__capability  __fs_end;
 
 int init_main() {
-  	stats_init();
-
 	printf("Init loaded\n");
 
 	/* Initialize the memory pool. */
@@ -150,6 +148,5 @@ int init_main() {
 	}
 
 	printf(KBLD"Only daemons are alive. System shutown."KRST"\n");
-	stats_display();
 	hw_reboot();
 }

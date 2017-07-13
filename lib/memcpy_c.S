@@ -155,14 +155,10 @@ memcpy_c_end:
 .end memcpy_c
 
 # Use the capability memcpy for normal memcopies. (Not enabled yet)
-#if 0
 		.text
 		.global memcpy
 		.ent memcpy
 memcpy:
-	CFromPtr $c3, $c0, $a0       # dst ptr -> dst capability
-	CFromPtr $c4, $c0, $a1       # src ptr -> src capability
           b        memcpy_c
-          move     $a0, $a3            # len -> first integer arg register (in delay slot)
+          nop
 .end memcpy
-#endif

@@ -49,6 +49,7 @@ static char *rcsid = "$FreeBSD$";
 #include "mips.h"
 #include "cheric.h"
 #include "malloc_heap.h"
+#include"string.h"
 
 #pragma clang diagnostic ignored "-Wsign-compare"
 

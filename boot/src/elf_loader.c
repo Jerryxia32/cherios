@@ -70,10 +70,12 @@ static void error_elf_loader(Elf_Env *env, const char *fmt, ...) {
 }
 
 int elf_check_supported(Elf_Env *env, Elf64_Ehdr *hdr) {
+    /*
 	if(memcmp(hdr->e_ident, "\x7F""ELF", 4)) {
 		ERROR("Bad magic number");
 		return 0;
 	}
+     */
 	if(hdr->e_ident[EI_CLASS] != 2) {
 		ERROR("Bad EI_CLASS");
 		return 0;

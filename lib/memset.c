@@ -47,7 +47,7 @@ static char sccsid[] = "@(#)memset.c	8.1 (Berkeley) 6/4/93";
  * pure-capability code.
  */
 void *
-memset_c(void *dst0, int c0, size_t length)
+memset(void *dst0, int c0, size_t length)
 {
 	size_t t;
 	u_int c;
@@ -109,9 +109,14 @@ memset_c(void *dst0, int c0, size_t length)
 	return (dst0);
 }
 
+void *
+memset_c(void *dst0, int c0, size_t length) {
+    return memset(dst0, c0, length);
+}
+
 void
 bzero(void *b, size_t s)
 {
 
-	(void)memset_c(b, 0, s);
+	(void)memset(b, 0, s);
 }

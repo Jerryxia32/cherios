@@ -36,8 +36,10 @@
 void	bzero(void *, size_t);
 int	memcmp(const void * cs,const void * ct,size_t count);
 void *	memcpy(void *dest, const void *src, size_t n);
+void *	memcpy_c(void *dest, const void *src, size_t n);
 void *	memcpy_hack(void *dest, const void *src, size_t n);
 void *	memset(void *, int, size_t);
+void *	memset_c(void *, int, size_t);
 char *	strchr(const char * s, int c);
 char *	strcpy(char * dest,const char *src);
 int	strcmp(const char *s1, const char *s2);

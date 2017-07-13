@@ -122,6 +122,8 @@ set(ASMC_COMPILER_FLAGS
     -mabi=purecap
     -integrated-as
     -msoft-float
+    -ffreestanding
+    -fno-builtin
     -fcolor-diagnostics
     # "-B${CheriSDK_TOOLCHAIN_DIR}"  # Doesn't seem to be required
 )

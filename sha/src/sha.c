@@ -145,7 +145,7 @@ void sha_update(SHA_INFO * __capability sha_info, BYTE * __capability buffer, in
     sha_info->count_lo += (LONG) count << 3;
     sha_info->count_hi += (LONG) count >> 29;
     while (count >= SHA_BLOCKSIZE) {
-	memcpy((void * __capability)sha_info->data, buffer, SHA_BLOCKSIZE);
+	memcpy_hack((void * __capability)sha_info->data, buffer, SHA_BLOCKSIZE);
 #ifdef LITTLE_ENDIAN
 	byte_reverse(sha_info->data, SHA_BLOCKSIZE);
 #endif /* LITTLE_ENDIAN */
@@ -153,7 +153,7 @@ void sha_update(SHA_INFO * __capability sha_info, BYTE * __capability buffer, in
 	buffer += SHA_BLOCKSIZE;
 	count -= SHA_BLOCKSIZE;
     }
-    memcpy((void * __capability)sha_info->data, buffer, count);
+    memcpy_hack((void * __capability)sha_info->data, buffer, count);
 }
 
 /* finish computing the SHA digest */
@@ -201,14 +201,14 @@ void sha_stream(SHA_INFO * __capability sha_info, char * __capability fin, size_
     //}
 
     while(readbyte + BLOCK_SIZE <= fin_size) {
-        memcpy(datacap, fin + readbyte, BLOCK_SIZE);
+        memcpy_hack(datacap, fin + readbyte, BLOCK_SIZE);
         readbyte += BLOCK_SIZE;
         sha_update(sha_info, datacap, BLOCK_SIZE);
     }
     
     /* processing the leftover */
     size_t leftover = fin_size - readbyte;
-    memcpy(datacap, fin + readbyte, leftover);
+    memcpy_hack(datacap, fin + readbyte, leftover);
     sha_update(sha_info, datacap, leftover);
 
     sha_final(sha_info);

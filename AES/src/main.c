@@ -121,7 +121,7 @@ uint64_t encfile(byte * __capability fin, byte * __capability fout, aes *ctx, ui
     uint64_t readbytes = 0, writebytes = 0;
 
     fillrand(outbuf, 16);           /* set an IV for CBC mode           */
-    memcpy(fout + writebytes, outbufcap, 16);
+    memcpy_hack(fout + writebytes, outbufcap, 16);
     writebytes += 16;
     fillrand(inbuf, 1);             /* make top 4 bits of a byte random */
     l = 15;                         /* and store the length of the last */
@@ -131,7 +131,7 @@ uint64_t encfile(byte * __capability fin, byte * __capability fout, aes *ctx, ui
     while(readbytes < length) {
         /* input 1st 16 bytes to buf[1..16] */
         i = length - readbytes;
-        memcpy(inbufcap + 16 - l, fin + readbytes, (i<l)? i:l);
+        memcpy_hack(inbufcap + 16 - l, fin + readbytes, (i<l)? i:l);
         readbytes += (i<l)? i:l;
         if(i < l) break;            /* if end of the input file reached */
 
@@ -140,7 +140,7 @@ uint64_t encfile(byte * __capability fin, byte * __capability fout, aes *ctx, ui
 
         encrypt(inbuf, outbuf, ctx);    /* and do the encryption        */
 
-        memcpy(fout + writebytes, outbufcap, 16);
+        memcpy_hack(fout + writebytes, outbufcap, 16);
         writebytes += 16;
                                     /* in all but first round read 16   */
         l = 16;                     /* bytes into the buffer            */
@@ -166,7 +166,7 @@ uint64_t encfile(byte * __capability fin, byte * __capability fout, aes *ctx, ui
 
         encrypt(inbuf, outbuf, ctx);    /* encrypt and output it        */
 
-        memcpy(fout + writebytes, outbufcap, 16);
+        memcpy_hack(fout + writebytes, outbufcap, 16);
         writebytes += 16;
     }
         
@@ -190,10 +190,10 @@ int decfile(byte * __capability fin, byte * __capability fout, aes *ctx, uint64_
         return -1;
     }
 
-    memcpy(inbuf1cap, fin + readbytes, 16);
+    memcpy_hack(inbuf1cap, fin + readbytes, 16);
     readbytes += 16;
 
-    memcpy(inbuf2cap, fin + readbytes, 16);
+    memcpy_hack(inbuf2cap, fin + readbytes, 16);
     readbytes += 16;
 
     decrypt(inbuf2, outbuf, ctx);   /* decrypt it                       */
@@ -211,14 +211,14 @@ int decfile(byte * __capability fin, byte * __capability fout, aes *ctx, uint64_
     while(1)
     {
         i = length - readbytes;
-        memcpy(bp1cap, fin + readbytes, (i<16)? i:16);
+        memcpy_hack(bp1cap, fin + readbytes, (i<16)? i:16);
         readbytes += (i<16)? i:16;
         if(i < 16) break;
 
         /* if a block has been read the previous block must have been   */
         /* full lnegth so we can now write it out                       */
          
-        memcpy(fout + writebytes, outbufcap + 16 - l, l);
+        memcpy_hack(fout + writebytes, outbufcap + 16 - l, l);
         writebytes += l;
 
         decrypt(bp1, outbuf, ctx);  /* decrypt the new input block and  */
@@ -243,7 +243,7 @@ int decfile(byte * __capability fin, byte * __capability fout, aes *ctx, uint64_
     l = (l == 15 ? 1 : 0); flen += 1 - l;
 
     if(flen) {
-        memcpy(fout + writebytes, outbufcap + l, flen);
+        memcpy_hack(fout + writebytes, outbufcap + l, flen);
         writebytes += flen;
     }
 

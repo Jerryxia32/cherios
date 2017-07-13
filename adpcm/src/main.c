@@ -29,14 +29,14 @@ main() {
         totalProcessed = 0;
         remain = 0;
         while((remain = cSize - totalProcessed) > NSAMPLES*2) {
-            memcpy(sbuf, &__adpcm_c_start + totalProcessed, NSAMPLES*2);
+            memcpy_hack(sbuf, &__adpcm_c_start + totalProcessed, NSAMPLES*2);
             adpcm_coder(sbuf, abuf, NSAMPLES, &state);
-            memcpy(cheri_getdefault(), abuf, NSAMPLES/2);
+            memcpy_hack(cheri_getdefault(), abuf, NSAMPLES/2);
             totalProcessed += NSAMPLES*2;
         }
-        memcpy(sbuf, &__adpcm_c_start + totalProcessed, remain);
+        memcpy_hack(sbuf, &__adpcm_c_start + totalProcessed, remain);
         adpcm_coder(sbuf, abuf, remain/2, &state);
-        memcpy(cheri_getdefault(), abuf, remain/4);
+        memcpy_hack(cheri_getdefault(), abuf, remain/4);
         totalProcessed += remain;
         printf("adpcm encoded %ld bytes in total.\n", totalProcessed);
 
@@ -44,14 +44,14 @@ main() {
         totalProcessed = 0;
         remain = 0;
         while((remain = dSize - totalProcessed) > NSAMPLES/2) {
-            memcpy(abuf, &__adpcm_d_start + totalProcessed, NSAMPLES/2);
+            memcpy_hack(abuf, &__adpcm_d_start + totalProcessed, NSAMPLES/2);
             adpcm_decoder(abuf, sbuf, NSAMPLES, &state);
-            memcpy(cheri_getdefault(), sbuf, NSAMPLES*2);
+            memcpy_hack(cheri_getdefault(), sbuf, NSAMPLES*2);
             totalProcessed += NSAMPLES/2;
         }
-        memcpy(abuf, &__adpcm_d_start + totalProcessed, remain);
+        memcpy_hack(abuf, &__adpcm_d_start + totalProcessed, remain);
         adpcm_decoder(abuf, sbuf, remain*2, &state);
-        memcpy(cheri_getdefault(), sbuf, remain*4);
+        memcpy_hack(cheri_getdefault(), sbuf, remain*4);
         totalProcessed += remain;
         printf("adpcm decoded %ld bytes in total.\n", totalProcessed);
     }

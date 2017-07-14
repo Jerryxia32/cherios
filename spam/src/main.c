@@ -67,13 +67,13 @@ main() {
         encdecOffset = 0;
         remain = 0;
         while((remain = len-encdecOffset) > EACH_BLOCK_SIZE) {
-            encret = ccall_real_4_strong_r(0, LONG_MAX, EACH_BLOCK_SIZE, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap, aes_PCC, aes_IDC, helper_PCC);
-            decret = ccall_real_4_strong_r(0, LONG_MAX, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap, aes_PCC, aes_IDC, helper_PCC);
+            encret = ccall_real_4_strong_r(0, REG_MAX, EACH_BLOCK_SIZE, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap, aes_PCC, aes_IDC, helper_PCC);
+            decret = ccall_real_4_strong_r(0, REG_MAX, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap, aes_PCC, aes_IDC, helper_PCC);
             encdecOffset += EACH_BLOCK_SIZE;
             totalDeced += decret;
         }
-        encret = ccall_real_4_strong_r(0, LONG_MAX, remain, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap, aes_PCC, aes_IDC, helper_PCC);
-        decret = ccall_real_4_strong_r(0, LONG_MAX, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap, aes_PCC, aes_IDC, helper_PCC);
+        encret = ccall_real_4_strong_r(0, REG_MAX, remain, 0, 0, (AES_data_cap + encdecOffset), enc_out, theKeyCap, aes_PCC, aes_IDC, helper_PCC);
+        decret = ccall_real_4_strong_r(0, REG_MAX, -encret, 0, 0, enc_out, encdec_out + totalDeced, theKeyCap, aes_PCC, aes_IDC, helper_PCC);
         totalDeced += decret;
     }
     printf("Size of the original: %d, Total bytes decrypted: %d\n", len, totalDeced);
@@ -88,11 +88,11 @@ main() {
         encdecOffset = 0;
         remain = 0;
         while((remain = len-encdecOffset) > EACH_BLOCK_SIZE) {
-            ccall_real_4_strong_r(0, LONG_MAX, EACH_BLOCK_SIZE, 0, 0, theinfo_out, (AES_data_cap + encdecOffset), NULLCAP, sha_PCC, sha_IDC, helper_PCC);
+            ccall_real_4_strong_r(0, REG_MAX, EACH_BLOCK_SIZE, 0, 0, theinfo_out, (AES_data_cap + encdecOffset), NULLCAP, sha_PCC, sha_IDC, helper_PCC);
             encdecOffset += EACH_BLOCK_SIZE;
         }
-        ccall_real_4_strong_r(0, LONG_MAX, remain, 0, 0, theinfo_out, (AES_data_cap + encdecOffset), NULLCAP, sha_PCC, sha_IDC, helper_PCC);
-        ccall_real_4_strong_r(1, LONG_MAX, 0, 0, 0, theinfo_out, NULLCAP, NULLCAP, sha_PCC, sha_IDC, helper_PCC);
+        ccall_real_4_strong_r(0, REG_MAX, remain, 0, 0, theinfo_out, (AES_data_cap + encdecOffset), NULLCAP, sha_PCC, sha_IDC, helper_PCC);
+        ccall_real_4_strong_r(1, REG_MAX, 0, 0, 0, theinfo_out, NULLCAP, NULLCAP, sha_PCC, sha_IDC, helper_PCC);
     }
     stats_display();
     /* SHA benchmark ends */
@@ -100,14 +100,14 @@ main() {
     printf("Cross domain (ccall safe) for %d times.\n", DOMAIN_TIMES);
     stats_init();
     for(int i=0; i<DOMAIN_TIMES; i++) {
-        ccall_real_4_strong_r(1, LONG_MAX, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP, aes_PCC, aes_IDC, helper_PCC);
+        ccall_real_4_strong_r(1, REG_MAX, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP, aes_PCC, aes_IDC, helper_PCC);
     }
     stats_display();
 
     printf("Cross domain (ccall unsafe) for %d times.\n", DOMAIN_TIMES);
     stats_init();
     for(int i=0; i<DOMAIN_TIMES; i++) {
-        ccall_real_4_r(1, LONG_MAX, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP, aes_PCC, aes_IDC, helper_PCC);
+        ccall_real_4_r(1, REG_MAX, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP, aes_PCC, aes_IDC, helper_PCC);
     }
     stats_display();
 

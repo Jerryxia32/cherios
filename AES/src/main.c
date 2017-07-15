@@ -308,13 +308,6 @@ exit:
 
 int main() {
     printf("AES Hello World.\n");
-    printf("AES Loopback test.\n");
-    stats_init();
-    for(int i=0; i<100000; i++) {
-        msg_entry_loopback(1, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP);
-    }
-    stats_display();
-    printf("AES Loopback test finished!\n");
     
     act_self_PCC = cheri_seal(act_self_PCC, act_self_cap);
     act_self_IDC = cheri_seal(act_self_IDC, act_self_cap);

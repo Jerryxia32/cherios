@@ -70,13 +70,13 @@ static void install_exception_vectors(void) {
 	__asm volatile("sync");
 	__asm__ __volatile__ (
 		"cache 0b10000, 0(%[line]) \n"
-		:: [line]"r" (MIPS_BEV0_EXCEPTION_VECTOR));
+		:: [line]"r" (MIPS_BEV0_EXCEPTION_VECTOR & 0xffff));
 	__asm__ __volatile__ (
 		"cache 0b10000, 0(%[line]) \n"
-		:: [line]"r" (MIPS_BEV0_CCALL_VECTOR));
+		:: [line]"r" (MIPS_BEV0_CCALL_VECTOR & 0xffff));
 	__asm__ __volatile__ (
 		"cache 0b10000, 0(%[line]) \n"
-		:: [line]"r" (MIPS_BEV0_TLB_VECTOR));
+		:: [line]"r" (MIPS_BEV0_TLB_VECTOR & 0xffff));
 	__asm volatile("sync");
 }
 

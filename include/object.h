@@ -95,7 +95,4 @@ void * __capability ccall_real_4_strong_c(int method_nb, int64_t timeoutCycle,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
                   const void * __capability carg1, const void * __capability carg2, const void * __capability carg3, void * __capability PCC, void * __capability IDC, void * __capability sealing_tool);
 
-void msg_entry_loopback(int method_nb,
-		  register_t rarg1, register_t rarg2, register_t rarg3,
-                  const void * __capability carg1, const void * __capability carg2, const void * __capability carg3);
 #endif

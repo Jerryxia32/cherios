@@ -40,6 +40,7 @@
 
 # Dispatch CCalls
 
+# kernel msg passing syscall
 	.text
 	.global msg_entry
 	.ent msg_entry
@@ -122,91 +123,7 @@ msg_entry_end:
 	.end msg_entry
 	.size msg_entry, msg_entry_end - msg_entry
 
-#    .data
-#    .global mutex
-#mutex:
-#    .skip (1<<(REG_SIZE_BITS-1)), 0
-#mutex_end:
-#    .size mutex, mutex_end - mutex
-
-	.text
-	.global msg_entry_loopback
-	.ent msg_entry_loopback
-msg_entry_loopback:
-    b       useless
-    move    $v0, $a0
-useless:
-    move    $a0, $a1
-    move    $a1, $a2
-    b       useless2
-    move    $a2, $a3
-useless2:
-    li $t0, MUTEX_ADDR
-mutex_loop_loopback:
-    # mutex to prevent module from receiving another message while still
-    # processing the previous one
-    lw  $t1, 0($t0)
-    bne $t1, $0, locked_loopback
-    li  $t9, 1
-    ll  $t1, 0($t0)
-    sc  $t9, 0($t0)
-    beq $t9, $0, locked_loopback
-    nop
-
-	bltz		$v0, control_loopback
-	nop
-
-	la		$t0, msg_methods
-	la		$t1, msg_methods_nb
-    b		call_loopback
-	nop
-
-control_loopback:
-	la		$t0, ctrl_methods
-	la		$t1, ctrl_methods_nb
-	sub		$v0, $0, $v0
-call_loopback:
-	lw		$t1, 0($t1)
-	sub		$t1, $t1, $v0
-	blez		$t1, overflow_loopback
-	nop
-
-    addiu  $sp, $sp, -32
-    sd  $ra, 0($sp)
-	sll		$v0, $v0, SIZET_SIZE_BITS
-	add		$t0, $t0, $v0
-	lw		$t9, 0($t0)
-	jalr    $t9
-	nop
-    b		end_loopback
-	nop
-
-overflow_loopback:
-	move		$v0, $0
-    cfromptr	$c3, $c3, $0
-    b		end_loopback
-	move		$v1, $0
-
-end_loopback:
-    # release lock
-    ld  $ra, 0($sp)
-    li $t0, MUTEX_ADDR
-    sw  $0, 0($t0)
-    jr  $ra
-    daddiu  $sp, $sp, 32
-
-locked_loopback:
-    li  $v1, 13
-    move    $a3, $a0
-    li  $a0, 0
-    syscall
-    b   mutex_loop_loopback
-    move    $a0, $a3
-
-msg_entry_end_loopback:
-	.end msg_entry_loopback
-	.size msg_entry_loopback, msg_entry_end_loopback - msg_entry_loopback
-
+# CCallFast
 	.text
 	.global msg_entry_ccall
 	.ent msg_entry_ccall

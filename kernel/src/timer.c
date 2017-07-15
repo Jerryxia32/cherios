@@ -49,6 +49,14 @@ static inline register_t TMOD(register_t count) {
 	return count & 0xFFFFFFFF;
 }
 
+/* This is the layout of a trusted stack slot */
+typedef struct tstackSlot {
+    void*__capability slotPCC;
+    void*__capability slotIDC;
+    int64_t remainTime;
+    int32_t lastTime;
+}TstackSlot;
+
 /*
  * Kernel timer handler -- reschedule, reset timer.
  */
@@ -75,8 +83,8 @@ void kernel_timer(void)
         // scan and pop the stack
         while(tStack < oriStack) {
             //check if the current frame expires
-            int32_t * __capability lastTimep = (int32_t * __capability)((char * __capability)tStack + 2*CAP_SIZE + sizeof(register_t));
-            int64_t * __capability remainTimep = (int64_t * __capability)((char * __capability)tStack + 2*CAP_SIZE);
+            int32_t* lastTimep = &((TstackSlot *)tStack)->lastTime;
+            int64_t* remainTimep = &((TstackSlot *)tStack)->remainTime;
             int32_t elapsed = cp0_count_get() - *lastTimep;
             *lastTimep += elapsed;
             *remainTimep -= elapsed;
@@ -87,11 +95,12 @@ void kernel_timer(void)
             size_t rand = (cp0_count_get() & 0xff) % oriOffset;
             rand &= ~(((size_t)CAP_SIZE<<2)-1);
             capability * __capability tStack = cheri_setoffset(oriStack, rand);
-            int64_t * __capability remainTimep = (int64_t * __capability)((char * __capability)tStack + 2*CAP_SIZE);
+            int64_t* remainTimep = &((TstackSlot *)tStack)->remainTime;
             *remainTimep -= TIMER_INTERVAL;
 #endif
             // timeout reached, force return
             if(*remainTimep <= 0) {
+                kernel_printf(KRED"CCall expired!"KRST"\n");
                 // timing failed, signal the assembly to clear registers.
                 timingFailed = 1;
 

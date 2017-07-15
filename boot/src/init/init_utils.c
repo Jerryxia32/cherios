@@ -75,7 +75,8 @@ static void * init_act_create(const char * name, void * __capability c0, void * 
      * the trusted stack is put in cached, unmapped kernel address space
      * as we definitely do not want to sweep that region
      */
-    frame.cf_kr1c = init_alloc(32*CAP_SIZE);
+    void*__capability temp = init_alloc(32*CAP_SIZE);
+    frame.cf_kr1c = cheri_setbounds(cheri_setoffset(cheri_getdefault(), cheri_getbase(temp) | 0x80000000), cheri_getlen(temp));
 
 	/* set c0 */
     frame.cf_c0 = c0;

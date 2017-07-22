@@ -21,14 +21,6 @@ main() {
         printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
     }
 
-	void * u_ref = namespace_get_ref(5);
-	assert(u_ref != NULL);
-	void * u_id  = namespace_get_id(5);
-
-	void * sha_ref = namespace_get_ref(6);
-	assert(sha_ref != NULL);
-	void * sha_id  = namespace_get_id(6);
-
 	void * __capability aes_PCC = namespace_get_PCC(5);
 	assert(aes_PCC != NULLCAP);
 	void * __capability aes_IDC = namespace_get_IDC(5);
@@ -108,13 +100,6 @@ main() {
     stats_init();
     for(int i=0; i<DOMAIN_TIMES; i++) {
         ccall_real_4_r(1, REG_MAX, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP, aes_PCC, aes_IDC, helper_PCC);
-    }
-    stats_display();
-
-    printf("Cross domain (kernel msg queue) for %d times.\n", DOMAIN_TIMES);
-    stats_init();
-    for(int i=0; i<DOMAIN_TIMES; i++) {
-        ccall_4(u_ref, u_id, 1, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP);
     }
     stats_display();
     return 0;

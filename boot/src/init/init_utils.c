@@ -179,14 +179,6 @@ static void * __capability init_memcpy(void * __capability dest, const void * __
 	return memcpy_c(dest, src, n);
 }
 
-static void *make_aligned_data_addr(const char *start) {
-	size_t desired_ofs = ((size_t)start + PAGE_ALIGN);
-	desired_ofs &= ~(PAGE_ALIGN-1);
-
-	char *cap = (char *)desired_ofs;
-	return cap;
-}
-
 void * load_module(module_t type, const char * file, int arg, const void *carg) {
 	size_t entry;
     size_t allocsize;

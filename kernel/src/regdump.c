@@ -53,7 +53,7 @@
 	}
 
 static void regdump_c(const char * str_cap, int hl, const void * __capability cap) {
-	kernel_printf("%s%-3s:"KREG, hl?KBLD KUND:"", str_cap);
+	kernel_printf("%s%-4s:"KREG, hl?KBLD KUND:"", str_cap);
 	int tag  = cheri_gettag(cap);
 	kernel_printf("%s", tag?" t:1 ":KFNT" t:0 "KREG);
 	size_t base = cheri_getbase(cap);
@@ -78,28 +78,16 @@ void regdump(int reg_num) {
 
 	kernel_printf("Regdump:\n");
 
-	REG_DUMP_M(at); REG_DUMP_M(v0); REG_DUMP_M(v1); kernel_printf("\n");
-
+	REG_DUMP_M(at); REG_DUMP_M(v0); REG_DUMP_M(v1); REG_DUMP_M(t9); kernel_printf("\n");
 	REG_DUMP_M(a0); REG_DUMP_M(a1); REG_DUMP_M(a2); REG_DUMP_M(a3); kernel_printf("\n");
-
 	REG_DUMP_M(t0); REG_DUMP_M(t1); kernel_printf("\n");
-
 	REG_DUMP_M(s0); REG_DUMP_M(s1); REG_DUMP_M(s2); REG_DUMP_M(s3); kernel_printf("\n");
-
-	REG_DUMP_M(t9); kernel_printf("\n");
-
 	REG_DUMP_M(gp); REG_DUMP_M(sp); REG_DUMP_M(fp); REG_DUMP_M(ra); kernel_printf("\n");
-
-	REG_DUMP_M(hi); REG_DUMP_M(lo); kernel_printf("\n");
-
-	REG_DUMP_M(pc); kernel_printf("\n"); /* does not seem in sync with pcc */
+	REG_DUMP_M(hi); REG_DUMP_M(lo); REG_DUMP_M(pc); kernel_printf("\n");
 
 	kernel_printf("\n");
-
 	REG_DUMP_C(c0); kernel_printf("\n");
-
 	REG_DUMP_C(c1); REG_DUMP_C(c2); kernel_printf("\n");
-
 	REG_DUMP_C(c3); REG_DUMP_C(c4); REG_DUMP_C(c5);
 	REG_DUMP_C(c6); REG_DUMP_C(c7); kernel_printf("\n");
     //REG_DUMP_C(c9); printf("\n");

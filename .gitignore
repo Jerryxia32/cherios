@@ -36,3 +36,6 @@
 
 # swp files
 *.swp
+
+# build directory
+build/

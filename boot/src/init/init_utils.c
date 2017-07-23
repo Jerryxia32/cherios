@@ -174,8 +174,8 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 		return NULL;
 	}
 	void * pcc = cheri_getpcc();
-	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), (allocsize+0x1000) & ~0xfff);
-	pcc = cheri_setoffset(pcc, cheri_getoffset(prgmp));
+	pcc = cheri_setbounds(cheri_setoffset(pcc, (size_t)(prgmp - entry)), (allocsize+0x1000) & ~0xfff);
+	pcc = cheri_incoffset(pcc, entry);
 	pcc = cheri_andperm(pcc, (CHERI_PERM_GLOBAL | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
 				  | CHERI_PERM_LOAD_CAP));
 	void * ctrl = init_act_create(file, cheri_setoffset(prgmp, 0),

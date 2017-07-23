@@ -49,9 +49,9 @@ extern void	__init_entry_point;
 #define BOOT_PRINT_PTR(ptr)						\
 	boot_printf("%s: " #ptr " b:%016jx l:%016zx o:%jx\n",		\
 		    __func__,						\
-		    cheri_getbase((const __capability void *)(ptr)),	\
-		    cheri_getlen((const __capability void *)(ptr)),	\
-		    cheri_getoffset((const __capability void *)(ptr)))
+		    cheri_getbase((const void*__capability)(ptr)),	\
+		    cheri_getlen((const void*__capability)(ptr)),	\
+		    cheri_getoffset((const void*__capability)(ptr)))
 
 #define BOOT_PRINT_CAP(cap)						\
 	boot_printf("%-20s: %-16s t:%lx s:%lx p:%08jx "			\

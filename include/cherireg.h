@@ -35,15 +35,11 @@
  * The size of in-memory capabilities in bytes; minimum alignment is also
  * assumed to be this size.
  */
-#if defined(_MIPS_SZCAP) && (_MIPS_SZCAP != 128) && (_MIPS_SZCAP != 256)
-#error "_MIPS_SZCAP defined but neither 128 nor 256"
+#if defined(_MIPS_SZCAP) && (_MIPS_SZCAP != 128) && (_MIPS_SZCAP != 256) && (_MIPS_SZCAP != 64)
+#error "_MIPS_SZCAP defined but neither 128 nor 256 nor 64"
 #endif
 
-#if defined(CPU_CHERI128) || (defined(_MIPS_SZCAP) && (_MIPS_SZCAP == 128))
-#define	CHERICAP_SIZE   16
-#else
-#define	CHERICAP_SIZE   32
-#endif
+#define	CHERICAP_SIZE (_MIPS_SZCAP/8)
 
 /*
  * CHERI ISA-defined constants for capabilities -- suitable for inclusion from

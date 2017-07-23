@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.4)
 # before it checks the C compiler features. We can then use enable_language()
 # to initialize all the C and ASM rules
 project(CheriOS LANGUAGES NONE VERSION 0.0.1)
+set(CMAKE_C_COMPILER_WORKS 1)
 
 #
 # Configure hardare at compile time.  Default to "qemu" for CHERI QEMU MALTA.
@@ -89,16 +90,16 @@ enable_language(C)
 enable_language(ASM)
 
 include(CMakeParseArguments)
-include(CheckCSourceCompiles)
-check_c_source_compiles([===[
-#if !__has_feature(capabilities)
-#error need compiler with capability support
-#endif
-int main(int argc, char** argv) { return 0; }
-]===] HAVE_CAPABILITIES)
-if(NOT HAVE_CAPABILITIES)
-    message(FATAL_ERROR "Compiler doesn't have capabilities support, set CHERI_SDK_DIR correctly.")
-endif()
+#include(CheckCSourceCompiles)
+#check_c_source_compiles([===[
+##if !__has_feature(capabilities)
+##error need compiler with capability support
+##endif
+#int main(int argc, char** argv) { return 0; }
+#]===] HAVE_CAPABILITIES)
+#if(NOT HAVE_CAPABILITIES)
+#    message(FATAL_ERROR "Compiler doesn't have capabilities support, set CHERI_SDK_DIR correctly.")
+#endif()
 
 #
 # Configure a console driver at compile time.  Default to the UART found in
@@ -121,6 +122,10 @@ set(ASMC_COMPILER_FLAGS
     -mcpu=cheri128
     -mabi=purecap
     -integrated-as
+    -fPIC
+    -mabicalls
+    -mxgot
+    -mllvm -mxmxgot
     -msoft-float
     -ffreestanding
     -fno-builtin
@@ -137,8 +142,6 @@ set(C_COMPILER_FLAGS
     -O3 # TODO: make this depend on the configuration
     -fomit-frame-pointer # TODO: make this depend on the configuration
     -G0
-    -mxgot
-    -mllvm -mxmxgot
     -Werror
     -std=c11
     -DHARDWARE_${HARDWARE}

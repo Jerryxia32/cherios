@@ -36,7 +36,7 @@
 .set CAP_SIZE_BITS, 5
 .else
 .ifeq _MIPS_SZCAP-128
-.set CAP_SIZE_BITS, 4
+.set CAP_SIZE_BITS, 3
 .else
 .error "Unknown cap size"
 .endif

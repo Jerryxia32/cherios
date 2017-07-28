@@ -44,7 +44,7 @@
     #define CAP_SIZE 32
 #elif _MIPS_SZCAP == 128
 	#define _CHERI128_
-    #define CAP_SIZE 16
+    #define CAP_SIZE 8
 #elif _MIPS_SZCAP == 64
 	#define _CHERI64_
     #define CAP_SIZE 8
@@ -120,11 +120,11 @@
 #define CHERI_PERM_STORE_CAP		(1 <<  5)
 #define CHERI_PERM_STORE_LOCAL_CAP	(1 <<  6)
 #define CHERI_PERM_SEAL			(1 <<  7)
-#define CHERI_PERM_ACCESS_SYS_REGS	(1 << 10)
-#define CHERI_PERM_SOFT_1		(1 << 15)
-#define CHERI_PERM_SOFT_2		(1 << 16)
-#define CHERI_PERM_SOFT_3		(1 << 17)
-#define CHERI_PERM_SOFT_4		(1 << 18)
+#define CHERI_PERM_ACCESS_SYS_REGS	(1 << 8)
+#define CHERI_PERM_SOFT_1		(1 << 9)
+#define CHERI_PERM_SOFT_2		(1 << 10)
+#define CHERI_PERM_SOFT_3		(1 << 11)
+#define CHERI_PERM_SOFT_4		(1 << 12)
 
 #define NULLCAP ((void*__capability)0)
 

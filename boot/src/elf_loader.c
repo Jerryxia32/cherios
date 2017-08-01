@@ -69,7 +69,8 @@ static void error_elf_loader(Elf_Env *env, const char *fmt, ...) {
 	va_end(ap);
 }
 
-int elf_check_supported(Elf_Env *env, Elf64_Ehdr *hdr) {
+int elf_check_supported(Elf_Env *env, Elf32_Ehdr *hdr) {
+    return 1;
     /*
 	if(memcmp(hdr->e_ident, "\x7F""ELF", 4)) {
 		ERROR("Bad magic number");
@@ -128,11 +129,11 @@ static inline Elf64_Shdr *elf_section(Elf64_Ehdr *hdr, int idx) {
 }
 #endif
 
-static inline Elf64_Phdr *elf_pheader(Elf64_Ehdr *hdr) {
-	return (Elf64_Phdr *)((char *)hdr + hdr->e_phoff);
+static inline Elf32_Phdr *elf_pheader(Elf32_Ehdr *hdr) {
+	return (Elf32_Phdr *)((char *)hdr + hdr->e_phoff);
 }
 
-static inline Elf64_Phdr *elf_segment(Elf64_Ehdr *hdr, int idx) {
+static inline Elf32_Phdr *elf_segment(Elf32_Ehdr *hdr, int idx) {
 	assert(idx < hdr->e_phnum);
 	return &elf_pheader(hdr)[idx];
 }
@@ -142,18 +143,18 @@ static inline Elf64_Phdr *elf_segment(Elf64_Ehdr *hdr, int idx) {
 void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, size_t *entry) {
 	char *addr = (char *)p;
 	size_t lowaddr = (size_t)(-1);
-	Elf64_Ehdr *hdr = (Elf64_Ehdr *)addr;
+	Elf32_Ehdr *hdr = (Elf32_Ehdr *)addr;
 	if(!elf_check_supported(env, hdr)) {
 		ERROR("ELF File cannot be loaded");
 		return NULL;
 	}
 
-	Elf64_Addr e_entry = hdr->e_entry;
+	Elf32_Addr e_entry = hdr->e_entry;
 	TRACE("e_entry:%lX e_phnum:%d e_shnum:%d", hdr->e_entry, hdr->e_phnum, hdr->e_shnum);
 
 	size_t allocsize = 0;
 	for(int i=0; i<hdr->e_phnum; i++) {
-		Elf64_Phdr *seg = elf_segment(hdr, i);
+		Elf32_Phdr *seg = elf_segment(hdr, i);
 		TRACE("SGMT: type:%X flags:%X offset:%lX vaddr:%lX filesz:%lX memsz:%lX align:%lX",
 		      seg->p_type, seg->p_flags, seg->p_offset, seg->p_vaddr,
 		      seg->p_filesz, seg->p_memsz, seg->p_align);
@@ -183,7 +184,7 @@ void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, si
 	TRACE("Allocated %lx bytes of target memory", allocsize);
 
 	for(int i=0; i<hdr->e_phnum; i++) {
-		Elf64_Phdr *seg = elf_segment(hdr, i);
+		Elf32_Phdr *seg = elf_segment(hdr, i);
 		if(seg->p_type == 1) {
 			env->memcpy(prgmp+seg->p_vaddr, addr + seg->p_offset, seg->p_filesz);
 			TRACE("memcpy: [%lx %lx] <-- [%lx %lx] (%lx bytes)",

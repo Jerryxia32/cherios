@@ -32,6 +32,7 @@
 .set noreorder
 .set nobopt
 .set noat
+.option pic0
 
 # Assembly stub on the way to running C code.  Assumes that $c0 and $pcc are
 # global and suitable.  Jump to various startup functions to initialise the C
@@ -116,3 +117,4 @@ to_msg:
 	#First 'real' message. Go to appropriate handler
 	j msg_entry
 	nop
+.option pic2

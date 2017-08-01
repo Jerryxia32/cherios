@@ -31,6 +31,7 @@
 .set noreorder
 .set nobopt
 .set noat
+.option pic0
 
 .ifeq _MIPS_SZCAP-256
 .set CAP_SIZE_BITS, 5
@@ -99,3 +100,4 @@ end:
 msg_entry_end:
 	.end msg_entry
 	.size msg_entry, msg_entry_end - msg_entry
+.option pic2

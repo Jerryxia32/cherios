@@ -32,6 +32,7 @@
 #Fixme: clean-up code && comment
 
 .set MIPS_SZCAP, _MIPS_SZCAP
+.option pic0
 .include "asm.S"
 
 # Assembly stub on the way to running C code.  Assumes that $c0 and $pcc are
@@ -161,3 +162,4 @@ kernel_init_save_frame:
 	.skip 32*CAP_SIZE + 32*REG_SIZE, 0 #Should be enough
 kernel_init_save_frame_end:
 	.size kernel_init_save_frame, kernel_init_save_frame_end - kernel_init_save_frame
+.option pic2

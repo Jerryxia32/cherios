@@ -30,6 +30,7 @@
 #
 
 .set MIPS_SZCAP, _MIPS_SZCAP
+.option pic0
 .include "asm.S"
 
 #
@@ -188,3 +189,4 @@ kernel_cp2_exception_handler:
 kernel_cp2_exception_handler_end:
 		.size kernel_cp2_exception_handler, kernel_cp2_exception_handler_end - kernel_cp2_exception_handler
 		.end kernel_cp2_exception_handler
+.option pic2

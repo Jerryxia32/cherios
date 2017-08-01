@@ -32,6 +32,7 @@
 .set noreorder
 .set nobopt
 .set noat
+.option pic0
 
 # Assembly stub on the way to running C code.  Assumes that $c0 and $pcc are
 # global and suitable.  Enable capability coprocessor.  Set up a stack.  Jump
@@ -116,3 +117,4 @@ cherios_init_jump_target:
 	# Bootloader done. Go in waiting state. #fixme: revoke object
 	cfromptr $c1, $c1, $0
 	creturn
+.option pic2

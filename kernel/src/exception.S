@@ -30,6 +30,7 @@
 #
 
 .set MIPS_SZCAP, _MIPS_SZCAP
+.option pic0
 .include "asm.S"
 
 #
@@ -53,7 +54,7 @@
 		.global kernel_exception_trampoline
 		.ent kernel_exception_trampoline
 kernel_exception_trampoline:
-		dla	$k0, kernel_cp2_exception_handler
+		la	$k0, kernel_cp2_exception_handler
 		jr	$k0
 		nop
 kernel_exception_trampoline_end:
@@ -82,7 +83,7 @@ kernel_cp2_exception_handler:
 		# relative to KDC.  First save and clear CP2 context, then
 		# move on to general-purpose registers.
 		#
-		dla	$k0, kernel_exception_framep_ptr
+		la	$k0, kernel_exception_framep_ptr
 		clc	$kr1c, $k0, 0($kdc)
 
 		# Notice correspondence to the layout of struct reg_frame.
@@ -115,8 +116,8 @@ kernel_cp2_exception_handler:
 		csd	$k1, $0, 31*REG_SIZE($kr1c)
 
 		# Set up exception stack
-		dla		$t0, __start_exception_stack
-		dla		$t1, __size_exception_stack
+		la		$t0, __start_exception_stack
+		la		$t1, __size_exception_stack
 		csetoffset	$c11, $kdc, $t0
 		csetbounds	$c11, $c11, $t1
 		move		$sp, $t1
@@ -134,7 +135,7 @@ kernel_cp2_exception_handler:
 		# Normal function invocation of kernel_exception().
 		#
 		cgetpcc		$c12
-		dla		$t0, kernel_exception
+		la		$t0, kernel_exception
 		csetoffset	$c12, $c12, $t0
 		cjalr		$c12, $c17
 		nop
@@ -144,7 +145,7 @@ kernel_cp2_exception_handler:
 		# its contents replaced by the kernel.  Notice correspondence
 		# to the layout of struct reg_frame.
 		#
-		dla	$k0, kernel_exception_framep_ptr
+		la	$k0, kernel_exception_framep_ptr
 		clc	$kr1c, $k0, 0($kdc)
 
 		# Expands to a list of the form
@@ -188,3 +189,4 @@ kernel_cp2_exception_handler:
 kernel_cp2_exception_handler_end:
 		.size kernel_cp2_exception_handler, kernel_cp2_exception_handler_end - kernel_cp2_exception_handler
 		.end kernel_cp2_exception_handler
+.option pic2

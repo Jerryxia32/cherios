@@ -32,6 +32,7 @@
 #Fixme: clean-up code && comment
 
 .set MIPS_SZCAP, _MIPS_SZCAP
+.option pic0
 .include "asm.S"
 
 # Assembly stub on the way to running C code.  Assumes that $c0 and $pcc are
@@ -50,8 +51,8 @@ start:
 	dmtc0	$k1, $14
 
 	#Save register frame
-	dla	$k0, kernel_init_save_frame
-	dla	$k1, kernel_init_save_frame_end
+	la	$k0, kernel_init_save_frame
+	la	$k1, kernel_init_save_frame_end
 	cgetdefault $kr1c
 	csetoffset $kr1c, $kr1c, $k0
 	sub	$k0, $k1, $k0
@@ -80,8 +81,8 @@ start:
 
 	# Set up a boot-time stack using memory allocated by the linker;
 	# assume that $c0 is a sensible starting capability for this.
-	dla		$t0, __start_exception_stack
-	dla		$t1, __size_exception_stack
+	la		$t0, __start_exception_stack
+	la		$t1, __size_exception_stack
 	cgetdefault	$c11
 	csetoffset	$c11, $c11, $t0
 	csetbounds	$c11, $c11, $t1
@@ -93,21 +94,21 @@ start:
 
 	# Zero BSS.
 	cgetpcc		$c12
-	dla		$t0, crt_init_bss
+	la		$t0, crt_init_bss
 	csetoffset	$c12, $c12, $t0
 	cjalr		$c12, $c17
 	nop
 
 	# Initialise globals.
 	cgetpcc		$c12
-	dla		$t0, crt_init_globals
+	la		$t0, crt_init_globals
 	csetoffset	$c12, $c12, $t0
 	cjalr		$c12, $c17
 	nop
 
 	# Call C constructors.
 	cgetpcc		$c12
-	dla		$t0, crt_call_constructors
+	la		$t0, crt_call_constructors
 	csetoffset	$c12, $c12, $t0
 	cjalr		$c12, $c17
 	nop
@@ -118,7 +119,7 @@ start:
 
 	# Call cherios_main().
 	cgetpcc		$c12
-	dla		$t0, cherios_main
+	la		$t0, cherios_main
 	csetoffset	$c12, $c12, $t0
 	cjalr		$c12, $c17
 	nop
@@ -161,3 +162,4 @@ kernel_init_save_frame:
 	.skip 32*CAP_SIZE + 32*REG_SIZE, 0 #Should be enough
 kernel_init_save_frame_end:
 	.size kernel_init_save_frame, kernel_init_save_frame_end - kernel_init_save_frame
+.option pic2

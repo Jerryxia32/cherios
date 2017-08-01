@@ -119,8 +119,8 @@ endif()
 include_directories(include)
 # set up the right flags for C and ASM sources
 set(ASMC_COMPILER_FLAGS
-    -mcpu=cheri128
-    -mabi=purecap
+    -mcpu=cheri64
+    -mabi=purecap32
     -integrated-as
     -fPIC
     -mabicalls

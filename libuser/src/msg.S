@@ -31,14 +31,19 @@
 .set noreorder
 .set nobopt
 .set noat
+.option pic0
 
 .ifeq _MIPS_SZCAP-256
 .set CAP_SIZE_BITS, 5
 .else
 .ifeq _MIPS_SZCAP-128
+.set CAP_SIZE_BITS, 4
+.else
+.ifeq _MIPS_SZCAP-64
 .set CAP_SIZE_BITS, 3
 .else
 .error "Unknown cap size"
+.endif
 .endif
 .endif
 
@@ -52,23 +57,23 @@ msg_entry:
 	bltz		$v0, control
 	nop
 
-	dla		$t0, msg_methods
-	dla		$t1, msg_methods_nb
+	la		$t0, msg_methods
+	la		$t1, msg_methods_nb
 	b		call
 	nop
 
 control:
-	dla		$t0, ctrl_methods
-	dla		$t1, ctrl_methods_nb
+	la		$t0, ctrl_methods
+	la		$t1, ctrl_methods_nb
 	sub		$v0, $0, $v0
 call:
-	cld		$t1, $t1, 0($c17)
+	clw		$t1, $t1, 0($c17)
 	sub		$t1, $t1, $v0
 	blez		$t1, overflow
 	nop
 
 	#Save sync_token
-	dla		$t1, sync_token
+	la		$t1, sync_token
 	csc		$c1, $t1, 0($c17)
 
 	sll		$v0, $v0, CAP_SIZE_BITS
@@ -89,7 +94,7 @@ overflow:
 end:
 	#Restore sync_token
 	cgetdefault	$c17
-	dla		$t1, sync_token
+	la		$t1, sync_token
 	clc		$c1, $t1, 0($c17)
 	creturn
 
@@ -99,3 +104,4 @@ end:
 msg_entry_end:
 	.end msg_entry
 	.size msg_entry, msg_entry_end - msg_entry
+.option pic2

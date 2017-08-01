@@ -45,16 +45,16 @@ void	crt_call_constructors(void);
  * that contain function pointers so (until we have proper linker support) we
  * are still generating them as a sequence of PCC-relative integers.
  */
-typedef unsigned long long mips_function_ptr;
+typedef unsigned int mips_function_ptr;
 typedef void (*cheri_function_ptr)(void);
 
 struct capreloc
 {
-	uint64_t capability_location;
-	uint64_t object;
-	uint64_t offset;
-	uint64_t size;
-	uint64_t permissions;
+	uint32_t capability_location;
+	uint32_t object;
+	uint32_t offset;
+	uint32_t size;
+	uint32_t permissions;
 };
 
 static mips_function_ptr __attribute__((used))
@@ -65,12 +65,12 @@ static mips_function_ptr __attribute__((used))
     __attribute__((section(".dtors")))
     __DTOR_LIST__[1] = { (mips_function_ptr)(-1) };
 
-static const uint64_t function_reloc_flag = 1ULL<<63;
-static const uint64_t function_pointer_permissions =
+static const uint32_t function_reloc_flag = 1U<<31;
+static const uint32_t function_pointer_permissions =
 	~0 &
 	~__CHERI_CAP_PERMISSION_PERMIT_STORE_CAPABILITY__ &
 	~__CHERI_CAP_PERMISSION_PERMIT_STORE__;
-static const uint64_t global_pointer_permissions =
+static const uint32_t global_pointer_permissions =
 	~0 & ~__CHERI_CAP_PERMISSION_PERMIT_EXECUTE__;
 
 __attribute__((weak))

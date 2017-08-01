@@ -43,53 +43,53 @@
 /*
  * 64-bit MIPS types.
  */
-typedef unsigned long	register_t;		/* 64-bit MIPS register */
-typedef unsigned long	paddr_t;		/* Physical address */
-typedef unsigned long	vaddr_t;		/* Virtual address */
+typedef unsigned long long  register_t;		/* 64-bit MIPS register */
+typedef unsigned int        paddr_t;		/* Physical address */
+typedef unsigned int        vaddr_t;		/* Virtual address */
 
-typedef long		ssize_t;
-typedef	unsigned long	size_t;
+typedef int                 ssize_t;
+typedef	unsigned int        size_t;
 
-typedef long		off_t;
+typedef int                 off_t;
 
 /*
  * Useful integer type names that we can't pick up from the compile-time
  * environment.
  */
-typedef char		int8_t;
-typedef unsigned char	u_char;
-typedef unsigned char	uint8_t;
-typedef short		int16_t;
-typedef unsigned short	u_short;
-typedef unsigned short	uint16_t;
-typedef int		int32_t;
-typedef unsigned int	u_int;
-typedef unsigned int	uint32_t;
-typedef long		intmax_t;
-typedef long		quad_t;
-typedef long		ptrdiff_t;
-typedef long		int64_t;
-typedef unsigned long	u_long;
-typedef unsigned long	uint64_t;
-typedef	unsigned long	uintmax_t;
-typedef unsigned long	u_quad_t;
-typedef __uintcap_t	uintptr_t;
+typedef char                int8_t;
+typedef unsigned char       u_char;
+typedef unsigned char       uint8_t;
+typedef short               int16_t;
+typedef unsigned short      u_short;
+typedef unsigned short      uint16_t;
+typedef int                 int32_t;
+typedef unsigned int        u_int;
+typedef unsigned int        uint32_t;
+typedef long long           intmax_t;
+typedef long long           quad_t;
+typedef int                 ptrdiff_t;
+typedef long long           int64_t;
+typedef unsigned long       u_long;
+typedef unsigned long long  uint64_t;
+typedef	unsigned long long  uintmax_t;
+typedef unsigned long       u_quad_t;
+typedef __uintcap_t         uintptr_t;
 //typedef unsigned long	uintptr_t;
-typedef __intcap_t	intptr_t;
-typedef unsigned long	caddr_t;
+typedef __intcap_t          intptr_t;
+typedef unsigned int        caddr_t;
 
-typedef u_long		ulong;
-typedef u_char		uchar;
-typedef uint8_t		u8;
-typedef uint16_t	u16;
-typedef uint32_t	u32;
-typedef uint64_t	u64;
-typedef uint16_t	__u16;
-typedef uint32_t	__u32;
-typedef uint8_t		u_int8_t;
-typedef uint16_t	u_int16_t;
-typedef uint32_t	u_int32_t;
-typedef uint64_t	u_int64_t;
+typedef u_long              ulong;
+typedef u_char              uchar;
+typedef uint8_t             u8;
+typedef uint16_t            u16;
+typedef uint32_t            u32;
+typedef uint64_t            u64;
+typedef uint16_t            __u16;
+typedef uint32_t            __u32;
+typedef uint8_t             u_int8_t;
+typedef uint16_t            u_int16_t;
+typedef uint32_t            u_int32_t;
+typedef uint64_t            u_int64_t;
 #define UCHAR_MAX   255
 #define ULONG_MAX	4294967295UL
 #define UINT_MAX	ULONG_MAX
@@ -101,10 +101,10 @@ typedef uint64_t	u_int64_t;
 /*
  * Useful addresses on MIPS.
  */
-#define	MIPS_BEV0_EXCEPTION_VECTOR	0xffffffff80000180
+#define	MIPS_BEV0_EXCEPTION_VECTOR	0x80000180
 #define	MIPS_BEV0_EXCEPTION_VECTOR_PTR	((void *)MIPS_BEV0_EXCEPTION_VECTOR)
 
-#define	MIPS_BEV0_CCALL_VECTOR		0xffffffff80000280
+#define	MIPS_BEV0_CCALL_VECTOR		0x80000280
 #define	MIPS_BEV0_CCALL_VECTOR_PTR	((void *)MIPS_BEV0_EXCEPTION_VECTOR)
 
 /*
@@ -248,21 +248,17 @@ typedef uint64_t	u_int64_t;
 /*
  * MIPS address space layout.
  */
-#define	MIPS_XKPHYS_UNCACHED_BASE	0x9000000000000000
-#define	MIPS_XKPHYS_CACHED_NC_BASE	0x9800000000000000
+#define	MIPS_KSEG_UNCACHED_BASE	0xa0000000
+#define	MIPS_KSEG_CACHED_BASE   0x80000000
 
 static inline vaddr_t
-mips_phys_to_cached(paddr_t phys)
-{
-
-	return (phys | MIPS_XKPHYS_CACHED_NC_BASE);
+mips_phys_to_cached(paddr_t phys) {
+	return(phys | MIPS_KSEG_CACHED_BASE);
 }
 
 static inline vaddr_t
-mips_phys_to_uncached(paddr_t phys)
-{
-
-	return (phys | MIPS_XKPHYS_UNCACHED_BASE);
+mips_phys_to_uncached(paddr_t phys) {
+	return(phys | MIPS_KSEG_UNCACHED_BASE);
 }
 
 /*

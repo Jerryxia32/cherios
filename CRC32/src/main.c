@@ -125,7 +125,7 @@ WORD updateCRC32(unsigned char ch, WORD crc)
       return UPDC32(ch, crc);
 }
 
-Boolean_T crc32file(char * __capability theC0, size_t name, unsigned long pcm_size, WORD *crc, unsigned long *charcnt)
+Boolean_T crc32file(char * __capability theC0, size_t name, unsigned long pcm_size, WORD *crc, size_t *charcnt)
 {
       WORD oldcrc32 = 0xffffffff;
       uint8_t c;
@@ -140,7 +140,7 @@ Boolean_T crc32file(char * __capability theC0, size_t name, unsigned long pcm_si
               counter = 0;
           }
           // The following only works for BIG ENDIAN!
-          c = (readBuffer & (0xffUL<<((REG_SIZE-1)*8))) >> ((REG_SIZE-1)*8);
+          c = (readBuffer & (0xffULL<<((REG_SIZE-1)*8))) >> ((REG_SIZE-1)*8);
           readBuffer <<= 8;
           if(*charcnt == pcm_size) break;
           ++*charcnt;

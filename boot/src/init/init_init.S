@@ -32,6 +32,7 @@
 .set noreorder
 .set nobopt
 .set noat
+.option pic0
 
 # Assembly stub on the way to running C code.  Assumes that $c0 and $pcc are
 # global and suitable.  Enable capability coprocessor.  Set up a stack.  Jump
@@ -47,26 +48,26 @@ start:
     cmove   $c24, $c14
 	# W^X for pointers: ensure $c0 is never executable.
 	cgetdefault	$c3
-	dli		$t0, ~(1<<1)
+	li		$t0, ~(1<<1)
 	candperm	$c3, $c3, $t0
 	csetdefault	$c3
 
 	# Implement W^X for pointers: trim store permissions from $pcc to
 	# prevent it from becoming writable in the future.
 	cgetpcc		$c12
-	dli		$t0, ~((1<<3) | (1<<5))
+	li		$t0, ~((1<<3) | (1<<5))
 	candperm	$c12, $c12, $t0
 
 	# Jump to write-free $pcc.
-	dla		$t0, cherios_init_jump_target
+	la		$t0, cherios_init_jump_target
 	csetoffset	$c12, $c12, $t0
 	cjr		$c12
 	nop
 cherios_init_jump_target:
 	# Set up a stack using memory allocated by the linker;
 	# assume that $c0 is a sensible starting capability for this.
-	dla		$t0, __start_init_stack
-	dla		$t1, __size_init_stack
+	la		$t0, __start_init_stack
+	la		$t1, __size_init_stack
 	cgetdefault	$c11
 	csetoffset	$c11, $c11, $t0
 	csetbounds	$c11, $c11, $t1
@@ -78,28 +79,28 @@ cherios_init_jump_target:
 
 	# Zero BSS.
 	cgetpcc		$c12
-	dla		$t0, crt_init_bss
+	la		$t0, crt_init_bss
 	csetoffset	$c12, $c12, $t0
 	cjalr		$c12, $c17
 	nop
 
 	# Initialise globals.
 	cgetpcc		$c12
-	dla		$t0, crt_init_globals
+	la		$t0, crt_init_globals
 	csetoffset	$c12, $c12, $t0
 	cjalr		$c12, $c17
 	nop
 
 	# Call C constructors.
 	cgetpcc		$c12
-	dla		$t0, crt_call_constructors
+	la		$t0, crt_call_constructors
 	csetoffset	$c12, $c12, $t0
 	cjalr		$c12, $c17
 	nop
 
-    dla     $t0, __fs_start
+    la     $t0, __fs_start
     csc     $c23, $t0, 0($c0)
-    dla     $t0, __fs_end
+    la     $t0, __fs_end
     csc     $c24, $t0, 0($c0)
 
 	# On the off chance that cherios_main() has been defined as having
@@ -108,7 +109,7 @@ cherios_init_jump_target:
 
 	# Call init_main().
 	cgetpcc		$c12
-	dla		$t0, init_main
+	la		$t0, init_main
 	csetoffset	$c12, $c12, $t0
 	cjalr		$c12, $c17
 	nop
@@ -116,3 +117,4 @@ cherios_init_jump_target:
 	# Bootloader done. Go in waiting state. #fixme: revoke object
 	cfromptr $c1, $c1, $0
 	creturn
+.option pic2

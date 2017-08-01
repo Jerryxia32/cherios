@@ -32,6 +32,7 @@
 .set noreorder
 .set nobopt
 .set noat
+.option pic0
 
 # Assembly stub on the way to running C code.  Assumes that $c0 and $pcc are
 # global and suitable.  Jump to various startup functions to initialise the C
@@ -54,21 +55,21 @@ start_common:
 
 	# Zero BSS.
 	cgetpcc		$c12
-	dla		$t0, crt_init_bss
+	la		$t0, crt_init_bss
 	csetoffset	$c12, $c12, $t0
 	cjalr		$c12, $c17
 	nop
 
 	# Initialise globals.
 	cgetpcc		$c12
-	dla		$t0, crt_init_globals
+	la		$t0, crt_init_globals
 	csetoffset	$c12, $c12, $t0
 	cjalr		$c12, $c17
 	nop
 
 	# Call C constructors.
 	cgetpcc		$c12
-	dla		$t0, crt_call_constructors
+	la		$t0, crt_call_constructors
 	csetoffset	$c12, $c12, $t0
 	cjalr		$c12, $c17
 	nop
@@ -79,7 +80,7 @@ start_common:
 	cmove		$c5, $c23
 	cmove		$c6, $c24
 	cgetpcc		$c12
-	dla		$t0, libuser_init
+	la		$t0, libuser_init
 	csetoffset	$c12, $c12, $t0
 	cjalr		$c12, $c17
 	nop
@@ -92,18 +93,18 @@ start_common:
 
 	# Call main().
 	cgetpcc		$c12
-	dla		$t0, main
+	la		$t0, main
 	csetoffset	$c12, $c12, $t0
 	cjalr		$c12, $c17
 	nop
 
 	# main() done. Exit or CReturn
-	dla		$t0, msg_enable
+	la		$t0, msg_enable
 	cgetdefault	$c17
 	cld		$t0, $t0, 0($c17)
 	bne		$t0, $zero, to_msg
 	nop
-	dla		$t0, act_self_ctrl
+	la		$t0, act_self_ctrl
 	clc		$c3, $t0, 0($c17)
 	li		$v0, 26
 	syscall
@@ -116,3 +117,4 @@ to_msg:
 	#First 'real' message. Go to appropriate handler
 	j msg_entry
 	nop
+.option pic2

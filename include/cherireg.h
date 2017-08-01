@@ -56,8 +56,6 @@
 #define	CHERI_PERM_STORE_CAP			(1 << 5)	/* 0x00000020 */
 #define	CHERI_PERM_STORE_LOCAL_CAP		(1 << 6)	/* 0x00000040 */
 #define	CHERI_PERM_SEAL				(1 << 7)	/* 0x00000080 */
-#define	CHERI_PERM_RESERVED0			(1 << 8)	/* 0x00000100 */
-#define	CHERI_PERM_RESERVED1			(1 << 9)	/* 0x00000200 */
 
 /*
  * 256-bit CHERI has multiple exception-handling permissions, whereas 128-bit
@@ -70,7 +68,7 @@
 #define	CHERI_PERM_ACCESS_KR1C			(1 << 13)	/* 0x00002000 */
 #define	CHERI_PERM_ACCESS_KR2C			(1 << 14)	/* 0x00004000 */
 #else /* (!(CHERICAP_SIZE == 32)) */
-#define	CHERI_PERM_ACCESS_SYSTEM_REGISTERS	(1 << 10)	/* 0x00000400 */
+#define	CHERI_PERM_ACCESS_SYSTEM_REGISTERS	(1 << 8)	/* 0x00000400 */
 #endif /* (!(CHERICAP_SIZE == 32)) */
 
 /*
@@ -97,10 +95,8 @@
 #define	CHERI_PERM_USER14			(1 << 29)	/* 0x20000000 */
 #define	CHERI_PERM_USER15			(1 << 30)	/* 0x40000000 */
 #else /* (!(CHERICAP_SIZE == 32)) */
-#define	CHERI_PERM_USER0			(1 << 15)	/* 0x00008000 */
-#define	CHERI_PERM_USER1			(1 << 16)	/* 0x00010000 */
-#define	CHERI_PERM_USER2			(1 << 17)	/* 0x00020000 */
-#define	CHERI_PERM_USER3			(1 << 18)	/* 0x00040000 */
+#define	CHERI_PERM_USER0			(1 << 9)	/* 0x00008000 */
+#define	CHERI_PERM_USER1			(1 << 10)	/* 0x00010000 */
 #endif /* (!(CHERICAP_SIZE == 32)) */
 
 /*
@@ -182,7 +178,7 @@
 #define	CHERI_CAP_PRIV_PERMS		CHERI_PERM_PRIV
 #define	CHERI_CAP_PRIV_OTYPE		0x0
 #define	CHERI_CAP_PRIV_BASE		0x0
-#define	CHERI_CAP_PRIV_LENGTH		0xffffffffffffffff
+#define	CHERI_CAP_PRIV_LENGTH		0xffffffff
 #define	CHERI_CAP_PRIV_OFFSET		0x0
 
 /*

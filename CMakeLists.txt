@@ -274,6 +274,7 @@ function(add_cherios_module _target)
   # create a .dump file of the binary (added to byproducts so that ninja clean removes it)
   add_custom_command(TARGET ${_target} POST_BUILD BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/${_target}.dump"
     COMMAND "${CheriSDK_TOOLCHAIN_DIR}/objdump" -x -d -S "$<TARGET_FILE:${_target}>" > "${CMAKE_CURRENT_BINARY_DIR}/${_target}.dump"
+    COMMAND "mips64-linux-gnuabi64-objdump" -x -d -S "$<TARGET_FILE:${_target}>" > "${CMAKE_CURRENT_BINARY_DIR}/${_target}_mips.dump"
     )
 endfunction()
 

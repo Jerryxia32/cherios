@@ -80,7 +80,7 @@ static void * act_create_ref(aid_t aid) {
 }
 
 static void * act_create_ctrl_ref(aid_t aid) {
-	return kernel_seal(cheri_setoffset(cheri_getdefault(), (size_t)(kernel_acts + aid)), 42001);
+	return kernel_seal(cheri_setoffset(cheri_getdefault(), (size_t)(kernel_acts + aid)), 62);
 }
 
 void * act_register(const reg_frame_t * frame, const char * name) {
@@ -133,7 +133,7 @@ void * act_register(const reg_frame_t * frame, const char * name) {
 }
 
 int act_revoke(act_t * ctrl) {
-	ctrl = kernel_unseal(ctrl, 42001);
+	ctrl = kernel_unseal(ctrl, 62);
 	aid_t aid = ctrl->aid;
 	if(kernel_acts[aid].status == status_terminated) {
 		return -1;
@@ -143,7 +143,7 @@ int act_revoke(act_t * ctrl) {
 }
 
 int act_terminate(act_t * ctrl) {
-	ctrl = kernel_unseal(ctrl, 42001);
+	ctrl = kernel_unseal(ctrl, 62);
 	aid_t act = ctrl->aid;
 	kernel_acts[act].status = status_terminated;
 	sched_delete(act);
@@ -156,19 +156,19 @@ int act_terminate(act_t * ctrl) {
 }
 
 void * act_get_ref(act_t * ctrl) {
-	ctrl = kernel_unseal(ctrl, 42001);
+	ctrl = kernel_unseal(ctrl, 62);
 	aid_t aid = ctrl->aid;
 	return kernel_acts[aid].act_reference;
 }
 
 void * act_get_id(act_t * ctrl) {
-	ctrl = kernel_unseal(ctrl, 42001);
+	ctrl = kernel_unseal(ctrl, 62);
 	aid_t aid = ctrl->aid;
 	return kernel_acts[aid].act_default_id;
 }
 
 int act_get_status(act_t * ctrl) {
-	ctrl = kernel_unseal(ctrl, 42001);
+	ctrl = kernel_unseal(ctrl, 62);
 	aid_t aid = ctrl->aid;
 	return kernel_acts[aid].status;
 }

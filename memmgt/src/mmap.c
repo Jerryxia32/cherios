@@ -96,8 +96,9 @@ void *__mmap(void *addr, size_t length, int prot, int flags) {
    
     // First, find the alignment
     size_t alignedSize;
-    for(alignedSize = 1; ; alignedSize <<= 1)
+    for(alignedSize = 0x1000; ; alignedSize <<= 1) {
         if(alignedSize>=length) break;
+    }
 
 	size_t pages_wanted = alignedSize/pagesz;
 	if(pages_wanted*pagesz < alignedSize)

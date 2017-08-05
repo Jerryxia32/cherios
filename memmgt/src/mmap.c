@@ -91,30 +91,59 @@ void *__mmap(void *addr, size_t length, int prot, int flags) {
 	if(p)	goto ok;
 	else	goto fail;
 #endif
+    // FIXME: for now, for simplicity, due to low precision, just make the
+    // chunk power of two sized and power of two aligned.
+   
+    // First, find the alignment
+    size_t alignedSize;
+    for(alignedSize = 1; ; alignedSize <<= 1)
+        if(alignedSize>=length) break;
 
-	size_t pages_wanted = length/pagesz;
-	if(pages_wanted*pagesz < length)
+	size_t pages_wanted = alignedSize/pagesz;
+	if(pages_wanted*pagesz < alignedSize)
 		pages_wanted++;
 
-	assert(pages_wanted*pagesz >= length);
+	assert(pages_wanted*pagesz >= alignedSize);
 
 	/* fixme: fix for dlmalloc so it cannot try to merge chunks of memory */
-	pages_wanted++;
+	//pages_wanted++;
+
+    // Fill the book with unused pages until the next power of two alignment
+    // for this allocation.
 
 	/* find some available space */
 	size_t page = 0;
+    size_t extraPages;
 	while(page < pages_nb) {
 		if(book[page].status != page_unused)
 			page += book[page].len;
 		else if(book[page].len < pages_wanted)
 			page += book[page].len;
-		else
-			goto found;
-	}
+		else {
+            size_t curAddr = (size_t)(pool + page*pagesz);
+            size_t alignedAddr;
+            if(curAddr & (alignedSize - 1))
+                alignedAddr = (curAddr + alignedSize) & ~(alignedSize - 1);
+            else
+                alignedAddr = curAddr;
+            extraPages = (alignedAddr - curAddr)/pagesz;
+            if(book[page].len < pages_wanted + extraPages) {
+                page += book[page].len;
+                continue;
+            }
+            else goto found;
+        }
+    }
 	goto fail;
 
  found:
 	/* update mapping */
+    // need to pad some pages to reach the next alignment.
+    if(extraPages != 0) {
+        book[page].status = page_unused;
+        book[page].len = extraPages;
+        page += extraPages;
+    }
 	book[page].status = page_used;
 	size_t curr_len = book[page].len;
 	book[page].len = pages_wanted;

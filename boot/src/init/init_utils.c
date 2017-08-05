@@ -62,7 +62,9 @@ static void * init_act_create(const char * name, void * c0, void * pcc, void * s
 
 	/* set pc */
 	frame.cf_pcc	= pcc;
+    CHERI_PRINT_CAP(pcc);
 	frame.mf_pc	= cheri_getoffset(pcc);
+    printf("The PC of this module: %p\n", (uint32_t)(frame.mf_pc));
 
 	/* set stack */
 	frame.cf_c11	= stack;
@@ -73,6 +75,7 @@ static void * init_act_create(const char * name, void * c0, void * pcc, void * s
 
 	/* set c0 */
 	frame.cf_c0	= c0;
+    CHERI_PRINT_CAP(c0);
 
 	/* set cap */
 	frame.cf_c22	= act_cap;
@@ -174,12 +177,11 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 		return NULL;
 	}
 	void * pcc = cheri_getpcc();
-	pcc = cheri_setbounds(cheri_setoffset(pcc, (size_t)(prgmp - entry)), (allocsize+0x1000) & ~0xfff);
+	pcc = cheri_setbounds(cheri_setoffset(pcc, (size_t)(prgmp - entry)), allocsize);
 	pcc = cheri_incoffset(pcc, entry);
 	pcc = cheri_andperm(pcc, (CHERI_PERM_GLOBAL | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
 				  | CHERI_PERM_LOAD_CAP));
-	void * ctrl = init_act_create(file, cheri_setoffset(prgmp, 0),
-				      pcc, stack, get_act_cap(type),
+	void * ctrl = init_act_create(file, prgmp-entry, pcc, stack, get_act_cap(type),
 				      ns_ref, ns_id, arg, carg);
 	if(ctrl == NULL) {
 		return NULL;

@@ -40,5 +40,5 @@ set(LIBUSER_SRCS
 )
 
 add_library(user STATIC ${LIB_SRCS} ${LIBUSER_SRCS} ${LIBUSER_ASM_SRCS})
-set_target_properties(user PROPERTIES COMPILE_FLAGS -mxgot)
+#set_target_properties(user PROPERTIES COMPILE_FLAGS -mxgot)
 add_library(CheriOS::LibUser ALIAS user)

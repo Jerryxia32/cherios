@@ -123,6 +123,7 @@ set(ASMC_COMPILER_FLAGS
     -mabi=purecap32
     -integrated-as
     -fPIC
+    -mllvm -cheri-no-global-bounds
     -mabicalls
     -msoft-float
     -ffreestanding

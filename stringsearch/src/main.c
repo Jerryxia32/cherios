@@ -23,7 +23,7 @@
 #include<statcounters.h>
 
 static size_t table[UCHAR_MAX + 1];
-static size_t len;
+size_t len;
 static char *findme;
 
 /*

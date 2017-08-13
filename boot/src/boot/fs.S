@@ -34,6 +34,3 @@
 __fs_start:
 .incbin "fs.img"
 __fs_end:
-nop
-.size __fs_start, __fs_end - __fs_start
-.size __fs_end, 1

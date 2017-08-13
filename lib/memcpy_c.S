@@ -40,7 +40,7 @@
 #define CAP_ALIGN_MASK (CAP_SIZE-1)
 
 .macro ret
-	jr	$ra
+    jr          $ra
 .endm
 
 #
@@ -52,107 +52,105 @@
 # src: $c4
 # len: $4
 # Copies len bytes from src to dst.  Returns dst.
-		.text
-		.global memcpy_c
-		.ent memcpy_c
+    .text
+    .global memcpy_c
+    .ent memcpy_c
 memcpy_c:
-	beq      $4, $zero, memcpy_c_return  # Only bother if len != 0.  Unlikely to
-	                               # be taken, so we make it a forward branch
-	                               # to give the predictor a hint.
-	# Note: We use v0 to store the base linear address because memcpy() must
-	# return that value in v0, allowing memcpy_c() to be tail-called from
-	# memcpy().  This is in the delay slot, so it happens even if len == 0.
-	CGetBase $v0, $c3            # v0 = linear address of dst
-	CGetOffset $at, $c3
-	dadd     $v0, $v0, $at
-	CGetBase $v1, $c4            # v1 = linear address of src
-	CGetOffset $at, $c4
-	dadd     $v1, $v1, $at
-	andi     $12, $v0, CAP_ALIGN_MASK # t4 = dst % CAP_SIZE
-	CGetDefault $c5
-	CToPtr   $v0, $c5, $c3       # Return ptr in integer return
-	andi     $13, $v1, CAP_ALIGN_MASK # t5 = src % CAP_SIZE
-	daddi    $a1, $zero, 0       # Store 0 in $a1 - we'll use that for the
-	                             # offset later.
+    beq         $4, $zero, memcpy_c_return # Only bother if len != 0.  Unlikely to
+                                        # be taken, so we make it a forward branch
+                                        # to give the predictor a hint.
+    # Note: We use v0 to store the base linear address because memcpy() must
+    # return that value in v0, allowing memcpy_c() to be tail-called from
+    # memcpy().  This is in the delay slot, so it happens even if len == 0.
+    CGetBase    $v0, $c3            # v0 = linear address of dst
+    CGetOffset  $at, $c3
+    dadd        $v0, $v0, $at
+    CGetBase    $v1, $c4            # v1 = linear address of src
+    CGetOffset  $at, $c4
+    dadd        $v1, $v1, $at
+    andi        $12, $v0, CAP_ALIGN_MASK # t4 = dst % CAP_SIZE
+    CGetDefault $c5
+    CToPtr      $v0, $c5, $c3       # Return ptr in integer return
+    andi        $13, $v1, CAP_ALIGN_MASK # t5 = src % CAP_SIZE
+    daddi       $a1, $zero, 0       # Store 0 in $a1 - we'll use that for the
+                                    # offset later.
 
-	bne      $12, $13, slow_memcpy_loop
-	                             # If src and dst have different alignments, we
-	                             # have to copy a byte at a time because we
-	                             # don't have any multi-byte load/store
-	                             # instruction pairs with different alignments.
-	                             # We could do something involving shifts, but
-	                             # this is probably a sufficiently uncommon
-	                             # case not to be worth optimising.
-	andi     $t9, $a0, CAP_ALIGN_MASK      # t9 = len % CAP_SIZE
+    bne         $12, $13, slow_memcpy_loop
+                                 # If src and dst have different alignments, we
+                                 # have to copy a byte at a time because we
+                                 # don't have any multi-byte load/store
+                                 # instruction pairs with different alignments.
+                                 # We could do something involving shifts, but
+                                 # this is probably a sufficiently uncommon
+                                 # case not to be worth optimising.
+    andi        $t9, $a0, CAP_ALIGN_MASK      # t9 = len % CAP_SIZE
 
 fast_path:                       # At this point, src and dst are known to have
                                  # the same alignment.  They may not be capability
                                  # aligned, however.
-	# FIXME: This logic can be simplified by using the power of algebra
-	dsub    $v1, $zero, $12
-	daddi   $v1, $v1, CAP_SIZE
-	andi    $v1, $v1, CAP_ALIGN_MASK      # v1 = number of bytes we need to copy to
-	                            # become aligned
-	dsub    $a2, $a0, $v1
-	daddi   $a2, $a2, -CAP_SIZE
-	bltz    $a2, slow_memcpy_loop# If we are copying more bytes than the number
-	                             # required for alignment, plus at least one
-	                             # capability more, continue in the fast path
-	nop
-	beqzl   $v1, aligned_copy    # If we have an aligned copy (which we probably
-	                             # do) then skip the slow part
+    # FIXME: This logic can be simplified by using the power of algebra
+    dsub        $v1, $zero, $12
+    daddi       $v1, $v1, CAP_SIZE
+    andi        $v1, $v1, CAP_ALIGN_MASK      # v1 = number of bytes we need to copy to
+                                          # become aligned
+    dsub        $a2, $a0, $v1
+    daddi       $a2, $a2, -CAP_SIZE
+    bltz        $a2, slow_memcpy_loop# If we are copying more bytes than the number
+                                 # required for alignment, plus at least one
+                                 # capability more, continue in the fast path
+    nop
+    beqzl       $v1, aligned_copy    # If we have an aligned copy (which we probably
+                                 # do) then skip the slow part
 
-	dsub    $a2, $a0, $a1        # $12 = amount left to copy (delay slot, only
+    dsub        $a2, $a0, $a1        # $12 = amount left to copy (delay slot, only
 	                             # executed if branch is taken)
 unaligned_start:
-	clb      $a2, $a1, 0($c4)
-	daddi    $a1, $a1, 1
-	bne      $v1, $a1, unaligned_start
-	csb      $a2, $a1, -1($c3)
+    clb         $a2, $a1, 0($c4)
+    daddi       $a1, $a1, 1
+    bne         $v1, $a1, unaligned_start
+    csb         $a2, $a1, -1($c3)
 
-	dsub     $a2, $a0, $a1        # $12 = amount left to copy
+    dsub        $a2, $a0, $a1        # $12 = amount left to copy
 aligned_copy:
-	addi    $at, $zero, -CAP_SIZE
-	and     $a2, $a2, $at        # a2 = number of capability-aligned bytes to copy
-	dadd    $a2, $a2, $a1        # ...plus the number already copied.
+    addi        $at, $zero, -CAP_SIZE
+    and         $a2, $a2, $at        # a2 = number of capability-aligned bytes to copy
+    dadd        $a2, $a2, $a1        # ...plus the number already copied.
 
 copy_caps:
-	clc     $c5, $a1, 0($c4)
-	daddi   $a1, $a1, CAP_SIZE
-	bne     $a1, $a2, copy_caps
-	csc     $c5, $a1, -CAP_SIZE($c3)
+    clc         $c5, $a1, 0($c4)
+    daddi       $a1, $a1, CAP_SIZE
+    bne         $a1, $a2, copy_caps
+    csc         $c5, $a1, -CAP_SIZE($c3)
 
-	dsub    $v1, $a0, $a2        # Subtract the number of bytes copied from the
-	                             # number to copy.  This should give the number
-	                             # of unaligned bytes that we still need to copy
-	beqzl   $v1, memcpy_c_return # If we have an aligned copy (which we probably
-	                             # do) then return
-	nop
-	dadd    $v1, $a1, $v1
+    dsub        $v1, $a0, $a2        # Subtract the number of bytes copied from the
+                                 # number to copy.  This should give the number
+                                 # of unaligned bytes that we still need to copy
+    beqzl       $v1, memcpy_c_return # If we have an aligned copy (which we probably
+                                 # do) then return
+    nop
+    dadd        $v1, $a1, $v1
 unaligned_end:
-	clb      $a2, $a1, 0($c4)
-	daddi    $a1, $a1, 1
-	bne      $v1, $a1, unaligned_end
-	csb      $a2, $a1, -1($c3)
+    clb         $a2, $a1, 0($c4)
+    daddi       $a1, $a1, 1
+    bne         $v1, $a1, unaligned_end
+    csb         $a2, $a1, -1($c3)
 
 memcpy_c_return:
-	ret                          # Return value remains in c1
-	nop
+    ret                          # Return value remains in c1
+    nop
 
 slow_memcpy_loop:                # byte-by-byte copy
-	clb      $a2, $a1, 0($c4)
-	daddi    $a1, $a1, 1
-	bne      $a0, $a1, slow_memcpy_loop
-	csb      $a2, $a1, -1($c3)
-	ret                          # Return value remains in c1
-	nop
+    clb         $a2, $a1, 0($c4)
+    daddi       $a1, $a1, 1
+    bne         $a0, $a1, slow_memcpy_loop
+    csb         $a2, $a1, -1($c3)
+    ret                          # Return value remains in c1
+    nop
 memcpy_c_end:
-.size memcpy_c, memcpy_c_end - memcpy_c
-.end memcpy_c
 
-		.text
-		.global memcpy
-		.ent memcpy
+    .text
+    .global memcpy
+    .ent memcpy
 memcpy:
     cgetdefault $c1
     cfromptr    $c3, $c1, $a0
@@ -160,5 +158,3 @@ memcpy:
     b           memcpy_c
     move        $a0, $a2
 memcpy_end:
-.size memcpy, memcpy_end - memcpy
-.end memcpy

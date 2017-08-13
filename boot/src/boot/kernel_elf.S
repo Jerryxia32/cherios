@@ -33,6 +33,3 @@
 __kernel_elf_start:
 .incbin "kernel.elf"
 __kernel_elf_end:
-nop
-.size __kernel_elf_start, __kernel_elf_end - __kernel_elf_start
-.size __kernel_elf_end, 1

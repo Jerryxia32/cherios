@@ -43,65 +43,57 @@
 	.ent start_common
 start_common:
 	# Save arguments
-	move		$s2, $a2
+    move        $s2, $a2
 
-	# Initialise BSS and globals before running C constructors, so that C
-	# constructors can take them (and other aspects of the conventional C
-	# runtime) for granted.
+    # Initialise BSS and globals before running C constructors, so that C
+    # constructors can take them (and other aspects of the conventional C
+    # runtime) for granted.
 
-	# Zero BSS.
-    la     $t9, crt_init_bss
-    jalr    $t9
+    # Zero BSS.
+    jal         crt_init_bss
     nop
 
-	# Initialise globals.
-    la     $t9, crt_init_globals
-    jalr    $t9
+    # Initialise globals.
+    jal         crt_init_globals
     nop
 
-	# Call C constructors.
-    la     $t9, crt_call_constructors
-    jalr    $t9
+    # Call C constructors.
+    jal         crt_call_constructors
     nop
 
-	# Call object init.
-	move		$a0, $s2
+    # Call object init.
+    move		$a0, $s2
     cmove       $c3, $c6
-    cgetpcc $c4
-    la $t0, msg_entry_ccall
-    csetoffset $c4, $c4, $t0
+    cgetpcc     $c4
+    la          $t0, msg_entry_ccall
+    csetoffset  $c4, $c4, $t0
     cgetdefault $c5
     csetoffset  $c5, $c5, $sp
-	move		$a1, $s0
-	move		$a2, $s1
-    la     $t9, libuser_init
-    jalr    $t9
+    move        $a1, $s0
+    move        $a2, $s1
+    jal         libuser_init
     nop
 
-	# Call main().
-    la      $t9, main
-    jalr    $t9
+    # Call main().
+    jal         main
     nop
 
-	# main() done. Exit or CReturn
-	la		$t0, msg_enable
-    lw  $t0, 0($t0)
-	bne		$t0, $zero, to_msg
-	nop
-	la		$t0, act_self_ctrl
-    lw  $a0, 0($t0)
-	li		$v1, 26
-	syscall
+    # main() done. Exit or CReturn
+    la          $t0, msg_enable
+    lw          $t0, 0($t0)
+    bne         $t0, $zero, to_msg
     nop
+    la          $t0, act_self_ctrl
+    lw          $a0, 0($t0)
+    li          $v1, 26
+    syscall
 
 to_msg:
 	# CReturn to go in waiting state.
     cfromptr    $c2, $c2, $0
-    li $v1, 1010
+    li          $v1, 1010
     syscall
-    nop
 
-	#First 'real' message. Go to appropriate handler
-    la $t9, msg_entry
-    jr  $t9
+    #First 'real' message. Go to appropriate handler
+    j           msg_entry
     nop

@@ -43,56 +43,48 @@
 	.global start
 	.ent start
 start:
-    
-    la $t9, __init_fs_start
-    sw  $t0, 0($t9)
-    la $t9, __init_fs_stop
-    sw  $t1, 0($t9)
+    la          $t9, __init_fs_start
+    sw          $t0, 0($t9)
+    la          $t9, __init_fs_stop
+    sw          $t1, 0($t9)
 
 cherios_init_jump_target:
 	# Set up a stack using memory allocated by the linker;
 	# assume that $c0 is a sensible starting capability for this.
-	la		$sp, __stop_init_stack
+    la          $sp, __stop_init_stack
 
 	# Initialise BSS and globals before running C constructors, so that C
 	# constructors can take them (and other aspects of the conventional C
 	# runtime) for granted.
 
 	# Zero BSS.
-	la		$t9, crt_init_bss
-    jalr    $t9
-	nop
+    jal         crt_init_bss
+    nop
 
 	# Initialise globals.
-	la		$t9, crt_init_globals
-    jalr    $t9
-	nop
+    jal         crt_init_globals
+    nop
 
 	# Call C constructors.
-	dla		$t9, crt_call_constructors
-    jalr    $t9
-	nop
+    jal         crt_call_constructors
+    nop
 
 	# On the off chance that cherios_main() has been defined as having
 	# arguments, set the first argument (argc) to 0.
-	dli		$a0, 0
+    dli         $a0, 0
 
 	# Call init_main().
-	la		$t9, init_main
-    jalr    $t9
-	nop
+    jal         init_main
+    nop
 
 	# Bootloader done. Go in waiting state. #fixme: revoke object
-    move    $v0, $0
-#jr  $ra
-    li $v1, 1010
+    move        $v0, $0
+    li          $v1, 1010
     syscall
-    nop
 
     .data
     .global __init_fs_start
     .global __init_fs_stop
-
 __init_fs_start:
     .skip SIZET_SIZE, 0
 __init_fs_stop:

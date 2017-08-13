@@ -32,7 +32,7 @@
 #Fixme: clean-up code && comment
 
 .macro  csyscalllink   jmpreg, linkreg
-        .word (0x12 << 26) | (0x13 << 21) | (\linkreg << 16) | (\jmpreg << 11)
+    .word (0x12 << 26) | (0x13 << 21) | (\linkreg << 16) | (\jmpreg << 11)
 .endm
 
 .set C6_OFFSET, 64
@@ -47,45 +47,34 @@
 	.ent ccall_real_4
 ccall_real_4:
     cgetdefault $c25
-    clc $c1, $sp, CAP_SIZE($c25)
-    clc $c2, $sp, 2*CAP_SIZE($c25)
-    clc $c25, $sp, 3*CAP_SIZE($c25)
-    move $v1, $a1
-    move $a0, $a2
-    ld $a2, 0($sp)
+    clc         $c1, $sp, CAP_SIZE($c25)
+    clc         $c2, $sp, 2*CAP_SIZE($c25)
+    clc         $c25, $sp, 3*CAP_SIZE($c25)
+    move        $v1, $a1
+    move        $a0, $a2
+    ld          $a2, 0($sp)
 
-#ifdef HARDWARE_qemu
-    move $a1, $a3
-    ccall   $c1, $c2, 0
-#else
     csyscalllink 25, 26
-    move $a1, $a3
-#endif
-    jr  $ra
+    move        $a1, $a3
+    jr          $ra
     nop
 ccall_real_4_end:
-	.size ccall_real_4, ccall_real_4_end - ccall_real_4
-	.end ccall_real_4
 
 	.text
 	.global ccall_real_4_r
 	.ent ccall_real_4_r
 ccall_real_4_r:
-    b ccall_real_4
-    move $v0, $a0
+    b           ccall_real_4
+    move        $v0, $a0
 ccall_real_4_r_end:
-	.size ccall_real_4_r, ccall_real_4_r_end - ccall_real_4_r
-	.end ccall_real_4_r
 
 	.text
 	.global ccall_real_4_c
 	.ent ccall_real_4_c
 ccall_real_4_c:
-    b ccall_real_4
-    move $v0, $a0
+    b           ccall_real_4
+    move        $v0, $a0
 ccall_real_4_c_end:
-	.size ccall_real_4_c, ccall_real_4_c_end - ccall_real_4_c
-	.end ccall_real_4_c
 
 	.text
 	.global ccall_real_4_strong
@@ -93,70 +82,60 @@ ccall_real_4_c_end:
 ccall_real_4_strong:
 	# Save register frame
     cgetdefault $c25
-    sd $s0, 0($sp)
-    sd $s1, 8($sp)
-    sd $s2, 16($sp)
-    sd $s3, 24($sp)
-    sd $gp, 32($sp)
+    sd          $s0, 0($sp)
+    sd          $s1, 8($sp)
+    sd          $s2, 16($sp)
+    sd          $s3, 24($sp)
+    sd          $gp, 32($sp)
 #sd $sp, 72($sp)
-    sd $fp, 40($sp)
-    sd $ra, 48($sp)
-    csc $c6, $sp, C6_OFFSET($c25)
-    csc $c7, $sp, (C6_OFFSET+CAP_SIZE)($c25)
+    sd          $fp, 40($sp)
+    sd          $ra, 48($sp)
+    csc         $c6, $sp, C6_OFFSET($c25)
+    csc         $c7, $sp, (C6_OFFSET+CAP_SIZE)($c25)
 
-    clc $c1, $sp, SAVE_FRAME_SIZE+CAP_SIZE($c25)
-    clc $c2, $sp, SAVE_FRAME_SIZE+2*CAP_SIZE($c25)
-    clc $c25, $sp, SAVE_FRAME_SIZE+3*CAP_SIZE($c25)
-    move $v0, $a0
-    move $v1, $a1
-    move $a0, $a2
-    ld $a2, SAVE_FRAME_SIZE($sp)
-    move $a1, $a3
-    clearlo 0xff03 # keep four mips arg regs and v0, v1
-    clearhi 0xdfff # keep $sp for seal
-#ifdef HARDWARE_qemu
-    cclearlo 0xffc0 # keep c0-c5
-    ccall   $c1, $c2, 0
-#else
+    clc         $c1, $sp, SAVE_FRAME_SIZE+CAP_SIZE($c25)
+    clc         $c2, $sp, SAVE_FRAME_SIZE+2*CAP_SIZE($c25)
+    clc         $c25, $sp, SAVE_FRAME_SIZE+3*CAP_SIZE($c25)
+    move        $v0, $a0
+    move        $v1, $a1
+    move        $a0, $a2
+    ld          $a2, SAVE_FRAME_SIZE($sp)
+    move        $a1, $a3
+    clearlo     0xff03 # keep four mips arg regs and v0, v1
+    clearhi     0xdfff # keep $sp for seal
+
     csyscalllink 25, 26
-    cclearlo 0xffc0 # keep c0-c5
-#endif
+    cclearlo    0xffc0 # keep c0-c5
 
 	# Load register frame
     cgetdefault $c25
-    ld $s0, 0($sp)
-    ld $s1, 8($sp)
-    ld $s2, 16($sp)
-    ld $s3, 24($sp)
-    ld $gp, 32($sp)
+    ld          $s0, 0($sp)
+    ld          $s1, 8($sp)
+    ld          $s2, 16($sp)
+    ld          $s3, 24($sp)
+    ld          $gp, 32($sp)
 #ld $sp, 72($sp)
-    ld $fp, 40($sp)
-    ld $ra, 48($sp)
-    clc $c6, $sp, C6_OFFSET($c25)
-    clc $c7, $sp, (C6_OFFSET+CAP_SIZE)($c25)
+    ld          $fp, 40($sp)
+    ld          $ra, 48($sp)
+    clc         $c6, $sp, C6_OFFSET($c25)
+    clc         $c7, $sp, (C6_OFFSET+CAP_SIZE)($c25)
 
-    jr  $ra
-    daddiu  $sp, $sp, SAVE_FRAME_SIZE
+    jr          $ra
+    addiu       $sp, $sp, SAVE_FRAME_SIZE
 ccall_real_4_strong_end:
-	.size ccall_real_4_strong, ccall_real_4_strong_end - ccall_real_4_strong
-	.end ccall_real_4_strong
 
 	.text
 	.global ccall_real_4_strong_r
 	.ent ccall_real_4_strong_r
 ccall_real_4_strong_r:
-    b ccall_real_4_strong
-    daddiu  $sp, $sp, -SAVE_FRAME_SIZE
+    b           ccall_real_4_strong
+    addiu       $sp, $sp, -SAVE_FRAME_SIZE
 ccall_real_4_strong_r_end:
-	.size ccall_real_4_strong_r, ccall_real_4_strong_r_end - ccall_real_4_strong_r
-	.end ccall_real_4_strong_r
 
 	.text
 	.global ccall_real_4_strong_c
 	.ent ccall_real_4_strong_c
 ccall_real_4_strong_c:
-    b ccall_real_4_strong
-    daddiu  $sp, $sp, -SAVE_FRAME_SIZE
+    b           ccall_real_4_strong
+    addiu       $sp, $sp, -SAVE_FRAME_SIZE
 ccall_real_4_strong_c_end:
-	.size ccall_real_4_strong_c, ccall_real_4_strong_c_end - ccall_real_4_strong_c
-	.end ccall_real_4_strong_c

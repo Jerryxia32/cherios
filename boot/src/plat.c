@@ -32,11 +32,5 @@
 #include "plat.h"
 
 void hw_reboot(void) {
-
-#ifdef HARDWARE_qemu
-	/* Used to quit Qemu */
-	mips_iowrite_uint8(mips_phys_to_uncached(0x1f000000 + 0x00500), 0x42);
-#endif
-
 	for(;;);
 }

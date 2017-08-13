@@ -35,7 +35,7 @@
 #include<asm.h>
 
 .macro  csyscall   jmpreg
-        .word (0x12 << 26) | (0x14 << 21)  | (\jmpreg << 11)
+    .word (0x12 << 26) | (0x14 << 21)  | (\jmpreg << 11)
 .endm
 
 # Dispatch CCalls
@@ -45,83 +45,81 @@
 	.global msg_entry
 	.ent msg_entry
 msg_entry:
-    li $t0, MUTEX_ADDR
+    li          $t0, MUTEX_ADDR
 mutex_loop:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
-    lw  $t1, 0($t0)
-    bne $t1, $0, locked
-    li  $t9, 1
-    ll  $t1, 0($t0)
-    sc  $t9, 0($t0)
-    beq $t9, $0, locked
+    lw          $t1, 0($t0)
+    bne         $t1, $0, locked
+    li          $t9, 1
+    ll          $t1, 0($t0)
+    sc          $t9, 0($t0)
+    beq         $t9, $0, locked
     nop
 
-	bltz		$v0, control
-	nop
+    bltz        $v0, control
+    nop
 
-	la		$t0, msg_methods
-	la		$t1, msg_methods_nb
-    b		call
-	nop
+    la          $t0, msg_methods
+    la          $t1, msg_methods_nb
+    b           call
+    nop
 
 control:
-	la		$t0, ctrl_methods
-	la		$t1, ctrl_methods_nb
-	sub		$v0, $0, $v0
+    la          $t0, ctrl_methods
+    la          $t1, ctrl_methods_nb
+    sub         $v0, $0, $v0
 call:
-	lw		$t1, 0($t1)
-	sub		$t1, $t1, $v0
-	blez		$t1, overflow
-	nop
+    lw          $t1, 0($t1)
+    sub         $t1, $t1, $v0
+    blez        $t1, overflow
+    nop
 
-	#Save sync_token
-	la		$t1, sync_token
+    #Save sync_token
+    la          $t1, sync_token
     cgetdefault $c1
-	csc		$c2, $t1, 0($c1)
+    csc         $c2, $t1, 0($c1)
 
-	sll		$v0, $v0, SIZET_SIZE_BITS
-	add		$t0, $t0, $v0
-	lw		$t9, 0($t0)
-	jalr    $t9
-	nop
-    b		end
-	nop
+    sll         $v0, $v0, SIZET_SIZE_BITS
+    add         $t0, $t0, $v0
+    lw          $t9, 0($t0)
+    jalr        $t9
+    nop
+    b           end
+    nop
 
 overflow:
-	move		$v0, $0
-    cfromptr	$c3, $c3, $0
-    b		end
-	move		$v1, $0
+    move        $v0, $0
+    cfromptr    $c3, $c3, $0
+    b           end
+    move        $v1, $0
 
 end:
-	#Restore sync_token
-	la		$t1, sync_token
+    #Restore sync_token
+    la          $t1, sync_token
     cgetdefault $c1
-	clc		$c2, $t1, 0($c1)
-
+    clc         $c2, $t1, 0($c1)
+    
     # release lock
-    li $t0, MUTEX_ADDR
-    sw  $0, 0($t0)
-
-    li $v1, 1010
+    li          $t0, MUTEX_ADDR
+    sw          $0, 0($t0)
+    
+    li          $v1, 1010
     syscall
-
-	#We are scheduled again: new message
-    b msg_entry
-	nop
+    
+    #We are scheduled again: new message
+    b           msg_entry
+    nop
 
 locked:
-    li  $v1, 13
-    move    $a3, $a0
-    li  $a0, 0
+    li          $v1, 13
+    move        $a3, $a0
+    li          $a0, 0
     syscall
-    b   mutex_loop
-    move    $a0, $a3
+    b           mutex_loop
+    move        $a0, $a3
 
 msg_entry_end:
-	.end msg_entry
-	.size msg_entry, msg_entry_end - msg_entry
 
 # CCallFast
 	.text
@@ -131,57 +129,57 @@ msg_entry_ccall:
     cgetoffset  $sp, $idc
     csetoffset  $idc, $idc, $0
     csetdefault $idc
-    li $t0, MUTEX_ADDR
+    li          $t0, MUTEX_ADDR
 mutex_loop_ccall:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
-    lw  $t1, 0($t0)
-    bne $t1, $0, locked_ccall
-    li  $t9, 1
-    ll  $t1, 0($t0)
-    sc  $t9, 0($t0)
-    beq $t9, $0, locked_ccall
+    lw          $t1, 0($t0)
+    bne         $t1, $0, locked_ccall
+    li          $t9, 1
+    ll          $t1, 0($t0)
+    sc          $t9, 0($t0)
+    beq         $t9, $0, locked_ccall
     nop
 
-	bltz		$v0, control_ccall
-    addiu  $sp, $sp, -CAP_SIZE
+    bltz		$v0, control_ccall
+    addiu       $sp, $sp, -CAP_SIZE
 
-	la		$t0, msg_methods
-	la		$t1, msg_methods_nb
-    b   call_ccall
-	nop
+    la		    $t0, msg_methods
+    la		    $t1, msg_methods_nb
+    b           call_ccall
+    nop
 
 control_ccall:
-	la		$t0, ctrl_methods
-	la		$t1, ctrl_methods_nb
-	sub		$v0, $0, $v0
+    la		    $t0, ctrl_methods
+    la		    $t1, ctrl_methods_nb
+    sub		    $v0, $0, $v0
 call_ccall:
-	lw		$t1, 0($t1)
-	sub		$t1, $t1, $v0
-	blez		$t1, overflow_ccall
-	nop
+    lw          $t1, 0($t1)
+    sub         $t1, $t1, $v0
+    blez        $t1, overflow_ccall
+    nop
 
-    sd  $ra, 0($sp)
-	sll		$v0, $v0, SIZET_SIZE_BITS
-	add		$t0, $t0, $v0
-	lw		$t9, 0($t0)
-	jalr    $t9
-	nop
-    ld  $ra, 0($sp)
-    b   end_ccall
-	nop
+    sd          $ra, 0($sp)
+    sll         $v0, $v0, SIZET_SIZE_BITS
+    add         $t0, $t0, $v0
+    lw          $t9, 0($t0)
+    jalr        $t9
+    nop
+    ld          $ra, 0($sp)
+    b           end_ccall
+    nop
 
 overflow_ccall:
-	move		$v0, $0
-    cfromptr	$c3, $c3, $0
-    b   end_ccall
-	move		$v1, $0
+    move        $v0, $0
+    cfromptr    $c3, $c3, $0
+    b           end_ccall
+    move        $v1, $0
 
 end_ccall:
     # release lock
-    li $t0, MUTEX_ADDR
-    sw  $0, 0($t0)
-    daddiu  $sp, $sp, CAP_SIZE
+    li          $t0, MUTEX_ADDR
+    sw          $0, 0($t0)
+    daddiu      $sp, $sp, CAP_SIZE
 
     /* the callee should never trust the caller, as the callee can be called
      * by anyone. However, I think the caller should be able to choose whether
@@ -189,28 +187,19 @@ end_ccall:
      * callee should always clear registers, except for callee saved ones and
      * return values.
      */
-#ifdef HARDWARE_qemu
-    clearlo 0xfff3 // keep v0, v1 for return values
-    clearhi 0x0f00 // clear t8, t9, k0, k1
-    cclearlo 0xff36 // keep c3, c6, c7
-    creturn
-#else
-    dla $t0, return_cap
-    clc $c25, $t0, 0($idc)
-    clearlo 0xfff3 // keep v0, v1 for return values
-    clearhi 0x0f00 // clear t8, t9, k0, k1
-    csyscall 25
-    cclearlo 0xff36 // keep c3, c6, c7
-#endif
+    dla         $t0, return_cap
+    clc         $c25, $t0, 0($idc)
+    clearlo     0xfff3 // keep v0, v1 for return values
+    clearhi     0x0f00 // clear t8, t9, k0, k1
+    csyscall    25
+    cclearlo    0xff36 // keep c3, c6, c7
 
 locked_ccall:
-    li  $v1, 13
-    move    $a3, $a0
-    li  $a0, 0
+    li          $v1, 13
+    move        $a3, $a0
+    li          $a0, 0
     syscall
-    b   mutex_loop_ccall
-    move    $a0, $a3
+    b           mutex_loop_ccall
+    move        $a0, $a3
 
 msg_entry_ccall_end:
-	.end msg_entry_ccall
-	.size msg_entry_ccall, msg_entry_ccall_end - msg_entry_ccall

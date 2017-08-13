@@ -45,19 +45,26 @@ start:
 	# Enable capability coprocessor.
 	mfc0		$t0, $12
 #ifdef HARD_FLOAT
-	li		$t1, 0x64000000
+    li          $t1, 0x64000000
 #else
-	li		$t1, 0x40000000
+    li          $t1, 0x40000000
 #endif
-	or		$t0, $t0, $t1
+    or          $t0, $t0, $t1
 	# Clear ERL
-	li		$t1, 0x4
-	nor		$t1, $t1, $t1
-	and		$t0, $t0, $t1
-	mtc0		$t0, $12
+    li          $t1, 0x4
+    nor         $t1, $t1, $t1
+    and         $t0, $t0, $t1
+    mtc0        $t0, $12
 
 	# Wait for capability coprocessor to be enabled for real
-	nop; nop; nop; nop; nop; nop; nop; nop;
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
 
 	# Clear other capability registers to ensure we don't retain any
 	# executable capabilities: everything but $pcc and $c0.
@@ -66,20 +73,20 @@ start:
 
 	# W^X for pointers: ensure $c0 is never executable.
 	cgetdefault	$c3
-	li		$t0, ~(1<<1)
+    li          $t0, ~(1<<1)
 	candperm	$c3, $c3, $t0
 	csetdefault	$c3
 
 	# Implement W^X for pointers: trim store permissions from $pcc to
 	# prevent it from becoming writable in the future.
 	cgetpcc		$c3
-	li		$t0, ~((1<<3) | (1<<5))
+    li          $t0, ~((1<<3) | (1<<5))
 	candperm	$c3, $c3, $t0
 
 	# Jump to write-free $pcc.
-	la		$t0, cherios_init_jump_target
-	csetoffset	$c3, $c3, $t0
-	cjr		$c3
+    la          $t0, cherios_init_jump_target
+    csetoffset  $c3, $c3, $t0
+    cjr         $c3
     nop
 cherios_init_jump_target:
 
@@ -90,39 +97,34 @@ cherios_init_jump_target:
 
 	# Set up a boot-time stack using memory allocated by the linker;
 	# assume that $c0 is a sensible starting capability for this.
-	la		$t0, __stop_boot_stack
-	move		$sp, $t0
+    la          $t0, __stop_boot_stack
+    move        $sp, $t0
 
 	# Initialise BSS and globals before running C constructors, so that C
 	# constructors can take them (and other aspects of the conventional C
 	# runtime) for granted.
 
 	# Zero BSS.
-	la		$t9, crt_init_bss
-    jalr    $t9
+    jal         crt_init_bss
 	nop
 
 	# Initialise globals.
-	la		$t9, crt_init_globals
-    jalr    $t9
+    jal         crt_init_globals
 	nop
 
 	# Call C constructors.
-	la		$t9, crt_call_constructors
-    jalr    $t9
+    jal         crt_call_constructors
 	nop
 
 	# On the off chance that cherios_main() has been defined as having
 	# arguments, set the first argument (argc) to 0.
-	dli		$a0, 0
+    dli         $a0, 0
 
 	# Call cherios_main().
-	la		$t9, cherios_main
-    jalr    $t9
+    jal         cherios_main
 	nop
 
 	# Bootloader done. Go in waiting state. #fixme: revoke object
-    move    $v0, $0
-    li $v1, 1010
+    move        $v0, $0
+    li          $v1, 1010
     syscall
-    nop

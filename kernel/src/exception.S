@@ -51,43 +51,32 @@
 # Relocatable exception vector; jumps back to kernel_exception_handler() in
 # normal program memory.  This runs with KCC installed in PCC.
 #
-		.global kernel_exception_trampoline
-		.ent kernel_exception_trampoline
+    .global kernel_exception_trampoline
+    .global kernel_exception_trampoline_end
+    .ent kernel_exception_trampoline
 kernel_exception_trampoline:
-        j   kernel_cp2_exception_handler
-        csetoffset  $kdc, $kdc, $0
+    j           kernel_cp2_exception_handler
+    csetoffset  $kdc, $kdc, $0
 kernel_exception_trampoline_end:
-        nop
-		.global kernel_exception_trampoline_end
-		.end kernel_exception_trampoline
-		.size kernel_exception_trampoline, kernel_exception_trampoline_end - kernel_exception_trampoline
-		.size kernel_exception_trampoline_end, 1 # 0 triggers capsizefix warning
 
-		.global kernel_ccall_trampoline
-		.ent kernel_ccall_trampoline
+    .global kernel_ccall_trampoline
+    .global kernel_ccall_trampoline_end
+    .ent kernel_ccall_trampoline
 kernel_ccall_trampoline:
-        j   kernel_cp2_ccall_handler
-        li  $k1, 5
+    j           kernel_cp2_ccall_handler
+    li          $k1, 5
 kernel_ccall_trampoline_end:
-        nop
-		.global kernel_ccall_trampoline_end
-		.end kernel_ccall_trampoline
-		.size kernel_ccall_trampoline, kernel_ccall_trampoline_end - kernel_ccall_trampoline
-		.size kernel_ccall_trampoline_end, 1 # 0 triggers capsizefix warning
 
-		.global kernel_tlb_trampoline
-		.ent kernel_tlb_trampoline
+    .global kernel_tlb_trampoline
+    .global kernel_tlb_trampoline_end
+    .ent kernel_tlb_trampoline
 kernel_tlb_trampoline:
-        j   kernel_tlb_handler
-        dmfc0   $k0, $10
+    j           kernel_tlb_handler
+    dmfc0       $k0, $10
 kernel_tlb_trampoline_end:
-        nop
-		.global kernel_tlb_trampoline_end
-		.end kernel_tlb_trampoline
-		.size kernel_tlb_trampoline, kernel_tlb_trampoline_end - kernel_tlb_trampoline
-		.size kernel_tlb_trampoline_end, 1 # 0 triggers capsizefix warning
 
-		.ent kernel_tlb_handler
+    .text
+    .ent kernel_tlb_handler
 kernel_tlb_handler:
         # generate an exception for addresses outside 0x08000000 - 0x0fffffff
         li      $k1, 0xf0000000
@@ -135,10 +124,6 @@ kernel_tlb_handler:
         cld     $t1, $k1, -2*REG_SIZE($kdc)
         tlbwr
         eret
-kernel_tlb_handler_end:
-        nop
-		.end kernel_tlb_handler
-		.size kernel_tlb_handler, kernel_tlb_handler_end - kernel_tlb_handler
 
 #
 # Assembly-level exception handler routine -- save context, invoke
@@ -148,207 +133,158 @@ kernel_tlb_handler_end:
 # XXXRW: Note that we use a global pointer for the exception frame, so this is
 # inherrently single-CPU.
 #
-		.text
-		.ent kernel_cp2_exception_handler
+    .text
+    .ent kernel_cp2_exception_handler
 kernel_cp2_exception_handler:
 
-		#
-		# Since we are still running with user capabilities in most
-		# capability registers, we must access all kernel data
-		# relative to KDC.  First save and clear CP2 context, then
-		# move on to general-purpose registers.
-		#
-		la	$k0, kernel_exception_framep_ptr
-        clw	$k0, $k0, 0($kdc)
+    #
+    # Since we are still running with user capabilities in most
+    # capability registers, we must access all kernel data
+    # relative to KDC.  First save and clear CP2 context, then
+    # move on to general-purpose registers.
+    #
+    la          $k0, kernel_exception_framep_ptr
+    clw         $k0, $k0, 0($kdc)
 
-        csc $c1, $k0, 1*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $c2, $k0, 2*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $c3, $k0, 3*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $c4, $k0, 4*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $c5, $k0, 5*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $c6, $k0, 6*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $c7, $k0, 7*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $c25, $k0, 8*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $idc, $k0, 9*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $kr1c, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csc $epcc, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        # avoid "direct c0 access deprecated" warning
-        cgetdefault $c1
-        csc $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csc         $c1, $k0, 1*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csc         $c2, $k0, 2*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csc         $c3, $k0, 3*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csc         $c4, $k0, 4*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csc         $c5, $k0, 5*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csc         $c6, $k0, 6*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csc         $c7, $k0, 7*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csc         $c25, $k0, 8*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csc         $idc, $k0, 9*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csc         $kr1c, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csc         $epcc, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    # avoid "direct c0 access deprecated" warning
+    cgetdefault $c1
+    csc         $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
 
-        csd $at, $k0, 0*REG_SIZE($kdc)
-        csd $v0, $k0, 1*REG_SIZE($kdc)
-        csd $v1, $k0, 2*REG_SIZE($kdc)
-        csd $a0, $k0, 3*REG_SIZE($kdc)
-        csd $a1, $k0, 4*REG_SIZE($kdc)
-        csd $a2, $k0, 5*REG_SIZE($kdc)
-        csd $a3, $k0, 6*REG_SIZE($kdc)
-        csd $t0, $k0, 7*REG_SIZE($kdc)
-        csd $t1, $k0, 8*REG_SIZE($kdc)
-        csd $s0, $k0, 9*REG_SIZE($kdc)
-        csd $s1, $k0, 10*REG_SIZE($kdc)
-        csd $s2, $k0, 11*REG_SIZE($kdc)
-        csd $s3, $k0, 12*REG_SIZE($kdc)
-        csd $t9, $k0, 13*REG_SIZE($kdc)
-        csd $gp, $k0, 14*REG_SIZE($kdc)
-        csd $sp, $k0, 15*REG_SIZE($kdc)
-        csd $fp, $k0, 16*REG_SIZE($kdc)
-        csd $ra, $k0, 17*REG_SIZE($kdc)
-        mfhi	$k1
-        csd	$k1, $k0, 18*REG_SIZE($kdc)
-        mflo	$k1
-        csd	$k1, $k0, 19*REG_SIZE($kdc)
-        mfc0	$k1, $14		# EPC
-        csd	$k1, $k0, 20*REG_SIZE($kdc)
+    csd         $at, $k0, 0*REG_SIZE($kdc)
+    csd         $v0, $k0, 1*REG_SIZE($kdc)
+    csd         $v1, $k0, 2*REG_SIZE($kdc)
+    csd         $a0, $k0, 3*REG_SIZE($kdc)
+    csd         $a1, $k0, 4*REG_SIZE($kdc)
+    csd         $a2, $k0, 5*REG_SIZE($kdc)
+    csd         $a3, $k0, 6*REG_SIZE($kdc)
+    csd         $t0, $k0, 7*REG_SIZE($kdc)
+    csd         $t1, $k0, 8*REG_SIZE($kdc)
+    csd         $s0, $k0, 9*REG_SIZE($kdc)
+    csd         $s1, $k0, 10*REG_SIZE($kdc)
+    csd         $s2, $k0, 11*REG_SIZE($kdc)
+    csd         $s3, $k0, 12*REG_SIZE($kdc)
+    csd         $t9, $k0, 13*REG_SIZE($kdc)
+    csd         $gp, $k0, 14*REG_SIZE($kdc)
+    csd         $sp, $k0, 15*REG_SIZE($kdc)
+    csd         $fp, $k0, 16*REG_SIZE($kdc)
+    csd         $ra, $k0, 17*REG_SIZE($kdc)
+    mfhi        $k1
+    csd         $k1, $k0, 18*REG_SIZE($kdc)
+    mflo        $k1
+    csd         $k1, $k0, 19*REG_SIZE($kdc)
+    mfc0        $k1, $14		# EPC
+    csd         $k1, $k0, 20*REG_SIZE($kdc)
 
-		# Set up exception stack
-        la     $sp, __stop_exception_stack
-
-		#
-		# Restore the kernel's C0 after returning from the user
-		# context -- this is the only capability used in the kernel
-		# context other than KCC/KDC and T0 (for now).  In the future,
-		# once the kernel uses capabilities in more intricate ways,
-		# we'll need to restore other kernel capability context here.
-		#
-		csetdefault	$kdc
-
-		#
-		# Normal function invocation of kernel_exception().
-		#
-		la		$t9, kernel_exception
-		jalr		$t9
-		nop
-
-		#
-		# Restore context from exception frame, which may have had
-		# its contents replaced by the kernel.  Notice correspondence
-		# to the layout of struct reg_frame.
-		#
-		la	$k0, kernel_exception_framep_ptr
-        clw	$k0, $k0, 0($kdc)
-
-        la $k1, timingFailed
-        lw  $k1, 0($k1)
-        bne $k1, $0, timing_failed_restore
-
-        cld $at, $k0, 0*REG_SIZE($kdc)
-        cld $v0, $k0, 1*REG_SIZE($kdc)
-        cld $v1, $k0, 2*REG_SIZE($kdc)
-        cld $a0, $k0, 3*REG_SIZE($kdc)
-        cld $a1, $k0, 4*REG_SIZE($kdc)
-        cld $a2, $k0, 5*REG_SIZE($kdc)
-        cld $a3, $k0, 6*REG_SIZE($kdc)
-        cld $t0, $k0, 7*REG_SIZE($kdc)
-        cld $t1, $k0, 8*REG_SIZE($kdc)
-        cld $s0, $k0, 9*REG_SIZE($kdc)
-        cld $s1, $k0, 10*REG_SIZE($kdc)
-        cld $s2, $k0, 11*REG_SIZE($kdc)
-        cld $s3, $k0, 12*REG_SIZE($kdc)
-        cld $t9, $k0, 13*REG_SIZE($kdc)
-        cld $gp, $k0, 14*REG_SIZE($kdc)
-        cld $sp, $k0, 15*REG_SIZE($kdc)
-        cld $fp, $k0, 16*REG_SIZE($kdc)
-        cld $ra, $k0, 17*REG_SIZE($kdc)
-        cld	$k1, $k0, 18*REG_SIZE($kdc)
-        mthi	$k1
-        cld	$k1, $k0, 19*REG_SIZE($kdc)
-        mtlo	$k1
-        cld	$k1, $k0, 20*REG_SIZE($kdc)
-        mtc0	$k1, $14		# EPC
-
-        # avoid "direct c0 access deprecated" warning
-        clc $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csetdefault $c1
-        clc $c1, $k0, 1*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $c2, $k0, 2*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $c3, $k0, 3*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $c4, $k0, 4*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $c5, $k0, 5*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $c6, $k0, 6*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $c7, $k0, 7*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $c25, $k0, 8*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $idc, $k0, 9*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $kr1c, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $epcc, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-
-		#
-		# On general principle, flush the contents of $k0 and $k1
-		# before returning to "userspace".
-		#
-		move	$k0, $zero
-		move	$k1, $zero
-		eret
+    # Set up exception stack
+    la          $sp, __stop_exception_stack
+    
+    #
+    # Restore the kernel's C0 after returning from the user
+    # context -- this is the only capability used in the kernel
+    # context other than KCC/KDC and T0 (for now).  In the future,
+    # once the kernel uses capabilities in more intricate ways,
+    # we'll need to restore other kernel capability context here.
+    #
+    csetdefault	$kdc
+    
+    #
+    # Normal function invocation of kernel_exception().
+    #
+    jal         kernel_exception
+    nop
+    
+    #
+    # Restore context from exception frame, which may have had
+    # its contents replaced by the kernel.  Notice correspondence
+    # to the layout of struct reg_frame.
+    #
+    la          $k0, kernel_exception_framep_ptr
+    clw         $k0, $k0, 0($kdc)
+    
+    la          $k1, timingFailed
+    lw          $k1, 0($k1)
+    bne         $k1, $0, timing_failed_restore
+    
+    cld         $at, $k0, 0*REG_SIZE($kdc)
+    cld         $v0, $k0, 1*REG_SIZE($kdc)
+    cld         $v1, $k0, 2*REG_SIZE($kdc)
+    cld         $a0, $k0, 3*REG_SIZE($kdc)
+    cld         $a1, $k0, 4*REG_SIZE($kdc)
+    cld         $a2, $k0, 5*REG_SIZE($kdc)
+    cld         $a3, $k0, 6*REG_SIZE($kdc)
+    cld         $t0, $k0, 7*REG_SIZE($kdc)
+    cld         $t1, $k0, 8*REG_SIZE($kdc)
+    cld         $s0, $k0, 9*REG_SIZE($kdc)
+    cld         $s1, $k0, 10*REG_SIZE($kdc)
+    cld         $s2, $k0, 11*REG_SIZE($kdc)
+    cld         $s3, $k0, 12*REG_SIZE($kdc)
+    cld         $t9, $k0, 13*REG_SIZE($kdc)
+    cld         $gp, $k0, 14*REG_SIZE($kdc)
+    cld         $sp, $k0, 15*REG_SIZE($kdc)
+    cld         $fp, $k0, 16*REG_SIZE($kdc)
+    cld         $ra, $k0, 17*REG_SIZE($kdc)
+    cld         $k1, $k0, 18*REG_SIZE($kdc)
+    mthi        $k1
+    cld         $k1, $k0, 19*REG_SIZE($kdc)
+    mtlo        $k1
+    cld         $k1, $k0, 20*REG_SIZE($kdc)
+    mtc0        $k1, $14		# EPC
+    
+    # avoid "direct c0 access deprecated" warning
+    clc         $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csetdefault $c1
+    clc         $c1, $k0, 1*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    clc         $c2, $k0, 2*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    clc         $c3, $k0, 3*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    clc         $c4, $k0, 4*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    clc         $c5, $k0, 5*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    clc         $c6, $k0, 6*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    clc         $c7, $k0, 7*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    clc         $c25, $k0, 8*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    clc         $idc, $k0, 9*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    clc         $kr1c, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    clc         $epcc, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    
+    #
+    # On general principle, flush the contents of $k0 and $k1
+    # before returning to "userspace".
+    #
+    move        $k0, $zero
+    move        $k1, $zero
+    eret
 
 timing_failed_restore:
-        # timing failed, clear all the general purpose regs of the callee.
-        clearlo 0xffff
-        clearhi 0xf3ff  # keep k0, k1
-        cclearlo 0xfffe # keep c0, as the kernel uses it
-        cld $sp, $k0, 15*REG_SIZE($kdc)
-        cld	$k1, $k0, 20*REG_SIZE($kdc)
-        dmtc0	$k1, $14		# EPC
-
-        clc $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        csetdefault $c1
-        clc $kr1c, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        clc $epcc, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-        # clear the timing failed flag
-        dla $k0, timingFailed
-        csw  $0, $k0, 0($kdc)
-        eret
-
+    # timing failed, clear all the general purpose regs of the callee.
+    clearlo     0xffff
+    clearhi     0xf3ff  # keep k0, k1
+    cclearlo    0xfffe # keep c0, as the kernel uses it
+    cld         $sp, $k0, 15*REG_SIZE($kdc)
+    cld         $k1, $k0, 20*REG_SIZE($kdc)
+    dmtc0       $k1, $14		# EPC
+    
+    clc         $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    csetdefault $c1
+    clc         $kr1c, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    clc         $epcc, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
+    # clear the timing failed flag
+    dla         $k0, timingFailed
+    csw         $0, $k0, 0($kdc)
+    eret
 kernel_cp2_exception_handler_end:
-		.size kernel_cp2_exception_handler, kernel_cp2_exception_handler_end - kernel_cp2_exception_handler
-		.end kernel_cp2_exception_handler
 
-		.text
-		.ent kernel_cp2_ccall_handler
+    .text
+    .ent kernel_cp2_ccall_handler
 kernel_cp2_ccall_handler:
-		#
-		# On general principle, flush the contents of $k0 and $k1
-		# before returning to "userspace".
-		#
-        cgetcause   $k0
-        srl $k0, $k0, 8
-        bne $k0, $k1, kernel_cp2_creturn
-        cgetdefault   $c25
-        csetoffset  $c25, $c25, $sp
-        li  $k0, 4
-        cincoffset  $epcc, $epcc, $k0
-        csc $epcc, $0, 0($kr1c)
-        csc $c25, $0, CAP_SIZE($kr1c)
-        csd $v1, $0, 2*CAP_SIZE($kr1c)
-//#define REAL_TIME
-#ifdef REAL_TIME
-        dmfc0   $k0, $9 # read the current count register
-        csw $k0, $0, 2*CAP_SIZE+REG_SIZE($kr1c)
-#endif
-        li  $k0, 4*CAP_SIZE
-        cincoffset  $kr1c, $kr1c, $k0
-
-        cgettype    $k0, $c1
-        csetoffset  $kdc, $kdc, $k0
-        cunseal $epcc, $c1, $kdc
-        cunseal $idc, $c2, $kdc
-        cgetoffset  $k0, $epcc
-		dmtc0	$k0, $14		# EPC
-		eret
-
 kernel_cp2_creturn:
-
-        li  $k0, -4*CAP_SIZE
-        cincoffset  $kr1c, $kr1c, $k0
-        clc $epcc, $0, 0($kr1c)
-        clc $c25, $0, CAP_SIZE($kr1c)
-        # extract the stack pointer of the caller
-        cgetoffset  $sp, $c25
-        csetoffset  $c25, $c25, $0
-        csetdefault $c25
-        cgetoffset  $k0, $epcc
-		dmtc0	$k0, $14		# EPC
-		eret
-
 kernel_cp2_ccall_handler_end:
-		.size kernel_cp2_ccall_handler, kernel_cp2_ccall_handler_end - kernel_cp2_ccall_handler
-		.end kernel_cp2_ccall_handler

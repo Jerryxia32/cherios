@@ -17,12 +17,10 @@ set(LIBUSER_SRCS
     src/assert.c
     src/ctype.c
     src/debug.c
-    #src/dlmalloc.c
     src/errno.c
     src/interrupt.c
     src/libuser.c
     src/malloc.c
-    #src/mmap.c
     src/msg.c
     src/msg_default.c
     src/namespace.c
@@ -36,7 +34,6 @@ set(LIBUSER_SRCS
     src/stdio.c
     src/stdlib.c
     src/strcmp.c
-    #src/virtioblk.c
 )
 
 add_library(user STATIC ${LIB_SRCS} ${LIBUSER_SRCS} ${LIBUSER_ASM_SRCS})

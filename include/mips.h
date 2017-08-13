@@ -253,8 +253,9 @@ typedef uint64_t	u_int64_t;
 /*
  * MIPS address space layout.
  */
-#define PAGE_ALIGN 0x1000L
-#define MODULE_STACK_SIZE 0x8000L
+#define PAGE_ALIGN 0x1000
+#define PAGE_ALIGN_BITS 12
+#define MODULE_STACK_SIZE 0x8000
 #define MALLOC_HEADER_SIZE _MIPS_SZCAP/8
 
 /*

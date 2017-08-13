@@ -108,13 +108,14 @@ SECTIONS
 	 * No need to include anything after the following in the binary --
 	 * we just define symbols, and don't move '.'.
 	 */
-	__start_heap = ALIGN(0x88000000, PAGE_ALIGN);
-	__stop_heap = ALIGN((0x88000000 + __size_memory) - __size_init_stack, PAGE_ALIGN);
+	__start_heap = ALIGN(__start_heap_unmapped, PAGE_ALIGN);
+	__stop_heap = ALIGN((__start_heap_unmapped + __size_memory) - __size_init_stack, PAGE_ALIGN);
 	__size_heap = __stop_heap - __start_heap;
 
 	__start_init_stack	= __stop_heap;
 	__stop_init_stack	= __start_init_stack + __size_init_stack;
 	__rest_of_memory	= __stop_init_stack;
+    /* Move the heap into userspace address to track tags */
     __start_heap = __start_heap & 0x7fffffff;
     __stop_heap = __stop_heap & 0x7fffffff;
 }

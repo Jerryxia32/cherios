@@ -92,4 +92,6 @@ SECTIONS
 	   *(.pdr)
 	   *(.comment)
 	}
+    __start_heap = ALIGN(__start_heap_unmapped, PAGE_ALIGN);
+    __start_heap = __start_heap & 0x7fffffff;
 }

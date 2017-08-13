@@ -72,6 +72,45 @@ cp0_status_set(register_t status)
 	__asm__ __volatile__ ("dmtc0 %0, $12" : : "r" (status));
 }
 
+static inline void
+cp0_tlb_probe() {
+    __asm__ __volatile__ ("tlbp");
+}
+
+static inline void
+cp0_tlb_read() {
+    __asm__ __volatile__ ("tlbr");
+}
+
+static inline void
+cp0_tlb_writeidx() {
+    __asm__ __volatile__ ("tlbwi");
+}
+
+static inline register_t
+cp0_entrylo0_get(void) {
+    register_t status;
+    __asm__ __volatile__ ("dmfc0 %0, $2" : "=r" (status));
+    return status;
+}
+
+static inline void
+cp0_entrylo0_set(register_t status) {
+    __asm__ __volatile__ ("dmtc0 %0, $2" : : "r" (status));
+}
+
+static inline register_t
+cp0_entrylo1_get(void) {
+    register_t status;
+    __asm__ __volatile__ ("dmfc0 %0, $3" : "=r" (status));
+    return status;
+}
+
+static inline void
+cp0_entrylo1_set(register_t status) {
+    __asm__ __volatile__ ("dmtc0 %0, $3" : : "r" (status));
+}
+
 /*
  * Routines for managing the CP0 BadVAddr register.
  */

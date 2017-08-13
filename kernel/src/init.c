@@ -87,6 +87,7 @@ extern char * __capability ttableCap;
 extern char ttable[TTABLE_SIZE];
 int cherios_main(int argc, void *p) {
 	kernel_printf("Kernel Hello world: %d\n", argc);
+    // Initialize the ttableCap, use this to access ttable.
     ttableCap = cheri_getdefault();
     ttableCap = cheri_setoffset(ttableCap, (size_t)ttable);
     ttableCap = cheri_setbounds(ttableCap, TTABLE_SIZE);

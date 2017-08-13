@@ -29,6 +29,7 @@
  */
 
 __cached_base = 0x80000000;
+__start_heap_unmapped = 0x88000000;
 
 CAP_ALIGN = 0x8;
 PAGE_ALIGN = 0x1000;

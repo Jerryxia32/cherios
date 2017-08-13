@@ -29,5 +29,6 @@
  */
 
 #include"cheric.h"
+
 char ttable[TTABLE_SIZE] = {0};
 char * __capability ttableCap;

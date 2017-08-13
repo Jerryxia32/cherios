@@ -72,58 +72,53 @@ kernel_ccall_trampoline_end:
     .ent kernel_tlb_trampoline
 kernel_tlb_trampoline:
     j           kernel_tlb_handler
-    dmfc0       $k0, $10
+    csetoffset  $kdc, $kdc, $0
 kernel_tlb_trampoline_end:
 
     .text
     .ent kernel_tlb_handler
 kernel_tlb_handler:
-        # generate an exception for addresses outside 0x08000000 - 0x0fffffff
-        li      $k1, 0xf0000000
-        and     $k1, $k0, $k1
-        tne     $k1, $0
-        li      $k1, 0x08000000
-        and     $k1, $k0, $k1
-        teq     $k1, $0
-        # set up a small stack
-        dmfc0   $k0, $10
-        la     $k1, __stop_exception_stack # $k1 becomes the stack pointer
-        csetoffset  $kdc, $kdc, $0
-        csd     $t0, $k1, -1*REG_SIZE($kdc)
-        csd     $t1, $k1, -2*REG_SIZE($kdc)
-        # retrieve the no_store_cap bit in the ttable
-        dsrl    $k0, $k0, 15
-        andi    $k0, $k0, 0xfff
-        dla     $t0, ttable
-        dadd    $t0, $t0, $k0
-        clbu    $t0, $t0, 0($kdc) # load the byte into $k1
-        xori    $t0, $t0, 0xff
-        dmfc0   $k0, $10
-        dsrl    $k0, $k0, 12
-        andi    $k0, $k0, 0x7
-        dsrl    $t0, $t0, $k0
-        csd     $t0, $k1, -3*REG_SIZE($kdc) # the shifted byte is stored
+    # set up a small stack
+    la          $k1, __stop_exception_stack # $k1 becomes the stack pointer
+    csd         $t0, $k1, -1*REG_SIZE($kdc)
+    csd         $t1, $k1, -2*REG_SIZE($kdc)
+    csc         $c1, $k1, -3*REG_SIZE-CAP_SIZE($kdc)
+    # retrieve the no_store_cap bit in the ttable
+    dmfc0       $k0, $10
+    dsrl        $k0, $k0, 15
+    andi        $k0, $k0, 0xfff
+    la          $t0, ttableCap
+    clc         $c1, $t0, 0($kdc)
+    clbu        $t0, $k0, 0($c1) # load the byte into $k1
+    xori        $t0, $t0, 0xff
+    dmfc0       $k0, $10
+    dsrl        $k0, $k0, 12
+    andi        $k0, $k0, 0x7
+    dsrl        $t0, $t0, $k0
+    csd         $t0, $k1, -3*REG_SIZE($kdc) # the shifted byte is stored
 
-        andi    $t0, $t0, 0x1
-        dsll32  $t0, $t0, 31
-        daddiu  $t0, $t0, 7
-        dmfc0   $k0, $10
-        dsrl    $k0, $k0, 6
-        or      $t0, $k0, $t0
-        ori     $t0, $t0, 0x18
-        dmtc0   $t0, $2
-        dsll    $t0, $t0, 1
-        dsrl    $t0, $t0, 1
-        cld     $t1, $k1, -3*REG_SIZE($kdc) # the shifted byte is loaded
-        andi    $t1, $t1, 0x2
-        dsll32  $t1, $t1, 30
-        or      $t1, $t1, $t0
-        ori     $t1, $t1, 0x58
-        dmtc0   $t1, $3
-        cld     $t0, $k1, -1*REG_SIZE($kdc)
-        cld     $t1, $k1, -2*REG_SIZE($kdc)
-        tlbwr
-        eret
+    andi        $t0, $t0, 0x1
+    dsll32      $t0, $t0, 31
+    daddiu      $t0, $t0, 7
+    dmfc0       $k0, $10
+    dsrl        $k0, $k0, 6
+    or          $t0, $k0, $t0
+    ori         $t0, $t0, 0x18
+    dmtc0       $t0, $2
+    dsll        $t0, $t0, 1
+    dsrl        $t0, $t0, 1
+    cld         $t1, $k1, -3*REG_SIZE($kdc) # the shifted byte is loaded
+    andi        $t1, $t1, 0x2
+    dsll32      $t1, $t1, 30
+    or          $t1, $t1, $t0
+    ori         $t1, $t1, 0x58
+    dmtc0       $t1, $3
+    tlbwr
+    cld         $t0, $k1, -1*REG_SIZE($kdc)
+    cld         $t1, $k1, -2*REG_SIZE($kdc)
+    clc         $c1, $k1, -3*REG_SIZE-CAP_SIZE($kdc)
+    eret
+kernel_tlb_handler_end:
 
 #
 # Assembly-level exception handler routine -- save context, invoke
@@ -286,5 +281,6 @@ kernel_cp2_exception_handler_end:
     .text
     .ent kernel_cp2_ccall_handler
 kernel_cp2_ccall_handler:
-kernel_cp2_creturn:
+    # We have removed the exception based ccall, trap if entered.
+    teq         $0, $0
 kernel_cp2_ccall_handler_end:

@@ -85,7 +85,7 @@ static inline const char * getcapcause(int cause) {
 	#endif
 }
 
-extern char * __capability ttableCap;
+extern char*__capability ttableCap;
 static void kernel_exception_capability(void) {
 	register_t capcause = cheri_getcause();
 	int cause = (capcause >> 8) & 0x1F;
@@ -95,39 +95,31 @@ static void kernel_exception_capability(void) {
         // need to extract the correct EntryHi before probing
         register_t theBadVaddr = cp0_badvaddr_get();
         // check whether odd page or not
-        register_t oddPage = theBadVaddr & 0x1000;
+        register_t oddPage = theBadVaddr & PAGE_ALIGN;
         register_t tempLo;
-        __asm__ __volatile__ ("tlbp\n tlbr");
+        cp0_tlb_probe();
+        cp0_tlb_read();
+        // drop the prohibit_cap_store bit
         if(oddPage) {
-            __asm__ __volatile__ ("dmfc0 %0, $3" : "=r" (tempLo));
+            tempLo = cp0_entrylo1_get();
             tempLo <<= 1;
             tempLo >>= 1;
-            __asm__ __volatile__ ("dmtc0 %0, $3" : :"r" (tempLo));
+            cp0_entrylo1_set(tempLo);
         } else {
-            __asm__ __volatile__ ("dmfc0 %0, $2" : "=r" (tempLo));
+            tempLo = cp0_entrylo0_get();
             tempLo <<= 1;
             tempLo >>= 1;
-            __asm__ __volatile__ ("dmtc0 %0, $2" : :"r" (tempLo));
+            cp0_entrylo0_set(tempLo);
         }
         // write the corresponding bit in ttable
-        theBadVaddr >>= 12;
-        size_t charIndex = (theBadVaddr & 0x07fff) >> 3;
+        theBadVaddr >>= PAGE_ALIGN_BITS;
+        size_t charIndex = (theBadVaddr>>3) % TTABLE_SIZE;
         size_t bitIndex = theBadVaddr & 0x07;
         char tempChar = ttableCap[charIndex];
         tempChar |= (0x1 << bitIndex);
         ttableCap[charIndex] = tempChar;
 
-        __asm__ __volatile__ ("tlbwi");
-
-		return;
-	}
-
-	if(cause == 5) {
-        panic("CCall should not happen in the normal exception handler.");
-		return;
-	}
-	if(cause == 6) {
-        panic("CReturn should not happen in the normal exception handler.");
+        cp0_tlb_writeidx();
 		return;
 	}
 

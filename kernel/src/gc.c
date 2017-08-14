@@ -30,5 +30,5 @@
 
 #include"cheric.h"
 
-char ttable[TTABLE_SIZE] = {0};
-char * __capability ttableCap;
+char ttable[TTABLE_SIZE] __attribute__((aligned(TTABLE_SIZE))) = {0};
+char*__capability ttableCap = (char*__capability)ttable;

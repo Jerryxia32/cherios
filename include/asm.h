@@ -1,4 +1,5 @@
 /*-
+ * Copyright (c) 2017 Hongyan Xia
  * Copyright (c) 2013-2015 Robert N. M. Watson
  * All rights reserved.
  *
@@ -31,15 +32,7 @@
 #ifndef _MIPS_INCLUDE_ASM_H_
 #define	_MIPS_INCLUDE_ASM_H_
 
-#if _MIPS_SZCAP == 256
-	#define _CHERI256_
-    #define CAP_SIZE 32
-    #define CAP_SIZE_BITS 5
-#elif _MIPS_SZCAP == 128
-	#define _CHERI128_
-    #define CAP_SIZE 16
-    #define CAP_SIZE_BITS 4
-#elif _MIPS_SZCAP == 64
+#if _MIPS_SZCAP == 64
 	#define _CHERI64_
     #define CAP_SIZE 8
     #define CAP_SIZE_BITS 3

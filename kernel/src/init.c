@@ -32,7 +32,7 @@
 #include "klib.h"
 
 #define KERN_PRINT_PTR(ptr)						\
-	kernel_printf("%s: " #ptr " b:%016jx l:%016zx o:%jx\n",		\
+	kernel_printf("%s: " #ptr " b:0x%08zx l:0x%08zx o:0x%zx\n",		\
 		      __func__,						\
 		      cheri_getbase((const void * __capability)(ptr)),	\
 		      cheri_getlen((const void * __capability)(ptr)),	\
@@ -40,7 +40,7 @@
 
 #define KERN_PRINT_CAP(cap)						\
 	kernel_printf("%-20s: %-16s t:%lx s:%lx p:%08jx "		\
-		      "b:%016jx l:%016zx o:%jx\n",			\
+		      "b:0x%08zx l:0x%08zx o:0x%zx\n",			\
 		      __func__,						\
 		      #cap,						\
 		      cheri_gettag(cap),				\
@@ -87,21 +87,14 @@ extern char * __capability ttableCap;
 extern char ttable[TTABLE_SIZE];
 int cherios_main(int argc, void *p) {
 	kernel_printf("Kernel Hello world: %d\n", argc);
-    // Initialize the ttableCap, use this to access ttable.
-    ttableCap = cheri_getdefault();
-    ttableCap = cheri_setoffset(ttableCap, (size_t)ttable);
-    ttableCap = cheri_setbounds(ttableCap, TTABLE_SIZE);
+
 	/*
 	 * Copy boot_info from boot-loader memory to our own before
 	 * processing it.
 	 *
 	 * TODO: check that the expected size matches.
 	 */
-    void * __capability dest = cheri_getdefault();
-    void * __capability src = cheri_getdefault();
-    dest = cheri_setoffset(dest, (size_t)&boot_info);
-    src = cheri_setoffset(src, (size_t)p);
-	memcpy_c(dest, src, sizeof(boot_info));
+	memcpy(&boot_info, p, sizeof(boot_info));
 
 	install_exception_vectors();
 	act_init(&boot_info);

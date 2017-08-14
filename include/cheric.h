@@ -1,4 +1,5 @@
 /*-
+ * Copyright (c) 2017 Hongyan Xia
  * Copyright (c) 2013-2015 Robert N. M. Watson
  * All rights reserved.
  *
@@ -35,19 +36,7 @@
 #include "cherireg.h"
 #include "mips.h"
 
-/*
- * Derive CHERI-flavor from capability size
- */
-
-#if _MIPS_SZCAP == 256
-	#define _CHERI256_
-    #define CAP_SIZE 32
-    #define CAP_SIZE_BITS 5
-#elif _MIPS_SZCAP == 128
-	#define _CHERI128_
-    #define CAP_SIZE 16
-    #define CAP_SIZE_BITS 4
-#elif _MIPS_SZCAP == 64
+#if _MIPS_SZCAP == 64
 	#define _CHERI64_
     #define CAP_SIZE 8
     #define CAP_SIZE_BITS 3
@@ -126,25 +115,13 @@
 #define CHERI_PERM_STORE_CAP		(1 <<  5)
 #define CHERI_PERM_STORE_LOCAL_CAP	(1 <<  6)
 #define CHERI_PERM_SEAL			(1 <<  7)
-#if (_MIPS_SZCAP == 64)
 #define CHERI_PERM_ACCESS_SYS_REGS	(1 << 8)
-#define CHERI_PERM_SOFT_0		(1 << 15)
-#define CHERI_PERM_SOFT_1		(1 << 16)
-#else
-#define CHERI_PERM_ACCESS_SYS_REGS	(1 << 10)
-#define CHERI_PERM_SOFT_0		(1 << 15)
-#define CHERI_PERM_SOFT_1		(1 << 16)
-#define CHERI_PERM_SOFT_2		(1 << 17)
-#define CHERI_PERM_SOFT_3		(1 << 18)
-#endif
 
-#if (_MIPS_SZCAP != 64)
-#define CHERI_OTYPE_WIDTH 24
-#define CHERI_TB_WIDTH 20
-#else
+#define CHERI_PERM_SOFT_0		(1 << 15)
+#define CHERI_PERM_SOFT_1		(1 << 16)
+
 #define CHERI_OTYPE_WIDTH 6
 #define CHERI_TB_WIDTH 6
-#endif
 #define CHERI_SEAL_TB_WIDTH (CHERI_TB_WIDTH - CHERI_OTYPE_WIDTH/2)
 #define	NULLCAP		((void * __capability)0)
 #define TTABLE_SIZE 4096 // This corresponds to 128MiB in init.ld
@@ -363,12 +340,6 @@ typedef struct reg_frame {
 	 */
 	capability	cf_c1, cf_c2;
     capability cf_c3, cf_c4, cf_c5, cf_c6, cf_c7;
-    //capability cf_c9;
-    //capability cf_c11, cf_c12;
-    //capability  cf_c10, cf_c11, cf_c12, cf_c13;
-	//capability	cf_c14, cf_c15, cf_c16, cf_c17;
-	//capability	cf_c18, cf_c19, cf_c20, cf_c21, cf_c22;
-	//capability	cf_c23, cf_c24;
     capability cf_c25;
     capability cf_idc;
 

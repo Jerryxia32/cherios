@@ -29,6 +29,7 @@
  */
 
 #include "mips.h"
+#include"cheric.h"
 #include "string.h"
 
 extern void	__start_bss;
@@ -46,6 +47,14 @@ void	crt_call_constructors(void);
  */
 typedef void (*mips_function_ptr)(void);
 
+struct capreloc {
+	uint32_t capability_location;
+	uint32_t object;
+	uint32_t offset;
+	uint32_t size;
+	uint32_t permissions;
+};
+
 static mips_function_ptr __attribute__((used))
     __attribute__((section(".ctors")))
     __CTOR_LIST__[1] = { (mips_function_ptr)(-1) };
@@ -53,6 +62,19 @@ static mips_function_ptr __attribute__((used))
 static mips_function_ptr __attribute__((used))
     __attribute__((section(".dtors")))
     __DTOR_LIST__[1] = { (mips_function_ptr)(-1) };
+
+static const uint32_t function_reloc_flag = 1U<<31;
+static const uint32_t function_pointer_permissions =
+	~0 &
+	~__CHERI_CAP_PERMISSION_PERMIT_STORE_CAPABILITY__ &
+	~__CHERI_CAP_PERMISSION_PERMIT_STORE__;
+static const uint32_t global_pointer_permissions =
+	~0 & ~__CHERI_CAP_PERMISSION_PERMIT_EXECUTE__;
+
+__attribute__((weak))
+extern struct capreloc __start___cap_relocs;
+__attribute__((weak))
+extern struct capreloc __stop___cap_relocs;
 
 /*
  * Symbols provided by rtendC.c, which provide us with the tails for the
@@ -88,6 +110,8 @@ crt_call_constructors(void)
 	}
 }
 
+volatile int _int;
+
 void
 crt_init_bss(void)
 {
@@ -104,4 +128,28 @@ crt_init_bss(void)
 
 void
 crt_init_globals() {
+    void*__capability gdc = cheri_getdefault();
+    void*__capability pcc = cheri_getpcc();
+
+    gdc = cheri_andperm(gdc, global_pointer_permissions);
+    pcc = cheri_andperm(pcc, function_pointer_permissions);
+
+    for(struct capreloc* reloc = &__start___cap_relocs;
+            reloc < &__stop___cap_relocs; reloc++) {
+        _Bool isFunction = (reloc->permissions & function_reloc_flag) ==
+            function_reloc_flag;
+        void*__capability* dest = (void*__capability*)reloc->capability_location;
+        void*__capability base = isFunction ? pcc : gdc;
+        void*__capability src = cheri_setoffset(base, reloc->object);
+
+        if (reloc->object == 0x4cd70) {
+            base = cheri_setoffset(base, reloc->permissions);
+            _int = *(int *)base;
+        }
+        if (!isFunction && (reloc->size != 0)) {
+            src = cheri_setbounds(src, reloc->size);
+        }
+        src = cheri_incoffset(src, reloc->offset);
+        *dest = src;
+    }
 }

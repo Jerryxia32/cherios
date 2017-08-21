@@ -68,14 +68,14 @@ memcpy_c:
     CGetBase    $v1, $c4            # v1 = linear address of src
     CGetOffset  $at, $c4
     dadd        $v1, $v1, $at
-    andi        $12, $v0, CAP_ALIGN_MASK # t4 = dst % CAP_SIZE
+    andi        $a3, $v0, CAP_ALIGN_MASK # t4 = dst % CAP_SIZE
     CGetDefault $c5
     CToPtr      $v0, $c5, $c3       # Return ptr in integer return
-    andi        $13, $v1, CAP_ALIGN_MASK # t5 = src % CAP_SIZE
+    andi        $t9, $v1, CAP_ALIGN_MASK # t5 = src % CAP_SIZE
     daddi       $a1, $zero, 0       # Store 0 in $a1 - we'll use that for the
                                     # offset later.
 
-    bne         $12, $13, slow_memcpy_loop
+    bne         $a3, $t9, slow_memcpy_loop
                                  # If src and dst have different alignments, we
                                  # have to copy a byte at a time because we
                                  # don't have any multi-byte load/store
@@ -89,7 +89,7 @@ fast_path:                       # At this point, src and dst are known to have
                                  # the same alignment.  They may not be capability
                                  # aligned, however.
     # FIXME: This logic can be simplified by using the power of algebra
-    dsub        $v1, $zero, $12
+    dsub        $v1, $zero, $a3
     daddi       $v1, $v1, CAP_SIZE
     andi        $v1, $v1, CAP_ALIGN_MASK      # v1 = number of bytes we need to copy to
                                           # become aligned

@@ -35,18 +35,15 @@
 
 extern void * act_self_ctrl;
 extern void * act_self_ref;
-extern void * act_self_id;
 extern void * __capability act_self_PCC;
 extern void * __capability act_self_IDC;
 extern void * __capability act_self_cap;
 extern void * __capability helper_cap;
 extern void * __capability return_cap;
 void *	act_ctrl_get_ref(void * ctrl);
-void *	act_ctrl_get_id(void * ctrl);
 int	act_ctrl_revoke(void * ctrl);
 int	act_ctrl_terminate(void * ctrl);
 void * __capability	act_get_cap(void);
-void *	act_seal_id(void * id);
 
 typedef struct {
 	void * __capability cret;
@@ -56,43 +53,43 @@ typedef struct {
 
 void	object_init(void * self_ctrl, void * __capability self_cap, void * __capability self_PCC, void * __capability self_IDC);
 
-void	ctor_null(void);
-void	dtor_null(void);
-void *	get_curr_cookie(void);
-void	set_curr_cookie(void * cookie);
-
-void * get_cookie(void * cb, void * cs);
+void ctor_null();
+void dtor_null();
 
 extern void * __capability sync_token;
-extern long msg_enable;
+extern uint32_t msg_enable;
 
 #define CCALL(selector, ...) ccall_##selector(__VA_ARGS__)
-register_t ccall_1(void * cb, void * cs, int method_nb,
+register_t ccall_1(void * cb, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const void * __capability carg1, const void * __capability carg2, const void * __capability carg3);
 
-register_t ccall_2(void * cb, void * cs, int method_nb,
+register_t ccall_2(void * cb, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const void * __capability carg1, const void * __capability carg2, const void * __capability carg3);
 
-ret_t ccall_4(void * cb, void * cs, int method_nb,
+ret_t ccall_4(void * cb, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const void * __capability carg1, const void * __capability carg2, const void * __capability carg3);
 
 register_t ccall_real_4_r(int method_nb, int64_t timeoutCycle,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
-                  const void * __capability carg1, const void * __capability carg2, const void * __capability carg3, void * __capability PCC, void * __capability IDC, void * __capability sealing_tool);
+          const void*__capability carg1, const void*__capability carg2, const void*__capability carg3,
+          void*__capability PCC, void*__capability IDC, void*__capability sealing_tool);
 
-void * __capability ccall_real_4_c(int method_nb, int64_t timeoutCycle,
+void*__capability ccall_real_4_c(int method_nb, int64_t timeoutCycle,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
-                  const void * __capability carg1, const void * __capability carg2, const void * __capability carg3, void * __capability PCC, void * __capability IDC, void * __capability sealing_tool);
+          const void*__capability carg1, const void*__capability carg2, const void*__capability carg3,
+          void*__capability PCC, void*__capability IDC, void*__capability sealing_tool);
 
 register_t ccall_real_4_strong_r(int method_nb, int64_t timeoutCycle,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
-                  const void * __capability carg1, const void * __capability carg2, const void * __capability carg3, void * __capability PCC, void * __capability IDC, void * __capability sealing_tool);
+          const void*__capability carg1, const void*__capability carg2, const void*__capability carg3,
+          void*__capability PCC, void*__capability IDC, void*__capability sealing_tool);
 
-void * __capability ccall_real_4_strong_c(int method_nb, int64_t timeoutCycle,
+void*__capability ccall_real_4_strong_c(int method_nb, int64_t timeoutCycle,
 		  register_t rarg1, register_t rarg2, register_t rarg3,
-                  const void * __capability carg1, const void * __capability carg2, const void * __capability carg3, void * __capability PCC, void * __capability IDC, void * __capability sealing_tool);
+          const void*__capability carg1, const void*__capability carg2, const void*__capability carg3,
+          void*__capability PCC, void*__capability IDC, void*__capability sealing_tool);
 
 #endif

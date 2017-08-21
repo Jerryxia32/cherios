@@ -34,29 +34,24 @@
 #include "assert.h"
 
 void * namespace_ref = NULL;
-void * namespace_id  = NULL;
 
-void namespace_init(void *ns_ref, void *ns_id) {
+void namespace_init(void* ns_ref) {
 	namespace_ref = ns_ref;
-	namespace_id  = ns_id;
 }
 
-int namespace_register(int nb, void *ref, void *id, void * __capability PCC, void * __capability IDC) {
-	return ccall_4(namespace_ref, namespace_id, 0, nb, (register_t)ref, (register_t)id, PCC, IDC, NULLCAP).rret;
+int namespace_register(int nb, void* ref,
+        void*__capability PCC, void*__capability IDC) {
+    return ccall_4(namespace_ref, 0, nb, (register_t)ref, 0, PCC, IDC, NULLCAP).rret;
 }
 
 void * namespace_get_ref(int nb) {
-	return (void *)ccall_4(namespace_ref, namespace_id, 1, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).rret;
-}
-
-void * namespace_get_id(int nb) {
-	return (void *)ccall_4(namespace_ref, namespace_id, 2, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).rret;
+    return (void *)ccall_4(namespace_ref, 1, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).rret;
 }
 
 void * __capability namespace_get_PCC(int nb) {
-	return ccall_4(namespace_ref, namespace_id, 3, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
+	return ccall_4(namespace_ref, 3, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }
 
 void * __capability namespace_get_IDC(int nb) {
-	return ccall_4(namespace_ref, namespace_id, 4, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
+	return ccall_4(namespace_ref, 4, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }

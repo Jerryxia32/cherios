@@ -32,9 +32,7 @@
 
 void	ns_init(void);
 
-int	ns_register(int nb, void * act_reference, void * act_default_id, void * __capability act_PCC, void * __capability act_IDC);
+int	ns_register(int nb, void * act_reference, void * __capability act_PCC, void * __capability act_IDC);
 void *	ns_get_reference(int nb);
-void *	ns_get_identifier(int nb);
 void * __capability	ns_get_PCC(int nb);
 void * __capability	ns_get_IDC(int nb);
-

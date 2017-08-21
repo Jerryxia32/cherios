@@ -43,13 +43,8 @@ act_t				kernel_acts[MAX_ACTIVATIONS];
 aid_t 				kernel_curr_act;
 aid_t				kernel_next_act;
 
-static size_t            act_default_id = 0;
-
 void act_init(boot_info_t *bi) {
 	KERNEL_TRACE("init", "activation init");
-
-	/* initialize the default identifier to a known value */
-	act_default_id = 0;
 
 	/*
 	 * create kernel activation
@@ -125,9 +120,6 @@ void * act_register(const reg_frame_t * frame, const char * name) {
 	/* set reference */
 	kernel_acts[aid].act_reference = act_create_ref(aid);
 
-	/* set default identifier */
-	kernel_acts[aid].act_default_id = act_default_id;
-
 	/* set scheduling status */
 	sched_create(aid);
 
@@ -161,11 +153,6 @@ int act_terminate(act_t * ctrl) {
 void * act_get_ref(act_t * ctrl) {
 	aid_t aid = ctrl->aid;
 	return kernel_acts[aid].act_reference;
-}
-
-size_t act_get_id(act_t * ctrl) {
-	aid_t aid = ctrl->aid;
-	return kernel_acts[aid].act_default_id;
 }
 
 int act_get_status(act_t * ctrl) {

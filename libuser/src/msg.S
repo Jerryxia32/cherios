@@ -38,51 +38,52 @@
     .word (0x12 << 26) | (0x14 << 21)  | (\jmpreg << 11)
 .endm
 
-# Dispatch CCalls
+# Dispatch CCalls. $a3 is used as a temp register because we know there are
+# only 3 arguments in CCall.
 
 # kernel msg passing syscall
 	.text
 	.global msg_entry
 	.ent msg_entry
 msg_entry:
-    li          $t0, MUTEX_ADDR
+    li          $v1, MUTEX_ADDR
 mutex_loop:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
-    lw          $t1, 0($t0)
-    bne         $t1, $0, locked
+    lw          $a3, 0($v1)
+    bne         $a3, $0, locked
     li          $t9, 1
-    ll          $t1, 0($t0)
-    sc          $t9, 0($t0)
+    ll          $a3, 0($v1)
+    sc          $t9, 0($v1)
     beq         $t9, $0, locked
     nop
 
     bltz        $v0, control
     nop
 
-    la          $t0, msg_methods
-    la          $t1, msg_methods_nb
+    la          $v1, msg_methods
+    la          $a3, msg_methods_nb
     b           call
     nop
 
 control:
-    la          $t0, ctrl_methods
-    la          $t1, ctrl_methods_nb
+    la          $v1, ctrl_methods
+    la          $a3, ctrl_methods_nb
     sub         $v0, $0, $v0
 call:
-    lw          $t1, 0($t1)
-    sub         $t1, $t1, $v0
-    blez        $t1, overflow
+    lw          $a3, 0($a3)
+    sub         $a3, $a3, $v0
+    blez        $a3, overflow
     nop
 
     #Save sync_token
-    la          $t1, sync_token
+    la          $a3, sync_token
     cgetdefault $c1
-    csc         $c2, $t1, 0($c1)
+    csc         $c2, $a3, 0($c1)
 
     sll         $v0, $v0, SIZET_SIZE_BITS
-    add         $t0, $t0, $v0
-    lw          $t9, 0($t0)
+    add         $v1, $v1, $v0
+    lw          $t9, 0($v1)
     jalr        $t9
     nop
     b           end
@@ -96,13 +97,13 @@ overflow:
 
 end:
     #Restore sync_token
-    la          $t1, sync_token
+    la          $a3, sync_token
     cgetdefault $c1
-    clc         $c2, $t1, 0($c1)
+    clc         $c2, $a3, 0($c1)
     
     # release lock
-    li          $t0, MUTEX_ADDR
-    sw          $0, 0($t0)
+    li          $v1, MUTEX_ADDR
+    sw          $0, 0($v1)
     
     li          $v1, 1010
     syscall
@@ -129,40 +130,40 @@ msg_entry_ccall:
     cgetoffset  $sp, $idc
     csetoffset  $idc, $idc, $0
     csetdefault $idc
-    li          $t0, MUTEX_ADDR
+    li          $v1, MUTEX_ADDR
 mutex_loop_ccall:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
-    lw          $t1, 0($t0)
-    bne         $t1, $0, locked_ccall
+    lw          $a3, 0($v1)
+    bne         $a3, $0, locked_ccall
     li          $t9, 1
-    ll          $t1, 0($t0)
-    sc          $t9, 0($t0)
+    ll          $a3, 0($v1)
+    sc          $t9, 0($v1)
     beq         $t9, $0, locked_ccall
     nop
 
     bltz		$v0, control_ccall
     addiu       $sp, $sp, -CAP_SIZE
 
-    la		    $t0, msg_methods
-    la		    $t1, msg_methods_nb
+    la		    $v1, msg_methods
+    la		    $a3, msg_methods_nb
     b           call_ccall
     nop
 
 control_ccall:
-    la		    $t0, ctrl_methods
-    la		    $t1, ctrl_methods_nb
+    la		    $v1, ctrl_methods
+    la		    $a3, ctrl_methods_nb
     sub		    $v0, $0, $v0
 call_ccall:
-    lw          $t1, 0($t1)
-    sub         $t1, $t1, $v0
-    blez        $t1, overflow_ccall
+    lw          $a3, 0($a3)
+    sub         $a3, $a3, $v0
+    blez        $a3, overflow_ccall
     nop
 
     sd          $ra, 0($sp)
     sll         $v0, $v0, SIZET_SIZE_BITS
-    add         $t0, $t0, $v0
-    lw          $t9, 0($t0)
+    add         $v1, $v1, $v0
+    lw          $t9, 0($v1)
     jalr        $t9
     nop
     ld          $ra, 0($sp)
@@ -177,8 +178,8 @@ overflow_ccall:
 
 end_ccall:
     # release lock
-    li          $t0, MUTEX_ADDR
-    sw          $0, 0($t0)
+    li          $v1, MUTEX_ADDR
+    sw          $0, 0($v1)
     daddiu      $sp, $sp, CAP_SIZE
 
     /* the callee should never trust the caller, as the callee can be called
@@ -187,8 +188,8 @@ end_ccall:
      * callee should always clear registers, except for callee saved ones and
      * return values.
      */
-    dla         $t0, return_cap
-    clc         $c25, $t0, 0($idc)
+    dla         $v1, return_cap
+    clc         $c25, $v1, 0($idc)
     clearlo     0xfff3 // keep v0, v1 for return values
     clearhi     0x0f00 // clear t8, t9, k0, k1
     csyscall    25

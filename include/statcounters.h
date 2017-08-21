@@ -94,8 +94,8 @@ static inline void resetStatCounters (void)
 static inline uint64_t get_##name##_count (void)					\
 {										\
 	uint64_t ret;								\
-	__asm __volatile(".word (0x1f << 26) | (0x0 << 21) | (12 << 16) | ("#X" << 11) | ( "#Y"  << 6) | 0x3b\n" \
-	                 "move %0,$12"						\
+	__asm __volatile(".word (0x1f << 26) | (0x0 << 21) | (25 << 16) | ("#X" << 11) | ( "#Y"  << 6) | 0x3b\n" \
+	                 "move %0,$25"						\
 	                 : "=r" (ret) :: "$12");				\
 	return ret;								\
 }

@@ -80,7 +80,6 @@ void regdump(int reg_num) {
 
 	REG_DUMP_M(at); REG_DUMP_M(v0); REG_DUMP_M(v1); REG_DUMP_M(t9); kernel_printf("\n");
 	REG_DUMP_M(a0); REG_DUMP_M(a1); REG_DUMP_M(a2); REG_DUMP_M(a3); kernel_printf("\n");
-	REG_DUMP_M(t0); REG_DUMP_M(t1); kernel_printf("\n");
 	REG_DUMP_M(s0); REG_DUMP_M(s1); REG_DUMP_M(s2); REG_DUMP_M(s3); kernel_printf("\n");
 	REG_DUMP_M(gp); REG_DUMP_M(sp); REG_DUMP_M(fp); REG_DUMP_M(ra); kernel_printf("\n");
 	REG_DUMP_M(hi); REG_DUMP_M(lo); REG_DUMP_M(pc); kernel_printf("\n");

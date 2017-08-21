@@ -65,12 +65,11 @@ start_common:
     move		$a0, $s2
     cmove       $c3, $c6
     cgetpcc     $c4
-    la          $t0, msg_entry_ccall
-    csetoffset  $c4, $c4, $t0
+    la          $t9, msg_entry_ccall
+    csetoffset  $c4, $c4, $t9
     cgetdefault $c5
     csetoffset  $c5, $c5, $sp
     move        $a1, $s0
-    move        $a2, $s1
     jal         libuser_init
     nop
 
@@ -79,12 +78,12 @@ start_common:
     nop
 
     # main() done. Exit or CReturn
-    la          $t0, msg_enable
-    lw          $t0, 0($t0)
-    bne         $t0, $zero, to_msg
+    la          $t9, msg_enable
+    lw          $t9, 0($t9)
+    bne         $t9, $zero, to_msg
     nop
-    la          $t0, act_self_ctrl
-    lw          $a0, 0($t0)
+    la          $t9, act_self_ctrl
+    lw          $a0, 0($t9)
     li          $v1, 26
     syscall
 

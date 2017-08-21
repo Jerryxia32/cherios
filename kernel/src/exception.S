@@ -80,42 +80,42 @@ kernel_tlb_trampoline_end:
 kernel_tlb_handler:
     # set up a small stack
     la          $k1, __stop_exception_stack # $k1 becomes the stack pointer
-    csd         $t0, $k1, -1*REG_SIZE($kdc)
-    csd         $t1, $k1, -2*REG_SIZE($kdc)
+    csd         $s0, $k1, -1*REG_SIZE($kdc)
+    csd         $s1, $k1, -2*REG_SIZE($kdc)
     csc         $c1, $k1, -3*REG_SIZE-CAP_SIZE($kdc)
     # retrieve the no_store_cap bit in the ttable
     dmfc0       $k0, $10
     dsrl        $k0, $k0, 15
     andi        $k0, $k0, 0xfff
-    la          $t0, ttableCap
-    clc         $c1, $t0, 0($kdc)
-    clbu        $t0, $k0, 0($c1) # load the byte into $k1
-    xori        $t0, $t0, 0xff
+    la          $s0, ttableCap
+    clc         $c1, $s0, 0($kdc)
+    clbu        $s0, $k0, 0($c1) # load the byte into $k1
+    xori        $s0, $s0, 0xff
     dmfc0       $k0, $10
     dsrl        $k0, $k0, 12
     andi        $k0, $k0, 0x7
-    dsrl        $t0, $t0, $k0
-    csd         $t0, $k1, -3*REG_SIZE($kdc) # the shifted byte is stored
+    dsrl        $s0, $s0, $k0
+    csd         $s0, $k1, -3*REG_SIZE($kdc) # the shifted byte is stored
 
-    andi        $t0, $t0, 0x1
-    dsll32      $t0, $t0, 31
-    daddiu      $t0, $t0, 7
+    andi        $s0, $s0, 0x1
+    dsll32      $s0, $s0, 31
+    daddiu      $s0, $s0, 7
     dmfc0       $k0, $10
     dsrl        $k0, $k0, 6
-    or          $t0, $k0, $t0
-    ori         $t0, $t0, 0x18
-    dmtc0       $t0, $2
-    dsll        $t0, $t0, 1
-    dsrl        $t0, $t0, 1
-    cld         $t1, $k1, -3*REG_SIZE($kdc) # the shifted byte is loaded
-    andi        $t1, $t1, 0x2
-    dsll32      $t1, $t1, 30
-    or          $t1, $t1, $t0
-    ori         $t1, $t1, 0x58
-    dmtc0       $t1, $3
+    or          $s0, $k0, $s0
+    ori         $s0, $s0, 0x18
+    dmtc0       $s0, $2
+    dsll        $s0, $s0, 1
+    dsrl        $s0, $s0, 1
+    cld         $s1, $k1, -3*REG_SIZE($kdc) # the shifted byte is loaded
+    andi        $s1, $s1, 0x2
+    dsll32      $s1, $s1, 30
+    or          $s1, $s1, $s0
+    ori         $s1, $s1, 0x58
+    dmtc0       $s1, $3
     tlbwr
-    cld         $t0, $k1, -1*REG_SIZE($kdc)
-    cld         $t1, $k1, -2*REG_SIZE($kdc)
+    cld         $s0, $k1, -1*REG_SIZE($kdc)
+    cld         $s1, $k1, -2*REG_SIZE($kdc)
     clc         $c1, $k1, -3*REG_SIZE-CAP_SIZE($kdc)
     eret
 kernel_tlb_handler_end:
@@ -163,23 +163,21 @@ kernel_cp2_exception_handler:
     csd         $a1, $k0, 4*REG_SIZE($kdc)
     csd         $a2, $k0, 5*REG_SIZE($kdc)
     csd         $a3, $k0, 6*REG_SIZE($kdc)
-    csd         $t0, $k0, 7*REG_SIZE($kdc)
-    csd         $t1, $k0, 8*REG_SIZE($kdc)
-    csd         $s0, $k0, 9*REG_SIZE($kdc)
-    csd         $s1, $k0, 10*REG_SIZE($kdc)
-    csd         $s2, $k0, 11*REG_SIZE($kdc)
-    csd         $s3, $k0, 12*REG_SIZE($kdc)
-    csd         $t9, $k0, 13*REG_SIZE($kdc)
-    csd         $gp, $k0, 14*REG_SIZE($kdc)
-    csd         $sp, $k0, 15*REG_SIZE($kdc)
-    csd         $fp, $k0, 16*REG_SIZE($kdc)
-    csd         $ra, $k0, 17*REG_SIZE($kdc)
+    csd         $s0, $k0, 7*REG_SIZE($kdc)
+    csd         $s1, $k0, 8*REG_SIZE($kdc)
+    csd         $s2, $k0, 9*REG_SIZE($kdc)
+    csd         $s3, $k0, 10*REG_SIZE($kdc)
+    csd         $t9, $k0, 11*REG_SIZE($kdc)
+    csd         $gp, $k0, 12*REG_SIZE($kdc)
+    csd         $sp, $k0, 13*REG_SIZE($kdc)
+    csd         $fp, $k0, 14*REG_SIZE($kdc)
+    csd         $ra, $k0, 15*REG_SIZE($kdc)
     mfhi        $k1
-    csd         $k1, $k0, 18*REG_SIZE($kdc)
+    csd         $k1, $k0, 16*REG_SIZE($kdc)
     mflo        $k1
-    csd         $k1, $k0, 19*REG_SIZE($kdc)
+    csd         $k1, $k0, 17*REG_SIZE($kdc)
     mfc0        $k1, $14		# EPC
-    csd         $k1, $k0, 20*REG_SIZE($kdc)
+    csd         $k1, $k0, 18*REG_SIZE($kdc)
 
     # Set up exception stack
     la          $sp, __stop_exception_stack
@@ -218,22 +216,20 @@ kernel_cp2_exception_handler:
     cld         $a1, $k0, 4*REG_SIZE($kdc)
     cld         $a2, $k0, 5*REG_SIZE($kdc)
     cld         $a3, $k0, 6*REG_SIZE($kdc)
-    cld         $t0, $k0, 7*REG_SIZE($kdc)
-    cld         $t1, $k0, 8*REG_SIZE($kdc)
-    cld         $s0, $k0, 9*REG_SIZE($kdc)
-    cld         $s1, $k0, 10*REG_SIZE($kdc)
-    cld         $s2, $k0, 11*REG_SIZE($kdc)
-    cld         $s3, $k0, 12*REG_SIZE($kdc)
-    cld         $t9, $k0, 13*REG_SIZE($kdc)
-    cld         $gp, $k0, 14*REG_SIZE($kdc)
-    cld         $sp, $k0, 15*REG_SIZE($kdc)
-    cld         $fp, $k0, 16*REG_SIZE($kdc)
-    cld         $ra, $k0, 17*REG_SIZE($kdc)
-    cld         $k1, $k0, 18*REG_SIZE($kdc)
+    cld         $s0, $k0, 7*REG_SIZE($kdc)
+    cld         $s1, $k0, 8*REG_SIZE($kdc)
+    cld         $s2, $k0, 9*REG_SIZE($kdc)
+    cld         $s3, $k0, 10*REG_SIZE($kdc)
+    cld         $t9, $k0, 11*REG_SIZE($kdc)
+    cld         $gp, $k0, 12*REG_SIZE($kdc)
+    cld         $sp, $k0, 13*REG_SIZE($kdc)
+    cld         $fp, $k0, 14*REG_SIZE($kdc)
+    cld         $ra, $k0, 15*REG_SIZE($kdc)
+    cld         $k1, $k0, 16*REG_SIZE($kdc)
     mthi        $k1
-    cld         $k1, $k0, 19*REG_SIZE($kdc)
+    cld         $k1, $k0, 17*REG_SIZE($kdc)
     mtlo        $k1
-    cld         $k1, $k0, 20*REG_SIZE($kdc)
+    cld         $k1, $k0, 18*REG_SIZE($kdc)
     mtc0        $k1, $14		# EPC
     
     # avoid "direct c0 access deprecated" warning

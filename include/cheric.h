@@ -314,7 +314,6 @@ typedef struct reg_frame {
 	/* No need to preserve $zero. */
 	register_t	mf_at, mf_v0, mf_v1;
 	register_t	mf_a0, mf_a1, mf_a2, mf_a3;
-	register_t	mf_t0, mf_t1;
 	register_t	mf_s0, mf_s1, mf_s2, mf_s3;
 	register_t	mf_t9;
 	/* No need to preserve $k0, $k1. */
@@ -326,8 +325,6 @@ typedef struct reg_frame {
 	/* Program counter. */
 	register_t	mf_pc;
 	register_t	padding0;
-	register_t	padding1;
-	register_t	padding2;
 
 	/*
 	 * Capability registers.

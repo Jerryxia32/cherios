@@ -44,9 +44,9 @@
 	.ent start
 start:
     la          $t9, __init_fs_start
-    sw          $t0, 0($t9)
+    sw          $s0, 0($t9)
     la          $t9, __init_fs_stop
-    sw          $t1, 0($t9)
+    sw          $s1, 0($t9)
 
 cherios_init_jump_target:
 	# Set up a stack using memory allocated by the linker;

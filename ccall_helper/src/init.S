@@ -51,13 +51,13 @@ ccall_helper:
     csd $v1, $0, 2*CAP_SIZE($kr1c)
 //#define REAL_TIME
 #ifdef REAL_TIME
-    dmfc0   $t0, $9 # read the current count register
-    csw $t0, $0, 2*CAP_SIZE+REG_SIZE($kr1c)
+    dmfc0   $t9, $9 # read the current count register
+    csw $t9, $0, 2*CAP_SIZE+REG_SIZE($kr1c)
 #endif
-    li  $t0, 4*CAP_SIZE
+    li  $t9, 4*CAP_SIZE
 
     ccall   $c1, $c2, 42
-    cincoffset  $kr1c, $kr1c, $t0
+    cincoffset  $kr1c, $kr1c, $t9
 ccall_helper_end:
 	.size ccall_helper, ccall_helper - ccall_helper_end
 	.end ccall_helper
@@ -66,8 +66,8 @@ ccall_helper_end:
 	.global creturn_helper
 	.ent creturn_helper
 creturn_helper:
-    li  $t0, -4*CAP_SIZE
-    cincoffset  $kr1c, $kr1c, $t0
+    li  $t9, -4*CAP_SIZE
+    cincoffset  $kr1c, $kr1c, $t9
     clc $c1, $0, 0($kr1c)
     clc $c25, $0, CAP_SIZE($kr1c)
     # extract the stack pointer of the caller
@@ -78,4 +78,3 @@ creturn_helper:
 creturn_helper_end:
 	.size creturn_helper, creturn_helper - creturn_helper_end
 	.end creturn_helper
-

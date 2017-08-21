@@ -37,7 +37,6 @@
 
 void * act_self_ctrl = NULL;
 void * act_self_ref  = NULL;
-void * act_self_id   = NULL;
 void * __capability act_self_PCC = NULLCAP;
 void * __capability act_self_IDC = NULLCAP;
 void * __capability act_self_cap   = NULLCAP;
@@ -48,7 +47,6 @@ void object_init(void * self_ctrl, void * __capability self_cap, void * __capabi
 	assert(self_ctrl != NULL);
 	act_self_ctrl = self_ctrl;
 	act_self_ref  = act_ctrl_get_ref(self_ctrl);
-	act_self_id   = act_ctrl_get_id(self_ctrl);
     act_self_PCC = self_PCC;
     act_self_IDC = self_IDC;
 
@@ -63,19 +61,6 @@ void * act_ctrl_get_ref(void * ctrl) {
 	void * ref;
 	__asm__ (
 		"li    $v1, 21      \n"
-		"move $a0, %[ctrl] \n"
-		"syscall            \n"
-		"move %[ref], $a0  \n"
-		: [ref]"=r" (ref)
-		: [ctrl]"r" (ctrl)
-		: "v0", "v1", "a0");
-	return ref;
-}
-
-void * act_ctrl_get_id(void * ctrl) {
-	void * ref;
-	__asm__ (
-		"li    $v1, 22      \n"
 		"move $a0, %[ctrl] \n"
 		"syscall            \n"
 		"move %[ref], $a0  \n"
@@ -111,58 +96,25 @@ int act_ctrl_terminate(void * ctrl) {
 	return ret;
 }
 
-void * act_seal_id(void * id) {
-	void * sid;
-	__asm__ (
-		"li    $v1, 29      \n"
-		"move $a0, %[id]   \n"
-		"syscall            \n"
-		"move %[sid], $a0  \n"
-		: [sid]"=r" (sid)
-		: [id]"r" (id)
-		: "v0", "v1", "a0");
-	return sid;
+void
+ctor_null() {
 }
 
-void ctor_null(void) {
-	return;
+void
+dtor_null() {
 }
-
-void dtor_null(void) {
-	return;
-}
-
-/*
-void * get_curr_cookie(void) {
-	void * object;
-	__asm__ (
-		"cmove %[object], $c26 \n"
-		: [object]"=C" (object));
-	return object;
-}
-
-void set_curr_cookie(void * cookie) {
-	__asm__ (
-		"cmove $c26, %[cookie] \n"
-		:: [cookie]"C" (cookie));
-}
-
-void * get_cookie(void * cb, void * cs) {
-	return ccall_n_c(cb, cs, -1);
-}
- */
 
 /*
  * CCall helpers
  */
 
-#define CCALL_ASM_CSCB "move $t0, %[cb] \n" "move $t1, %[cs] \n" "move $v0, %[method_nb] \n"
+#define CCALL_ASM_CSCB "move $t9, %[cb] \n" "move $v0, %[method_nb] \n"
 #define CCALL_INSTR(n) \
         "li $v1, " #n "\n" \
         "syscall \n" \
 
-#define CCALL_INOPS [cb]"r" (cb), [cs]"r" (cs), [method_nb]"r" (method_nb)
-#define CCALL_CLOBS "$c3","$c4","$c5", "v0","v1","a0","a1","a2", "t0", "t1"
+#define CCALL_INOPS [cb]"r" (cb), [method_nb]"r" (method_nb)
+#define CCALL_CLOBS "$c3","$c4","$c5", "v0","v1","a0","a1","a2", "t9"
 #define CCALL_TOP \
     ret_t ret; \
     __asm__ __volatile__ ( \
@@ -184,7 +136,7 @@ void * get_cookie(void * cb, void * cs) {
 
 #define CCALLS(...) CCALL(4, __VA_ARGS__)
 
-register_t ccall_1(void * cb, void * cs, int method_nb,
+register_t ccall_1(void * cb, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const void * __capability carg1, const void * __capability carg2, const void * __capability carg3) {
     CCALL_TOP
@@ -193,7 +145,7 @@ register_t ccall_1(void * cb, void * cs, int method_nb,
     return ret.rret;
 }
 
-register_t ccall_2(void * cb, void * cs, int method_nb,
+register_t ccall_2(void * cb, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const void * __capability carg1, const void * __capability carg2, const void * __capability carg3) {
     CCALL_TOP
@@ -202,7 +154,7 @@ register_t ccall_2(void * cb, void * cs, int method_nb,
     return ret.rret;
 }
 
-ret_t ccall_4(void * cb, void * cs, int method_nb,
+ret_t ccall_4(void * cb, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const void * __capability carg1, const void * __capability carg2, const void * __capability carg3) {
     CCALL_TOP

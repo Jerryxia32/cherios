@@ -42,7 +42,7 @@
 
 #define REG_SIZE (64/8)
 #define SIZET_SIZE (32/8)
-#define MIPS_FRAME_SIZE (24*REG_SIZE)
+#define MIPS_FRAME_SIZE (20*REG_SIZE)
 #define REG_SIZE_BITS 3
 #define SIZET_SIZE_BITS 2
 #define MUTEX_ADDR 0x100

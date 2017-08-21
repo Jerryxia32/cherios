@@ -36,7 +36,7 @@ void *	mmap(void *addr, size_t length, int prot, int flags, __unused int fd, __u
 int	munmap(void *addr, size_t length);
  */
 
-void	memmgt_set_act(void *ref, void *id);
+void	memmgt_set_act(void *ref);
 void * __capability malloc_c(size_t n);
 void * __capability calloc_c(size_t n, size_t s);
 void * __capability realloc_c(void * __capability oldmem, size_t s);

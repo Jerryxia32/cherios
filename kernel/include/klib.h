@@ -94,7 +94,7 @@ void	kernel_freeze(void) __dead2;
 
 int	try_gc(void * p, void * pool);
 
-int	msg_push(int dest, int src, void *, void * __capability sync_token);
+int	msg_push(int dest, int src, void * __capability sync_token);
 void	msg_pop(aid_t act);
 void	msg_queue_init(aid_t act);
 int	msg_queue_empty(aid_t act);
@@ -103,11 +103,9 @@ void	act_init(boot_info_t *bi);
 void	act_wait(int act, aid_t next_hint);
 void *	act_register(const reg_frame_t * frame, const char * name);
 void *	act_get_ref(act_t * ctrl);
-size_t	act_get_id(act_t * ctrl);
 int	act_get_status(act_t * ctrl);
 int	act_revoke(act_t * ctrl);
 int	act_terminate(act_t * ctrl);
-void *	act_seal_identifier(void * identifier);
 
 void	regdump(int reg_num);
 void	framedump(const struct reg_frame *frame);

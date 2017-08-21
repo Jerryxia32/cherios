@@ -19,7 +19,7 @@ int main()
     printf("SHA Hello World.\n");
     act_self_PCC = cheri_seal(act_self_PCC, act_self_cap);
     act_self_IDC = cheri_seal(act_self_IDC, act_self_cap);
-    int ret = namespace_register(6, act_self_ref, act_self_id, act_self_PCC, act_self_IDC);
+    int ret = namespace_register(6, act_self_ref, act_self_PCC, act_self_IDC);
     return_cap = namespace_get_IDC(7);
     if(ret!=0) {
         printf("SHA: register failed\n");

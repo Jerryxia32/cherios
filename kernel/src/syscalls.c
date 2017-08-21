@@ -53,10 +53,6 @@ static void syscall_act_ctrl_get_ref(void) {
 	kernel_exception_framep_ptr->mf_a0 = (register_t)act_get_ref((void *)kernel_exception_framep_ptr->mf_a0);
 }
 
-static void syscall_act_ctrl_get_id(void) {
-	kernel_exception_framep_ptr->mf_a0 = (register_t)act_get_id((void *)kernel_exception_framep_ptr->mf_a0);
-}
-
 static void syscall_act_ctrl_get_status(void) {
 	kernel_exception_framep_ptr->mf_v0 = (register_t)act_get_status((void *)kernel_exception_framep_ptr->mf_a0);
 }
@@ -72,10 +68,6 @@ static void syscall_act_terminate(void) {
 	} else {
 		kernel_exception_framep_ptr->mf_v0 = ret;
 	}
-}
-
-static void syscall_act_seal_identifier(void) {
-	//kernel_exception_framep_ptr->mf_a0 = (register_t)act_seal_identifier((void *)kernel_exception_framep_ptr->mf_a0);
 }
 
 static void syscall_puts() {
@@ -130,10 +122,6 @@ void kernel_exception_syscall(void)
 		KERNEL_TRACE("exception", "Syscall %ld (act_ctrl_get_ref)", sysn);
 		syscall_act_ctrl_get_ref();
 		break;
-	case 22:
-		KERNEL_TRACE("exception", "Syscall %ld (act_ctrl_get_id)", sysn);
-		syscall_act_ctrl_get_id();
-		break;
 	case 23:
 		KERNEL_TRACE("exception", "Syscall %ld (act_ctrl_get_status)", sysn);
 		syscall_act_ctrl_get_status();
@@ -145,10 +133,6 @@ void kernel_exception_syscall(void)
 	case 26:
 		KERNEL_TRACE("exception", "Syscall %ld (act_terminate)", sysn);
 		syscall_act_terminate();
-		break;
-	case 29:
-		KERNEL_TRACE("exception", "Syscall %ld (act_seal_identifier)", sysn);
-		syscall_act_seal_identifier();
 		break;
 	case 34:
 		KERNEL_TRACE("exception", "Syscall %ld (puts)", sysn);
@@ -217,10 +201,8 @@ void kernel_ccall_fake(int cflags) {
     if(!(cflags & 4) && !(cflags & 2) && !(cflags & 1))
         KERNEL_ERROR(KRED"unknown fake ccall selector '%x'"KRST"\n", cflags);
 
-	/* Unseal CCall cs and cb */
-	/* cb is the activation and cs the identifier */
-	void * cs = (void *)kernel_exception_framep_ptr->mf_t1;
-	act_t * cb = (void *)kernel_exception_framep_ptr->mf_t0;
+	// cb is the activation.
+	act_t * cb = (void *)kernel_exception_framep_ptr->mf_t9;
 
 	if(cb->status != status_alive) {
 		KERNEL_ERROR("Trying to CCall revoked activation %s-%d",
@@ -235,7 +217,7 @@ void kernel_ccall_fake(int cflags) {
 	}
 
 	/* Push the message on the queue */
-	if(msg_push(cb->aid, kernel_curr_act, cs, sync_token)) {
+	if(msg_push(cb->aid, kernel_curr_act, sync_token)) {
 		//KERNEL_ERROR("Queue full");
 		if(cflags & 4) {
 			kernel_panic("queue full (csync)");

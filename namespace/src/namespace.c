@@ -33,7 +33,6 @@
 
 typedef struct {
 	void * act_reference;
-	void * act_default_id;
     void * __capability act_PCC;
     void * __capability act_IDC;
 } bind_t;
@@ -74,16 +73,6 @@ void * ns_get_reference(int nb) {
 	return bind[nb].act_reference;
 }
 
-/* Get default identifier for service 'n' */
-void * ns_get_identifier(int nb) {
-	if(!validate_idx(nb))
-		return NULL;
-
-	/* If service not in use, will already return NULL */
-	printf(KWHT"%s: id request for port %d"KRST"\n", __func__, nb);
-	return bind[nb].act_default_id;
-}
-
 /* Get sealed PCC for service 'n' */
 void * __capability ns_get_PCC(int nb) {
 	if(!validate_idx(nb))
@@ -105,23 +94,24 @@ void * __capability ns_get_IDC(int nb) {
 }
 
 /* Register a module a service 'nb' */
-static int ns_register_core(int nb, void * act_reference, void * act_default_id, void * __capability act_PCC, void * __capability act_IDC) {
-	if(bind[nb].act_reference != NULL) {
+static int ns_register_core(int nb, void* act_reference,
+        void*__capability act_PCC, void*__capability act_IDC) {
+    if(bind[nb].act_reference != NULL) {
 		printf(KWHT"%s: port already in use"KRST"\n", __func__);
 		return -1;
 	}
 
 	bind[nb].act_reference  = act_reference;
-	bind[nb].act_default_id = act_default_id;
 	bind[nb].act_PCC = act_PCC;
 	bind[nb].act_IDC = act_IDC;
 	printf(KWHT"%s: registered at port %d"KRST"\n", __func__, nb);
 	return 0;
 }
 
-int ns_register(int nb, void * act_reference, void * act_default_id, void * __capability act_PCC, void * __capability act_IDC) {
+int ns_register(int nb, void* act_reference, void*__capability act_PCC,
+        void*__capability act_IDC) {
 	if(!validate_idx(nb) || !validate_act_caps(act_PCC, act_IDC))
 		return -1;
 
-	return ns_register_core(nb, act_reference, act_default_id, act_PCC, act_IDC);
+    return ns_register_core(nb, act_reference, act_PCC, act_IDC);
 }

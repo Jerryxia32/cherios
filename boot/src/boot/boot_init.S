@@ -43,18 +43,18 @@
 	.ent start
 start:
 	# Enable capability coprocessor.
-	mfc0		$t0, $12
+	mfc0		$v0, $12
 #ifdef HARD_FLOAT
-    li          $t1, 0x64000000
+    li          $v1, 0x64000000
 #else
-    li          $t1, 0x40000000
+    li          $v1, 0x40000000
 #endif
-    or          $t0, $t0, $t1
+    or          $v0, $v0, $v1
 	# Clear ERL
-    li          $t1, 0x4
-    nor         $t1, $t1, $t1
-    and         $t0, $t0, $t1
-    mtc0        $t0, $12
+    li          $v1, 0x4
+    nor         $v1, $v1, $v1
+    and         $v0, $v0, $v1
+    mtc0        $v0, $12
 
 	# Wait for capability coprocessor to be enabled for real
     nop
@@ -73,19 +73,19 @@ start:
 
 	# W^X for pointers: ensure $c0 is never executable.
 	cgetdefault	$c3
-    li          $t0, ~(1<<1)
-	candperm	$c3, $c3, $t0
+    li          $v0, ~(1<<1)
+	candperm	$c3, $c3, $v0
 	csetdefault	$c3
 
 	# Implement W^X for pointers: trim store permissions from $pcc to
 	# prevent it from becoming writable in the future.
 	cgetpcc		$c3
-    li          $t0, ~((1<<3) | (1<<5))
-	candperm	$c3, $c3, $t0
+    li          $v0, ~((1<<3) | (1<<5))
+	candperm	$c3, $c3, $v0
 
 	# Jump to write-free $pcc.
-    la          $t0, cherios_init_jump_target
-    csetoffset  $c3, $c3, $t0
+    la          $t9, cherios_init_jump_target
+    csetoffset  $c3, $c3, $t9
     cjr         $c3
     nop
 cherios_init_jump_target:
@@ -97,8 +97,7 @@ cherios_init_jump_target:
 
 	# Set up a boot-time stack using memory allocated by the linker;
 	# assume that $c0 is a sensible starting capability for this.
-    la          $t0, __stop_boot_stack
-    move        $sp, $t0
+    la          $sp, __stop_boot_stack
 
 	# Initialise BSS and globals before running C constructors, so that C
 	# constructors can take them (and other aspects of the conventional C

@@ -2769,8 +2769,6 @@ main()
         
 	void * u_ref = namespace_get_ref(10);
 	assert(u_ref != NULL);
-	void * u_id  = namespace_get_id(10);
-	//assert(u_id != NULL);
     int sent_a = 326;
     int sent_b = -21356;
     void * __capability sent_c = cheri_getpcc();
@@ -2780,7 +2778,7 @@ main()
     CHERI_PRINT_CAP(sent_d);
     /* Trying so hard to kill qsort */
     register_t ret;
-	while((ret = ccall_1(u_ref, u_id, 0, sent_a, sent_b, 0, sent_c, sent_d, NULLCAP)) == 1) {
+	while((ret = ccall_1(u_ref, 0, sent_a, sent_b, 0, sent_c, sent_d, NULLCAP)) == 1) {
     }
     printf("Stringsearch send success.\n");
     stats_display();

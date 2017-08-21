@@ -58,9 +58,9 @@ static void * init_act_register(reg_frame_t * frame, const char * name) {
 	return ret;
 }
 
-static void * init_act_create(const char * name, void * __capability c0, void * __capability pcc, void * stack,
-			      void * __capability act_cap, void * ns_ref, void * ns_id,
-			      register_t rarg, const void * carg) {
+static void * init_act_create(const char * name, void * __capability c0,
+        void * __capability pcc, void * stack, void * __capability act_cap,
+        void * ns_ref, register_t rarg, const void * carg) {
 	reg_frame_t frame;
 	memset(&frame, 0, sizeof(reg_frame_t));
 
@@ -75,8 +75,9 @@ static void * init_act_create(const char * name, void * __capability c0, void * 
      * the trusted stack is put in cached, unmapped kernel address space
      * as we definitely do not want to sweep that region
      */
-    void*__capability temp = init_alloc(32*CAP_SIZE);
-    frame.cf_kr1c = cheri_setbounds(cheri_setoffset(cheri_getdefault(), cheri_getbase(temp) | 0x80000000), cheri_getlen(temp));
+    void*__capability temp = init_alloc(28*CAP_SIZE);
+    frame.cf_kr1c = cheri_setbounds(cheri_setoffset(cheri_getdefault(),
+            cheri_getbase(temp) | 0x80000000), cheri_getlen(temp));
 
 	/* set c0 */
     frame.cf_c0 = c0;
@@ -86,10 +87,9 @@ static void * init_act_create(const char * name, void * __capability c0, void * 
 
 	/* set namespace */
 	frame.mf_s0	= (register_t)ns_ref;
-	frame.mf_s1	= (register_t)ns_id;
 
 	void * ctrl = init_act_register(&frame, name);
-	CCALL(1, act_ctrl_get_ref(ctrl), act_ctrl_get_id(ctrl), 0,
+	CCALL(1, act_ctrl_get_ref(ctrl), 0,
 	      rarg, (register_t)carg, (register_t)ctrl, NULLCAP, NULLCAP, NULLCAP);
 	return ctrl;
 }
@@ -163,7 +163,6 @@ static void * __capability get_act_cap(module_t type) {
 }
 
 static void * ns_ref = NULL;
-static void * ns_id  = NULL;
 
 static void * __capability elf_loader(Elf_Env *env, const char * file, size_t *maxaddr, size_t * entry) {
 	int filelen=0;
@@ -224,13 +223,12 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 
 	void * ctrl = init_act_create(file, cheri_setoffset(prgmp, 0),
 				      pcc, stack, get_act_cap(type),
-				      ns_ref, ns_id, arg, carg);
+				      ns_ref, arg, carg);
 	if(ctrl == NULL) {
 		return NULL;
 	}
 	if(type == m_namespace) {
 		ns_ref = act_ctrl_get_ref(ctrl);
-		ns_id = act_ctrl_get_id(ctrl);
 	}
 	return ctrl;
 }

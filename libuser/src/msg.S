@@ -47,7 +47,6 @@
 	.ent msg_entry
 msg_entry:
     li          $v1, MUTEX_ADDR
-mutex_loop:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
     lw          $a3, 0($v1)
@@ -117,7 +116,7 @@ locked:
     move        $a3, $a0
     li          $a0, 0
     syscall
-    b           mutex_loop
+    b           msg_entry
     move        $a0, $a3
 
 msg_entry_end:
@@ -130,8 +129,8 @@ msg_entry_ccall:
     cgetoffset  $sp, $idc
     csetoffset  $idc, $idc, $0
     csetdefault $idc
-    li          $v1, MUTEX_ADDR
 mutex_loop_ccall:
+    li          $v1, MUTEX_ADDR
     # mutex to prevent module from receiving another message while still
     # processing the previous one
     lw          $a3, 0($v1)

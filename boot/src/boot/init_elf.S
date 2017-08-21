@@ -28,8 +28,10 @@
 # SUCH DAMAGE.
 #
 
-.global __init_elf_start
-.global __init_elf_end
+    .rodata
+    .align 4
+    .global __init_elf_start
+    .global __init_elf_end
 __init_elf_start:
-.incbin "init.elf"
+    .incbin "init.elf"
 __init_elf_end:

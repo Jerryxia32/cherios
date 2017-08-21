@@ -28,8 +28,10 @@
 # SUCH DAMAGE.
 #
 
-.global __kernel_elf_start
-.global __kernel_elf_end
+    .rodata
+    .align 4
+    .global __kernel_elf_start
+    .global __kernel_elf_end
 __kernel_elf_start:
-.incbin "kernel.elf"
+    .incbin "kernel.elf"
 __kernel_elf_end:

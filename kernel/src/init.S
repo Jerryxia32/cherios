@@ -32,6 +32,7 @@
 #Fixme: clean-up code && comment
 
 .set noat
+.set noreorder
 #include<asm.h>
 
 # Assembly stub on the way to running C code.  Assumes that $c0 and $pcc are
@@ -110,13 +111,11 @@ start:
     jal         crt_call_constructors
     nop
 
-    # Pass arguments to cherios_main(int, void*) in a0 and c3.
+    # Pass arguments to cherios_main(int, void*) in a0 and c3,
+    # and call cherios_main.
     dli         $a0, 1
-    cld         $a1, $k0, 4*REG_SIZE($kdc)
-
-    # Call cherios_main().
     jal         cherios_main
-    nop
+    cld         $a1, $k0, 4*REG_SIZE($kdc)
 
     # Restore context from the register frame set by the scheduler,
     # typically pointing to an init activation.
@@ -161,9 +160,8 @@ start:
     clc         $kr1c, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     clc         $epcc, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     
-    # Kernel init done
-    move        $k0, $zero
-    move        $k1, $zero
+    # Kernel init done, clear $k0, $k1
+    clearhi     0x0c00
     eret
 start_end:
 

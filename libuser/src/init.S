@@ -42,8 +42,6 @@
 	.global start_common
 	.ent start_common
 start_common:
-	# Save arguments
-    move        $s2, $a2
 
     # Initialise BSS and globals before running C constructors, so that C
     # constructors can take them (and other aspects of the conventional C
@@ -51,7 +49,8 @@ start_common:
 
     # Zero BSS.
     jal         crt_init_bss
-    nop
+    # Save arguments
+    move        $s2, $a2
 
     # Initialise globals.
     jal         crt_init_globals
@@ -69,9 +68,8 @@ start_common:
     csetoffset  $c4, $c4, $t9
     cgetdefault $c5
     csetoffset  $c5, $c5, $sp
-    move        $a1, $s0
     jal         libuser_init
-    nop
+    move        $a1, $s0
 
     # Call main().
     jal         main
@@ -81,10 +79,9 @@ start_common:
     la          $t9, msg_enable
     lw          $t9, 0($t9)
     bne         $t9, $zero, to_msg
-    nop
+    li          $v1, 26
     la          $t9, act_self_ctrl
     lw          $a0, 0($t9)
-    li          $v1, 26
     syscall
 
 to_msg:

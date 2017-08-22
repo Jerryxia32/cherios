@@ -108,10 +108,10 @@ void regdump(int reg_num) {
         char theByte = ttableCap[i];
         for(int j=0; j<8; j++) {
             if((theByte>>j) & 0x1) {
-                kernel_putchar('&');
+                //kernel_putchar('&');
                 haveTag += 1;
             } else {
-                kernel_putchar('-');
+                //kernel_putchar('-');
             }
             total += 1;
         }

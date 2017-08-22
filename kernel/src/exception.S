@@ -182,26 +182,17 @@ kernel_cp2_exception_handler:
     # Set up exception stack
     la          $sp, __stop_exception_stack
     
-    #
     # Restore the kernel's C0 after returning from the user
     # context -- this is the only capability used in the kernel
     # context other than KCC/KDC and T0 (for now).  In the future,
     # once the kernel uses capabilities in more intricate ways,
     # we'll need to restore other kernel capability context here.
-    #
+    jal         kernel_exception
     csetdefault	$kdc
     
-    #
-    # Normal function invocation of kernel_exception().
-    #
-    jal         kernel_exception
-    nop
-    
-    #
     # Restore context from exception frame, which may have had
     # its contents replaced by the kernel.  Notice correspondence
     # to the layout of struct reg_frame.
-    #
     la          $k0, kernel_exception_framep_ptr
     clw         $k0, $k0, 0($kdc)
     
@@ -247,12 +238,9 @@ kernel_cp2_exception_handler:
     clc         $kr1c, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     clc         $epcc, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
     
-    #
     # On general principle, flush the contents of $k0 and $k1
     # before returning to "userspace".
-    #
-    move        $k0, $zero
-    move        $k1, $zero
+    clearhi     0x0c00
     eret
 
 timing_failed_restore:
@@ -260,8 +248,8 @@ timing_failed_restore:
     clearlo     0xffff
     clearhi     0xf3ff  # keep k0, k1
     cclearlo    0xfffe # keep c0, as the kernel uses it
-    cld         $sp, $k0, 15*REG_SIZE($kdc)
-    cld         $k1, $k0, 20*REG_SIZE($kdc)
+    cld         $sp, $k0, 13*REG_SIZE($kdc)
+    cld         $k1, $k0, 18*REG_SIZE($kdc)
     dmtc0       $k1, $14		# EPC
     
     clc         $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)

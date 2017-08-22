@@ -47,6 +47,7 @@
 	.ent msg_entry
 msg_entry:
     li          $v1, MUTEX_ADDR
+mutex_loop:
     # mutex to prevent module from receiving another message while still
     # processing the previous one
     lw          $a3, 0($v1)
@@ -58,12 +59,11 @@ msg_entry:
     nop
 
     bltz        $v0, control
-    nop
+    lui         $a3, %hi(msg_methods_nb) # split the la to fill delay slots
 
     la          $v1, msg_methods
-    la          $a3, msg_methods_nb
     b           call
-    nop
+    addiu       $a3, $a3, %lo(msg_methods_nb)
 
 control:
     la          $v1, ctrl_methods
@@ -73,27 +73,16 @@ call:
     lw          $a3, 0($a3)
     sub         $a3, $a3, $v0
     blez        $a3, overflow
-    nop
+    cgetdefault $c1
 
     #Save sync_token
     la          $a3, sync_token
-    cgetdefault $c1
-    csc         $c2, $a3, 0($c1)
 
     sll         $v0, $v0, SIZET_SIZE_BITS
     add         $v1, $v1, $v0
     lw          $t9, 0($v1)
     jalr        $t9
-    nop
-    b           end
-    nop
-
-overflow:
-    move        $v0, $0
-    cfromptr    $c3, $c3, $0
-    b           end
-    move        $v1, $0
-
+    csc         $c2, $a3, 0($c1)
 end:
     #Restore sync_token
     la          $a3, sync_token
@@ -108,8 +97,15 @@ end:
     syscall
     
     #We are scheduled again: new message
-    b           msg_entry
-    nop
+    b           mutex_loop
+    li          $v1, MUTEX_ADDR
+
+overflow:
+    move        $v0, $0
+    cfromptr    $c3, $c3, $0
+    b           end
+    move        $v1, $0
+
 
 locked:
     li          $v1, 13
@@ -139,15 +135,14 @@ mutex_loop_ccall:
     ll          $a3, 0($v1)
     sc          $t9, 0($v1)
     beq         $t9, $0, locked_ccall
-    nop
+    lui         $a3, %hi(msg_methods_nb)
 
-    bltz		$v0, control_ccall
+    bltz        $v0, control_ccall
     addiu       $sp, $sp, -CAP_SIZE
 
-    la		    $v1, msg_methods
-    la		    $a3, msg_methods_nb
+    la          $v1, msg_methods
     b           call_ccall
-    nop
+    addiu       $a3, $a3, %lo(msg_methods_nb)
 
 control_ccall:
     la		    $v1, ctrl_methods
@@ -157,29 +152,19 @@ call_ccall:
     lw          $a3, 0($a3)
     sub         $a3, $a3, $v0
     blez        $a3, overflow_ccall
-    nop
+    sll         $v0, $v0, SIZET_SIZE_BITS
 
     sd          $ra, 0($sp)
-    sll         $v0, $v0, SIZET_SIZE_BITS
     add         $v1, $v1, $v0
     lw          $t9, 0($v1)
     jalr        $t9
     nop
     ld          $ra, 0($sp)
-    b           end_ccall
-    nop
-
-overflow_ccall:
-    move        $v0, $0
-    cfromptr    $c3, $c3, $0
-    b           end_ccall
-    move        $v1, $0
-
 end_ccall:
     # release lock
     li          $v1, MUTEX_ADDR
     sw          $0, 0($v1)
-    daddiu      $sp, $sp, CAP_SIZE
+    addiu       $sp, $sp, CAP_SIZE
 
     /* the callee should never trust the caller, as the callee can be called
      * by anyone. However, I think the caller should be able to choose whether
@@ -187,12 +172,19 @@ end_ccall:
      * callee should always clear registers, except for callee saved ones and
      * return values.
      */
-    dla         $v1, return_cap
-    clc         $c25, $v1, 0($idc)
+    la          $v1, return_cap
+    cgetdefault $c25
+    clc         $c25, $v1, 0($c25)
     clearlo     0xfff3 // keep v0, v1 for return values
     clearhi     0x0f00 // clear t8, t9, k0, k1
     csyscall    25
     cclearlo    0xff36 // keep c3, c6, c7
+
+overflow_ccall:
+    move        $v0, $0
+    cfromptr    $c3, $c3, $0
+    b           end_ccall
+    move        $v1, $0
 
 locked_ccall:
     li          $v1, 13

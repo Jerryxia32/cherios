@@ -35,8 +35,6 @@ __size_exception_stack	= 0x1000;	/* Start simple: 4K */
 CAP_ALIGN = 0x20;
 PAGE_ALIGN = 0x1000;
 
-OUTPUT_FORMAT("elf64-tradbigmips");
-OUTPUT_ARCH(mips)
 ENTRY(start)
 SECTIONS
 {

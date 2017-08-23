@@ -9,6 +9,7 @@
 #include<sha_info.h>
 #include<statcounters.h>
 #include<mibench_iter.h>
+#include<sys/mman.h>
 
 #define EACH_BLOCK_SIZE 131000
 
@@ -33,8 +34,8 @@ main() {
     int64_t encret;
     uint64_t decret;
 
-    uint8_t * __capability enc = (uint8_t * __capability)malloc(EACH_BLOCK_SIZE + 32);
-    uint8_t * __capability encdec = (uint8_t * __capability)malloc((size_t)len + 32);
+    uint8_t * __capability enc = mmap(NULL, EACH_BLOCK_SIZE+32, PROT_RW, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+    uint8_t * __capability encdec = mmap(NULL, (size_t)len+32, PROT_RW, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
 
     /* Prepare capabilities that have no permit free permission */
     uint8_t * __capability enc_out = enc;

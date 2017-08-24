@@ -121,6 +121,7 @@ include_directories(include)
 set(ASMC_COMPILER_FLAGS
     -mcpu=cheri64
     -mabi=n32
+    -ffreestanding
     -fno-PIC
     -mno-abicalls
     -integrated-as
@@ -135,7 +136,7 @@ set(ASM_COMPILER_FLAGS
 set(C_COMPILER_FLAGS
     ${ASMC_COMPILER_FLAGS}
     -nostdinc
-    -O3 # TODO: make this depend on the configuration
+    -Oz # TODO: make this depend on the configuration
     -fomit-frame-pointer # TODO: make this depend on the configuration
     -Werror
     -std=c11

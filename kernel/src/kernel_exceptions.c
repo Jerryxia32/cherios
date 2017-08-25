@@ -37,6 +37,41 @@
  */
 
 #ifndef __LITE__
+static const char* mipscausestr[0x20] = {
+	"Interrupt",
+	"TLB modification exception",
+	"TLB load/fetch exception",
+	"TLB store exception",
+	"Address load/fetch exception",
+	"Address store exception",
+	"Bus fetch exception",
+	"Bus load/store exception",
+	"System call",
+	"Breakpoint",
+	"Reserved instruction exception",
+	"Coprocessor unusable exception",
+	"Arithmetic overflow",
+	"Trap",
+	"Virtual coherency instr. exception",
+	"Floating point exception",
+	"Reserved",
+	"Reserved",
+	"Capability coprocessor exception",
+	"Reserved",
+	"Reserved",
+	"Reserved",
+	"Reserved",
+	"Watchpoint",
+	"Reserved",
+	"Reserved",
+	"Reserved",
+	"Reserved",
+	"Reserved",
+	"Reserved",
+	"Reserved",
+	"Virtual coherency data exception",
+};
+
 static const char * capcausestr[0x20] = {
 	"None",
 	"Length Violation",
@@ -134,17 +169,17 @@ static void kernel_exception_capability(void) {
 }
 
 static void kernel_exception_data(register_t excode) {
-	exception_printf(KRED"Data abort type %d, BadVAddr:0x%lx in %s-%d"KRST"\n",
-			 excode, cp0_badvaddr_get(),
+	exception_printf(KRED"Data abort, %s, BadVAddr:0x%lx in %s-%d"KRST"\n",
+			 mipscausestr[excode], cp0_badvaddr_get(),
 			 kernel_acts[kernel_curr_act].name, kernel_curr_act);
 	regdump(-1);
 	kernel_freeze();
 }
 
 
-static void kernel_exception_unknown(register_t excode) {
-	exception_printf(KRED"Unknown exception type '%d' in  %s-%d"KRST"\n",
-			 excode, kernel_acts[kernel_curr_act].name, kernel_curr_act);
+static void kernel_exception_others(register_t excode) {
+	exception_printf(KRED"%s in  %s-%d"KRST"\n",
+			 mipscausestr[excode], kernel_acts[kernel_curr_act].name, kernel_curr_act);
 	regdump(-1);
 	kernel_freeze();
 }
@@ -192,7 +227,7 @@ void kernel_exception(void) {
 		break;
 
 	default:
-		kernel_exception_unknown(excode);
+		kernel_exception_others(excode);
 		break;
 	}
 

@@ -157,8 +157,8 @@ int init_main() {
 		ssleep(0);
 	}
 
+    __asm__ volatile("break");
 	printf(KBLD"Only daemons are alive. System shutown."KRST"\n");
-    __asm__("teq $0, $0");
 	//stats_display();
 	hw_reboot();
 }

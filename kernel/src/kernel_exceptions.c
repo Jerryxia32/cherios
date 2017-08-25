@@ -181,7 +181,9 @@ static void kernel_exception_others(register_t excode) {
 	exception_printf(KRED"%s in  %s-%d"KRST"\n",
 			 mipscausestr[excode], kernel_acts[kernel_curr_act].name, kernel_curr_act);
 	regdump(-1);
-	kernel_freeze();
+    // If this is a breakpoint, just print a regdump and resume execution.
+    if(excode != MIPS_CP0_EXCODE_BREAK) kernel_freeze();
+    else kernel_skip_instr(kernel_curr_act);
 }
 
 

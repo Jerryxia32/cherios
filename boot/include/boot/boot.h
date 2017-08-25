@@ -77,7 +77,6 @@ void	boot_panic(const char *fmt, ...) __dead2;
 
 int	boot_printf(const char *fmt, ...);
 int	boot_vprintf(const char *fmt, va_list ap);
-void	boot_printf_syscall_enable(void);
 
 void		init_elf_loader();
 void		load_kernel();

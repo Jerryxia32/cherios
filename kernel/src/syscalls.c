@@ -94,14 +94,6 @@ static void syscall_interrupt_enable(void) {
 }
 
 /*
-static void syscall_gc(void) {
-	kernel_exception_framep_ptr->mf_v0 =
-	  try_gc(kernel_exception_framep_ptr->cf_a0,
-	         kernel_exception_framep_ptr->cf_a1);
-}
- */
-
-/*
  * Syscall demux
  */
 void kernel_exception_syscall(void)

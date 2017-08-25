@@ -93,8 +93,8 @@ botch(char *s)
 #define	ASSERT(p)
 #endif
 
-inline void * __capability
-malloc_core(size_t nbytes)
+static void*__capability
+__malloc_core(size_t nbytes)
 {
 	union overhead * __capability op;
 	int bucket;
@@ -143,17 +143,17 @@ malloc_core(size_t nbytes)
 static int returnCapInited = 0;
 
 void * __capability
-malloc_c(size_t nbytes) {
+__malloc_c(size_t nbytes) {
     if(returnCapInited == 0) {
         return_cap = namespace_get_IDC(7);
         returnCapInited = 1;
     }
-    void * __capability ret = malloc_core(nbytes);
+    void * __capability ret = __malloc_core(nbytes);
     return(cheri_andperm(ret, ~CHERI_PERM_STORE_LOCAL_CAP));
 }
 
 void * __capability
-calloc_core(size_t num, size_t size)
+__calloc_core(size_t num, size_t size)
 {
 	void * __capability ret;
 
@@ -162,14 +162,16 @@ calloc_core(size_t num, size_t size)
 		return (NULLCAP);
 	}
 
-	if ((ret = malloc_core(num * size)) != NULLCAP)
-		memset_c(ret, 0, num * size);
+    if((ret = __malloc_core(num * size)) != NULLCAP) {
+        memset_c(ret, 0, num * size);
+        ret = cheri_andperm(ret, ~CHERI_PERM_STORE_LOCAL_CAP);
+    }
 
 	return (ret);
 }
 
 void * __capability
-calloc_c(size_t num, size_t size)
+__calloc_c(size_t num, size_t size)
 {
 	void * __capability ret;
 
@@ -178,7 +180,7 @@ calloc_c(size_t num, size_t size)
 		return (NULLCAP);
 	}
 
-	if ((ret = malloc_c(num * size)) != NULLCAP)
+	if ((ret = __malloc_c(num * size)) != NULLCAP)
 		memset_c(ret, 0, num * size);
 
 	return (ret);
@@ -270,7 +272,7 @@ find_overhead(void * __capability cp)
 }
 
 void
-free_c(void * __capability cp)
+__free_c(void * __capability cp)
 {
     if(!(cheri_getperm(cp) & CHERI_PERM_SOFT_0)) {
         CHERI_PRINT_PTR(cp);
@@ -302,7 +304,7 @@ free_c(void * __capability cp)
 }
 
 void * __capability
-realloc_c(void * __capability cp, size_t nbytes)
+__realloc_c(void * __capability cp, size_t nbytes)
 {
 #if 0
 	size_t cur_space;	/* Space in the current bucket */
@@ -349,11 +351,11 @@ realloc_c(void * __capability cp, size_t nbytes)
 	return (res);
 #endif
     void * __capability res;
-	if((res = malloc_c(nbytes)) == NULLCAP)
+	if((res = __malloc_c(nbytes)) == NULLCAP)
 		return (NULLCAP);
 	memcpy_c(res, cp, (nbytes <= cheri_getlen(cp)) ? nbytes : cheri_getlen(cp));
 	res = cheri_andperm(res, cheri_getperm(cp));
-	free_c(cp);
+	__free_c(cp);
 	return(res);
 }
 

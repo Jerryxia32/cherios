@@ -68,12 +68,8 @@ int main(void) {
 	 * align break pointer so all data will be page aligned.
 	 */
 	pagesz = CHERIOS_PAGESIZE;
-	#if MMAP
-	minit(heap);
-	#else
 	init_pagebucket();
 	__init_heap(heap);
-	#endif
 
 	/* init release mecanism */
 	// XXX no gc for now

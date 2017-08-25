@@ -45,31 +45,11 @@
 
 void register_ns(void* ns_ref);
 
-#define MMAP 0
-
-#if !MMAP
-#define malloc_c __malloc_c
-#define calloc_c __calloc_c
-#define malloc_core __malloc_core
-#define calloc_core __calloc_core
-#define realloc_c __realloc_c
-#define free_c __free_c
-
-void * __capability	malloc_c(size_t nbytes);
-void * __capability	calloc_c(size_t num, size_t size);
-void * __capability	malloc_core(size_t nbytes);
-void * __capability	calloc_core(size_t num, size_t size);
-void * __capability	realloc_c(void * __capability cp, size_t nbytes);
-void	free_c(void * __capability cp);
-#endif
-
-//void	release(void * __capability p);
-//void	release_init(void);
-
-//void * __capability	__mmap(void * __capability addr, size_t length, int prot, int flags);
-//int	__munmap(void * __capability addr, size_t length);
-//void	minit(char * __capability heap, size_t heaplen);
-//void	mfree(void * __capability addr);
+void*__capability __malloc_c(size_t nbytes);
+void*__capability __calloc_c(size_t num, size_t size);
+void*__capability __calloc_core(size_t num, size_t size);
+void*__capability __realloc_c(void*__capability cp, size_t nbytes);
+void __free_c(void*__capability cp);
 
 extern	size_t pagesz;
 extern	char * __capability pool;

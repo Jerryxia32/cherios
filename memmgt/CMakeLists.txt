@@ -5,8 +5,6 @@ set(SRCS
     src/heap.c
     src/main.c
     src/malloc.c
-    #src/mmap.c
-    #src/release.c
 )
 
 add_cherios_memmgr(memmgt ADD_TO_FILESYSTEM LINKER_SCRIPT sandbox.ld SOURCES ${SRCS})

@@ -80,6 +80,13 @@ void * __capability init_alloc(size_t s) {
 		if(!p) {
 			return NULLCAP;
 		}
+        // The cap returned from the allocator may miss some permissions, have
+        // to rederive.
+        void*__capability q = cheri_getdefault();
+        size_t tempOffset = cheri_getoffset(p);
+        q = cheri_setoffset(q, cheri_getbase(p));
+        q = cheri_setbounds(q, cheri_getlen(p));
+        p = cheri_setoffset(q, tempOffset);
 		return p;
 	}
 	return init_alloc_core(s);

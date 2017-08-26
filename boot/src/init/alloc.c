@@ -68,8 +68,8 @@ void init_alloc_init(void) {
 	system_alloc = 0;
 }
 
-void init_alloc_enable_system(void * c_memmgt) {
-	memmgt_set_act(act_ctrl_get_ref(c_memmgt));
+void init_alloc_enable_system(aid_t aid) {
+	memmgt_set_aid(aid);
 	system_alloc = 1;
     printf("System alloc (memmgt module) enabled.\n");
 }

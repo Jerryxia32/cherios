@@ -44,23 +44,25 @@
 
 static uint32_t sealing_tool_no = 1;
 
-static void * init_act_register(reg_frame_t * frame, const char * name) {
-	void * ret;
+static aid_t
+init_act_register(reg_frame_t * frame, const char * name) {
+	aid_t ret;
 	__asm__ __volatile__ (
 		"li    $v1, 20       \n"
 		"move $a0, %[frame] \n"
 		"move $a1, %[name]  \n"
 		"syscall             \n"
-		"move %[ret], $a0   \n"
+		"move %[ret], $v0   \n"
 		: [ret] "=r" (ret)
 		: [frame] "r" (frame), [name] "r" (name)
 		: "v0", "v1", "a0", "a1");
 	return ret;
 }
 
-static void * init_act_create(const char * name, void * __capability c0,
-        void * __capability pcc, void * stack, void * __capability act_cap,
-        void * ns_ref, register_t rarg, const void * carg) {
+static aid_t
+init_act_create(const char* name, void*__capability c0,
+        void* __capability pcc, void* stack, void*__capability act_cap,
+        aid_t ns_aid, register_t rarg, const void* carg) {
 	reg_frame_t frame;
 	memset(&frame, 0, sizeof(reg_frame_t));
 
@@ -86,12 +88,12 @@ static void * init_act_create(const char * name, void * __capability c0,
 	frame.cf_c6	= act_cap;
 
 	/* set namespace */
-	frame.mf_s0	= (register_t)ns_ref;
+	frame.mf_s0	= (register_t)ns_aid;
 
-	void * ctrl = init_act_register(&frame, name);
-	CCALL(1, act_ctrl_get_ref(ctrl), 0,
-	      rarg, (register_t)carg, (register_t)ctrl, NULLCAP, NULLCAP, NULLCAP);
-	return ctrl;
+	aid_t thisAid = init_act_register(&frame, name);
+	CCALL(1, thisAid, 0,
+	      rarg, (register_t)carg, thisAid, NULLCAP, NULLCAP, NULLCAP);
+	return thisAid;
 }
 
 /* Return the capability needed by the activation */
@@ -162,7 +164,7 @@ static void * __capability get_act_cap(module_t type) {
 	return cap;
 }
 
-static void * ns_ref = NULL;
+static aid_t ns_aid = 0;
 
 static void * __capability elf_loader(Elf_Env *env, const char * file, size_t *maxaddr, size_t * entry) {
 	int filelen=0;
@@ -178,7 +180,8 @@ static void * __capability init_memcpy(void * __capability dest, const void * __
 	return memcpy_c(dest, src, n);
 }
 
-void * load_module(module_t type, const char * file, int arg, const void *carg) {
+aid_t
+load_module(module_t type, const char* file, int arg, const void* carg) {
 	size_t entry;
     size_t allocsize;
 	Elf_Env env = {
@@ -193,7 +196,7 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
     printf(KWHT"Module loaded at %p, entry: %x, size: %x"KRST"\n", (void *)cheri_getbase(prgmp), entry, allocsize);
 	if(!prgmp) {
 		assert(0);
-		return NULL;
+		return 0;
 	}
 
 	/* Invalidate the whole range; elf_loader only returns a
@@ -221,30 +224,30 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
         pcc = cheri_andperm(pcc, ~CHERI_PERM_ACCESS_SYS_REGS);
     }
 
-	void * ctrl = init_act_create(file, cheri_setoffset(prgmp, 0),
-				      pcc, stack, get_act_cap(type),
-				      ns_ref, arg, carg);
-	if(ctrl == NULL) {
-		return NULL;
+    aid_t thisAid = init_act_create(file, cheri_setoffset(prgmp, 0),
+            pcc, stack, get_act_cap(type), ns_aid, arg, carg);
+	if(thisAid == 0) {
+		return 0;
 	}
 	if(type == m_namespace) {
-		ns_ref = act_ctrl_get_ref(ctrl);
+		ns_aid = thisAid;
 	}
-	return ctrl;
+	return thisAid;
 }
 
-static int act_alive(void * ctrl) {
-	if(!ctrl) {
+static int
+act_alive(aid_t aid) {
+	if(!aid) {
 		return 0;
 	}
 	int ret;
 	__asm__ __volatile__ (
 		"li    $v1, 23      \n"
-		"move $a0, %[ctrl] \n"
+		"move $a0, %[aid] \n"
 		"syscall            \n"
 		"move %[ret], $v0   \n"
 		: [ret] "=r" (ret)
-		: [ctrl] "r" (ctrl)
+		: [aid] "r" (aid)
 		: "v0", "v1", "a0");
 	if(ret == 2) {
 		return 0;
@@ -256,7 +259,7 @@ int acts_alive(init_elem_t * init_list, size_t  init_list_len) {
 	int nb = 0;
 	for(size_t i=0; i<init_list_len; i++) {
 		init_elem_t * be = init_list + i;
-		if((!be->daemon) && act_alive(be->ctrl)) {
+		if((!be->daemon) && act_alive(be->aid)) {
 			nb++;
 			break;
 		}

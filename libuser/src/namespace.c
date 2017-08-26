@@ -33,25 +33,30 @@
 #include "object.h"
 #include "assert.h"
 
-void * namespace_ref = NULL;
+aid_t namespace_aid = 0;
 
-void namespace_init(void* ns_ref) {
-	namespace_ref = ns_ref;
+void
+namespace_init(aid_t ns_aid) {
+	namespace_aid = ns_aid;
 }
 
-int namespace_register(int nb, void* ref,
+int
+namespace_register(int nb, aid_t aid,
         void*__capability PCC, void*__capability IDC) {
-    return ccall_4(namespace_ref, 0, nb, (register_t)ref, 0, PCC, IDC, NULLCAP).rret;
+    return ccall_4(namespace_aid, 0, nb, aid, 0, PCC, IDC, NULLCAP).rret;
 }
 
-void * namespace_get_ref(int nb) {
-    return (void *)ccall_4(namespace_ref, 1, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).rret;
+aid_t
+namespace_get_aid(int nb) {
+    return ccall_4(namespace_aid, 1, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).rret;
 }
 
-void * __capability namespace_get_PCC(int nb) {
-	return ccall_4(namespace_ref, 3, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
+void*__capability
+namespace_get_PCC(int nb) {
+	return ccall_4(namespace_aid, 3, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }
 
-void * __capability namespace_get_IDC(int nb) {
-	return ccall_4(namespace_ref, 4, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
+void*__capability
+namespace_get_IDC(int nb) {
+	return ccall_4(namespace_aid, 4, nb, 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }

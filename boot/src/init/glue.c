@@ -31,8 +31,7 @@
 #include "object.h"
 #include"cheric.h"
 
-void glue_memmgt(void * memmgt_ctrl, void* ns_ctrl) {
-	void * memmgt_ref = act_ctrl_get_ref(memmgt_ctrl);
-	void * ns_ref = act_ctrl_get_ref(ns_ctrl);
-	ccall_4(memmgt_ref, -3, (register_t)ns_ref, 0, 0, NULLCAP, NULLCAP, NULLCAP);
+void
+glue_memmgt(aid_t memmgt_aid, aid_t ns_aid) {
+	ccall_4(memmgt_aid, -3, ns_aid, 0, 0, NULLCAP, NULLCAP, NULLCAP);
 }

@@ -46,7 +46,7 @@ int main(void)
 
     call_helper = cheri_seal(call_helper, act_self_cap);
     return_helper = cheri_seal(return_helper, act_self_cap);
-    int ret = namespace_register(7, act_self_ref, call_helper, return_helper);
+    int ret = namespace_register(PORT_CCALL, act_self_aid, call_helper, return_helper);
     if(ret!=0) {
         printf("CCall_helper: register failed\n");
         return -1;

@@ -28,11 +28,12 @@
  * SUCH DAMAGE.
  */
 
-#include "all.h"
+#include"all.h"
 
-void	ns_init(void);
+void ns_init(void);
 
-int	ns_register(int nb, void * act_reference, void * __capability act_PCC, void * __capability act_IDC);
-void *	ns_get_reference(int nb);
-void * __capability	ns_get_PCC(int nb);
-void * __capability	ns_get_IDC(int nb);
+int	ns_register(int nb, aid_t aid, void*__capability act_PCC,
+        void*__capability act_IDC);
+aid_t ns_get_aid(int nb);
+void*__capability ns_get_PCC(int nb);
+void*__capability ns_get_IDC(int nb);

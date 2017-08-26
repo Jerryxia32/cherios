@@ -43,7 +43,7 @@
 #include "stdio.h"
 #include "string.h"
 
-void register_ns(void* ns_ref);
+void register_ns(aid_t ns_aid);
 
 void*__capability __malloc_c(size_t nbytes);
 void*__capability __calloc_c(size_t num, size_t size);

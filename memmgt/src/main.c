@@ -42,9 +42,10 @@ size_t ctrl_methods_nb = countof(ctrl_methods);
 
 size_t pagesz;			/* page size */
 
-void register_ns(void * ns_ref) {
-	namespace_init(ns_ref);
-	int ret = namespace_register(3, act_self_ref, act_self_PCC, act_self_IDC);
+void
+register_ns(aid_t ns_aid) {
+	namespace_init(ns_aid);
+	int ret = namespace_register(PORT_MEMMGT, act_self_aid, act_self_PCC, act_self_IDC);
 	if(ret!=0) {
 		syscall_puts(KRED"Register failed\n");
 	}

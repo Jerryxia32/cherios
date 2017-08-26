@@ -34,37 +34,41 @@
 #include "object.h"
 #include "namespace.h"
 
-static void * memmgt_ref = NULL;
+static aid_t memmgt_aid = 0;
 
 #define MALLOC_FASTPATH
 
 #ifndef MALLOC_FASTPATH
-void * __capability malloc_c(size_t length) {
-	if(memmgt_ref == NULL) {
-		memmgt_ref = namespace_get_ref(3);
+void*__capability
+malloc_c(size_t length) {
+	if(memmgt_aid == 0) {
+		memmgt_aid = namespace_get_aid(PORT_MEMMGT);
 	}
-	return ccall_4(memmgt_ref, 0, length, 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
+	return ccall_4(memmgt_aid, 0, length, 0, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }
 
-void * __capability calloc_c(size_t items, size_t length) {
-	if(memmgt_ref == NULL) {
-		memmgt_ref = namespace_get_ref(3);
+void*__capability
+calloc_c(size_t items, size_t length) {
+	if(memmgt_aid == 0) {
+		memmgt_aid = namespace_get_aid(PORT_MEMMGT);
 	}
-	return ccall_4(memmgt_ref, 1, items, length, 0, NULLCAP, NULLCAP, NULLCAP).cret;
+	return ccall_4(memmgt_aid, 1, items, length, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }
 
-void * __capability realloc_c(void * __capability ptr, size_t length) {
-	if(memmgt_ref == NULL) {
-		memmgt_ref = namespace_get_ref(3);
+void*__capability
+realloc_c(void*__capability ptr, size_t length) {
+	if(memmgt_aid == 0) {
+		memmgt_aid = namespace_get_aid(PORT_MEMMGT);
 	}
-	return ccall_4(memmgt_ref, 2, length, 0, 0, ptr, NULLCAP, NULLCAP).cret;
+	return ccall_4(memmgt_aid, 2, length, 0, 0, ptr, NULLCAP, NULLCAP).cret;
 }
 
-void free_c(void * __capability ptr) {
-	if(memmgt_ref == NULL) {
-		memmgt_ref = namespace_get_ref(3);
+void
+free_c(void*__capability ptr) {
+	if(memmgt_aid == 0) {
+		memmgt_aid = namespace_get_aid(PORT_MEMMGT);
 	}
-	ccall_4(memmgt_ref, 3, 0, 0, 0, ptr, NULLCAP, NULLCAP);
+	ccall_4(memmgt_aid, 3, 0, 0, 0, ptr, NULLCAP, NULLCAP);
 }
 
 #else /* ifdef MALLOC_FASTPATH */
@@ -106,20 +110,20 @@ void free_c(void * __capability ptr) {
 }
 #endif /* MALLOC_FASTPATH */
 
-void memmgt_set_act(void * ref) {
-	memmgt_ref = ref;
+void memmgt_set_aid(aid_t aid) {
+	memmgt_aid = aid;
 }
 
 void * __capability calloc_core(size_t items, size_t length) {
-	if(memmgt_ref == NULL) {
-		memmgt_ref = namespace_get_ref(3);
+	if(memmgt_aid == 0) {
+		memmgt_aid = namespace_get_aid(PORT_MEMMGT);
 	}
-	return ccall_4(memmgt_ref, 4, items, length, 0, NULLCAP, NULLCAP, NULLCAP).cret;
+	return ccall_4(memmgt_aid, 4, items, length, 0, NULLCAP, NULLCAP, NULLCAP).cret;
 }
 
 void free_core(void * __capability ptr) {
-	if(memmgt_ref == NULL) {
-		memmgt_ref = namespace_get_ref(3);
+	if(memmgt_aid == 0) {
+		memmgt_aid = namespace_get_aid(PORT_MEMMGT);
 	}
-	ccall_4(memmgt_ref, 3, 0, 0, 0, ptr, NULLCAP, NULLCAP);
+	ccall_4(memmgt_aid, 3, 0, 0, 0, ptr, NULLCAP, NULLCAP);
 }

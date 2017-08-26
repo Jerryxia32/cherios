@@ -33,8 +33,6 @@
 
 #include "queue.h"
 
-typedef u32 aid_t;
-
 typedef struct
 {
 	uint16_t expected_reply;
@@ -78,7 +76,6 @@ typedef struct
 	sched_status_e sched_status;	/* Current status */
 	/* CCall related */
 	sync_t sync_token;		/* Helper for the synchronous CCall mecanism */
-	void * act_reference;		/* Sealed reference for the activation */
 	#ifndef __LITE__
 	char name[ACT_NAME_MAX_LEN];	/* Activation name (for debuging) */
 	#endif

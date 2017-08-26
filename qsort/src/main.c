@@ -15,7 +15,7 @@ int qsort_receive(int a, int b, void * __capability c, void * __capability d) {
     printf("Qsort received a message! Four args are %d, %d and two capabilities.\n", a, b);
     CHERI_PRINT_CAP(c);
     CHERI_PRINT_CAP(d);
-    act_ctrl_terminate(act_self_ctrl);
+    act_ctrl_terminate(act_self_aid);
     return 888;
 }
 
@@ -5046,7 +5046,7 @@ main() {
     int count=0, i;
   
     count = MAXARRAY;
-    int ret = namespace_register(10, act_self_ref, NULLCAP, NULLCAP);
+    int ret = namespace_register(PORT_QSORT, act_self_aid, NULLCAP, NULLCAP);
     if(ret!=0) {
         printf("QSORT: register failed\n");
         return -1;

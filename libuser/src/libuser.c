@@ -29,10 +29,13 @@
  * SUCH DAMAGE.
  */
 
+#include"mips.h"
 #include "object.h"
 #include "namespace.h"
 
-void libuser_init(void * self_ctrl, void * __capability self_cap, void * ns_ref, void * __capability self_PCC, void * __capability self_IDC) {
-	object_init(self_ctrl, self_cap, self_PCC, self_IDC);
-	namespace_init(ns_ref);
+void
+libuser_init(aid_t self_aid, void*__capability self_cap, aid_t ns_aid,
+        void*__capability self_PCC, void * __capability self_IDC) {
+	object_init(self_aid, self_cap, self_PCC, self_IDC);
+	namespace_init(ns_aid);
 }

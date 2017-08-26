@@ -49,13 +49,13 @@
 #define B_MI 1
 
 #define B_ENTRY(_type, _name, _arg, _daemon, _cond) \
-	{_type,	_cond, _name, _arg, _daemon, 0, NULL},
+	{_type,	_cond, _name, _arg, _daemon, 0, 0},
 #define B_DENTRY(_type, _name, _arg, _cond) \
 	 B_ENTRY(_type, _name, _arg, 1, _cond)
 #define B_PENTRY(_type, _name, _arg, _cond) \
 	 B_ENTRY(_type, _name, _arg, 0, _cond)
 #define B_FENCE \
-	{m_fence, 1, NULL, 0, 0, 0, NULL},
+	{m_fence, 1, NULL, 0, 0, 0, 0},
 
 init_elem_t init_list[] = {
 	B_DENTRY(m_memmgt,	"memmgt.elf",		0, 	1)
@@ -74,17 +74,9 @@ init_elem_t init_list[] = {
 	B_PENTRY(m_user,	"bitcount.elf",		0, 	B_MI)
     B_PENTRY(m_user,	"adpcm.elf",		0, 	B_MI)
     B_PENTRY(m_user,	"dijkstra.elf",		0, 	B_MI)
-	//B_DENTRY(m_core,	"sockets.elf",		0,	B_SO)
-	//B_DENTRY(m_core,	"zlib.elf",		0,	B_ZL)
-	//B_DENTRY(m_core,	"virtio-blk.elf",	0,	B_FS)
 	//B_PENTRY(m_fs,		"fatfs.elf",		0,	B_FS)
 	B_FENCE
-	//B_PENTRY(m_user,	"hello.elf",		0,	1)
-	//B_FENCE
-	//B_PENTRY(m_user,	"prga.elf",		1,	B_SO)
-	//B_PENTRY(m_user,	"prga.elf",		2,	B_SO)
-	//B_PENTRY(m_user,	"zlib_test.elf",	0,	B_ZL)
-	{m_fence, 0, NULL, 0, 0, 0, NULL}
+	{m_fence, 0, NULL, 0, 0, 0, 0}
 };
 
 const size_t init_list_len = countof(init_list);
@@ -103,7 +95,7 @@ void print_build_date(void) {
 }
 
 static void load_modules(void) {
-	static void * c_memmgt = NULL;
+	static aid_t c_memmgt = 0;
 
 	for(size_t i=0; i<init_list_len; i++) {
 		init_elem_t * be = init_list + i;
@@ -114,18 +106,18 @@ static void load_modules(void) {
 			nssleep(3);
 			continue;
 		}
-		be->ctrl = load_module(be->type, be->name, be->arg, NULL);
+		be->aid = load_module(be->type, be->name, be->arg, NULL);
 		printf(KWHT"Loaded module %s"KRST"\n", be->name);
 		switch(init_list[i].type) {
 		case m_memmgt:
 			nssleep(3);
-			c_memmgt = be->ctrl;
-			init_alloc_enable_system(be->ctrl);
+			c_memmgt = be->aid;
+			init_alloc_enable_system(be->aid);
 			break;
 		case m_namespace:
 			nssleep(3);
 			/* glue memmgt to namespace */
-			glue_memmgt(c_memmgt, be->ctrl);
+			glue_memmgt(c_memmgt, be->aid);
 			break;
 		default:{}
 		}

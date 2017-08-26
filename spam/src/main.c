@@ -21,19 +21,19 @@ main() {
         printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
     }
 
-	void * __capability aes_PCC = namespace_get_PCC(5);
+	void * __capability aes_PCC = namespace_get_PCC(PORT_AES);
 	assert(aes_PCC != NULLCAP);
-	void * __capability aes_IDC = namespace_get_IDC(5);
+	void * __capability aes_IDC = namespace_get_IDC(PORT_AES);
 	assert(aes_IDC != NULLCAP);
 
-	void * __capability sha_PCC = namespace_get_PCC(6);
+	void * __capability sha_PCC = namespace_get_PCC(PORT_SHA);
 	assert(sha_PCC != NULLCAP);
-	void * __capability sha_IDC = namespace_get_IDC(6);
+	void * __capability sha_IDC = namespace_get_IDC(PORT_SHA);
 	assert(sha_IDC != NULLCAP);
 
-	void * __capability helper_PCC = namespace_get_PCC(7);
+	void * __capability helper_PCC = namespace_get_PCC(PORT_CCALL);
 	assert(helper_PCC != NULLCAP);
-	void * __capability helper_IDC = namespace_get_IDC(7);
+	void * __capability helper_IDC = namespace_get_IDC(PORT_CCALL);
 	assert(helper_IDC != NULLCAP);
 
     size_t len = &__AES_end - &__AES_start;

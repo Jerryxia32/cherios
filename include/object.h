@@ -33,16 +33,14 @@
 
 #include "mips.h"
 
-extern void * act_self_ctrl;
-extern void * act_self_ref;
+extern aid_t act_self_aid;
 extern void * __capability act_self_PCC;
 extern void * __capability act_self_IDC;
 extern void * __capability act_self_cap;
 extern void * __capability helper_cap;
 extern void * __capability return_cap;
-void *	act_ctrl_get_ref(void * ctrl);
-int	act_ctrl_revoke(void * ctrl);
-int	act_ctrl_terminate(void * ctrl);
+int	act_ctrl_revoke(aid_t aid);
+int	act_ctrl_terminate(aid_t aid);
 void * __capability	act_get_cap(void);
 
 typedef struct {
@@ -51,7 +49,8 @@ typedef struct {
 }  ret_t;
 
 
-void	object_init(void * self_ctrl, void * __capability self_cap, void * __capability self_PCC, void * __capability self_IDC);
+void object_init(aid_t self_aid, void*__capability self_cap,
+        void*__capability self_PCC, void * __capability self_IDC);
 
 void ctor_null();
 void dtor_null();
@@ -60,15 +59,15 @@ extern void * __capability sync_token;
 extern uint32_t msg_enable;
 
 #define CCALL(selector, ...) ccall_##selector(__VA_ARGS__)
-register_t ccall_1(void * cb, int method_nb,
+register_t ccall_1(aid_t aid, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const void * __capability carg1, const void * __capability carg2, const void * __capability carg3);
 
-register_t ccall_2(void * cb, int method_nb,
+register_t ccall_2(aid_t aid, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const void * __capability carg1, const void * __capability carg2, const void * __capability carg3);
 
-ret_t ccall_4(void * cb, int method_nb,
+ret_t ccall_4(aid_t aid, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const void * __capability carg1, const void * __capability carg2, const void * __capability carg3);
 

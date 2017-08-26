@@ -67,22 +67,15 @@ void act_init(boot_info_t *bi) {
 
 void kernel_skip_instr(aid_t act) {
 	kernel_exception_framep[act].mf_pc += 4; /* assumes no branch delay slot */
-    /*
-	void * __capability pcc = kernel_exception_framep[act].cf_pcc;
-	pcc = __builtin_cheri_offset_increment(pcc, 4);
-	kernel_exception_framep[act].cf_pcc = pcc;
-     */
+    // XXX: Currently the offset in EPCC is not used when eret, but this might
+    // change in the future.
+    //void*__capability pcc = kernel_exception_framep[act].cf_pcc;
+    //pcc = cheri_incoffset(pcc, 4);
+    //kernel_exception_framep[act].cf_pcc = pcc;
 }
 
-static void * act_create_ref(aid_t aid) {
-	return kernel_acts + aid;
-}
-
-static void * act_create_ctrl_ref(aid_t aid) {
-	return kernel_acts + aid;
-}
-
-void * act_register(const reg_frame_t * frame, const char * name) {
+aid_t
+act_register(const reg_frame_t * frame, const char * name) {
 	aid_t aid = kernel_next_act;
 
 	if(aid >= MAX_ACTIVATIONS) {
@@ -117,20 +110,17 @@ void * act_register(const reg_frame_t * frame, const char * name) {
 	msg_queue_init(aid);
 	kernel_acts[aid].queue_mask = MAX_MSG-1;
 
-	/* set reference */
-	kernel_acts[aid].act_reference = act_create_ref(aid);
-
 	/* set scheduling status */
 	sched_create(aid);
 
 	KERNEL_TRACE("act", "%s added %s OK! ", __func__, kernel_acts[aid].name);
 	/* done, update next_act */
 	kernel_next_act++;
-	return act_create_ctrl_ref(aid);
+	return aid;
 }
 
-int act_revoke(act_t * ctrl) {
-	aid_t aid = ctrl->aid;
+int
+act_revoke(aid_t aid) {
 	if(kernel_acts[aid].status == status_terminated) {
 		return -1;
 	}
@@ -138,30 +128,26 @@ int act_revoke(act_t * ctrl) {
 	return 0;
 }
 
-int act_terminate(act_t * ctrl) {
-	aid_t act = ctrl->aid;
-	kernel_acts[act].status = status_terminated;
-	sched_delete(act);
-	kernel_acts[act].sched_status = sched_terminated;
-	KERNEL_TRACE("act", "Terminated %s:%d", kernel_acts[act].name, act);
-	if(act == kernel_curr_act) { /* terminated itself */
+int
+act_terminate(aid_t aid) {
+    kernel_acts[aid].status = status_terminated;
+    sched_delete(aid);
+    kernel_acts[aid].sched_status = sched_terminated;
+    KERNEL_TRACE("act", "Terminated %s:%d", kernel_acts[aid].name, aid);
+	if(aid == kernel_curr_act) { /* terminated itself */
 		return 1;
 	}
 	return 0;
 }
 
-void * act_get_ref(act_t * ctrl) {
-	aid_t aid = ctrl->aid;
-	return kernel_acts[aid].act_reference;
-}
-
-int act_get_status(act_t * ctrl) {
-	aid_t aid = ctrl->aid;
+int
+act_get_status(aid_t aid) {
     //printf("Guy: %d is of status %d!\n", aid, kernel_acts[aid].status);
 	return kernel_acts[aid].status;
 }
 
-void act_wait(int act, aid_t next_hint) {
+void
+act_wait(aid_t act, aid_t next_hint) {
 	kernel_assert(kernel_acts[act].sched_status == sched_runnable);
 	if(msg_queue_empty(act)) {
 		sched_a2d(act, sched_waiting);

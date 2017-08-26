@@ -31,6 +31,13 @@
 
 #include "klib.h"
 
+// Sanitize the aid in syscalls. Current number of total activations is
+// kernel_next_act.
+static
+int is_valid_aid(aid_t aid) {
+    return aid < kernel_next_act;
+}
+
 /*
  * These functions abstract the syscall register convention
  */
@@ -46,23 +53,25 @@ static void syscall_sleep(void) {
 static void syscall_act_register(void) {
 	reg_frame_t * frame = (void *)kernel_exception_framep_ptr->mf_a0;
 	char * name = (void *)kernel_exception_framep_ptr->mf_a1;
-	kernel_exception_framep_ptr->mf_a0 = (register_t)act_register(frame, name);
+	kernel_exception_framep_ptr->mf_v0 = (register_t)act_register(frame, name);
 }
 
-static void syscall_act_ctrl_get_ref(void) {
-	kernel_exception_framep_ptr->mf_a0 = (register_t)act_get_ref((void *)kernel_exception_framep_ptr->mf_a0);
-}
-
-static void syscall_act_ctrl_get_status(void) {
-	kernel_exception_framep_ptr->mf_v0 = (register_t)act_get_status((void *)kernel_exception_framep_ptr->mf_a0);
+static void syscall_act_get_status(void) {
+    aid_t aid = (aid_t)kernel_exception_framep_ptr->mf_a0;
+    if(!is_valid_aid(aid)) kernel_panic("Invalid aid!\n");
+    kernel_exception_framep_ptr->mf_v0 = (register_t)act_get_status(aid);
 }
 
 static void syscall_act_revoke(void) {
-	kernel_exception_framep_ptr->mf_v0 = act_revoke((void *)kernel_exception_framep_ptr->mf_a0);
+    aid_t aid = (aid_t)kernel_exception_framep_ptr->mf_a0;
+    if(!is_valid_aid(aid)) kernel_panic("Invalid aid!\n");
+    kernel_exception_framep_ptr->mf_v0 = act_revoke(aid);
 }
 
 static void syscall_act_terminate(void) {
-	int ret = act_terminate((void *)kernel_exception_framep_ptr->mf_a0);
+    aid_t aid = (aid_t)kernel_exception_framep_ptr->mf_a0;
+    if(!is_valid_aid(aid)) kernel_panic("Invalid aid!\n");
+	int ret = act_terminate(aid);
 	if(ret == 1) {
 		sched_reschedule(0);
 	} else {
@@ -71,7 +80,8 @@ static void syscall_act_terminate(void) {
 }
 
 static void syscall_puts() {
-	void * msg = (void *)(kernel_exception_framep_ptr->mf_a0 + cheri_getbase(kernel_exception_framep_ptr->cf_c0));
+    void * msg = (void *)(kernel_exception_framep_ptr->mf_a0 +
+            cheri_getbase(kernel_exception_framep_ptr->cf_c0));
 	#ifndef __LITE__
 	kernel_printf(KGRN"%s" KREG KRST, msg);
 	#else
@@ -110,13 +120,9 @@ void kernel_exception_syscall(void)
 		KERNEL_TRACE("exception", "Syscall %ld (act_register)", sysn);
 		syscall_act_register();
 		break;
-	case 21:
-		KERNEL_TRACE("exception", "Syscall %ld (act_ctrl_get_ref)", sysn);
-		syscall_act_ctrl_get_ref();
-		break;
 	case 23:
 		KERNEL_TRACE("exception", "Syscall %ld (act_ctrl_get_status)", sysn);
-		syscall_act_ctrl_get_status();
+		syscall_act_get_status();
 		break;
 	case 25:
 		KERNEL_TRACE("exception", "Syscall %ld (act_revoke)", sysn);
@@ -193,8 +199,10 @@ void kernel_ccall_fake(int cflags) {
     if(!(cflags & 4) && !(cflags & 2) && !(cflags & 1))
         KERNEL_ERROR(KRED"unknown fake ccall selector '%x'"KRST"\n", cflags);
 
+    aid_t callAid = (aid_t)kernel_exception_framep_ptr->mf_t9;
+    if(!is_valid_aid(callAid)) kernel_panic("Invalid aid!\n");
 	// cb is the activation.
-	act_t * cb = (void *)kernel_exception_framep_ptr->mf_t9;
+    act_t* cb = &kernel_acts[callAid];
 
 	if(cb->status != status_alive) {
 		KERNEL_ERROR("Trying to CCall revoked activation %s-%d",

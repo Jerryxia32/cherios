@@ -76,6 +76,8 @@ typedef unsigned int	uintptr_t;
 typedef int	intptr_t;
 typedef unsigned int	caddr_t;
 
+typedef uint32_t aid_t;
+
 typedef u_long		ulong;
 typedef u_char		uchar;
 typedef uint8_t		u8;

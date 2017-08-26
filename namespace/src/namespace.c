@@ -32,9 +32,9 @@
 #include<colors.h>
 
 typedef struct {
-	void * act_reference;
-    void * __capability act_PCC;
-    void * __capability act_IDC;
+	aid_t act_aid;
+    void*__capability act_PCC;
+    void*__capability act_IDC;
 } bind_t;
 
 const int bind_len = 0x80;
@@ -50,7 +50,8 @@ static int validate_idx(int nb) {
 	return 1;
 }
 
-static int validate_act_caps(void * __capability act_PCC, void * __capability act_IDC) {
+static int validate_act_caps(void*__capability act_PCC,
+        void*__capability act_IDC) {
 	if(cheri_gettype(act_PCC) !=
 	   cheri_gettype(act_IDC)) { return 0; }
     if(act_PCC != NULLCAP || act_IDC != NULLCAP) {
@@ -64,13 +65,13 @@ static int validate_act_caps(void * __capability act_PCC, void * __capability ac
 }
 
 /* Get reference for service 'n' */
-void * ns_get_reference(int nb) {
+aid_t ns_get_aid(int nb) {
 	if(!validate_idx(nb))
-		return NULL;
+		return 0;
 
 	/* If service not in use, will already return NULL */
 	printf(KWHT"%s: ref request for port %d"KRST"\n", __func__, nb);
-	return bind[nb].act_reference;
+	return bind[nb].act_aid;
 }
 
 /* Get sealed PCC for service 'n' */
@@ -94,24 +95,30 @@ void * __capability ns_get_IDC(int nb) {
 }
 
 /* Register a module a service 'nb' */
-static int ns_register_core(int nb, void* act_reference,
+static int ns_register_core(int nb, aid_t act_aid,
         void*__capability act_PCC, void*__capability act_IDC) {
-    if(bind[nb].act_reference != NULL) {
-		printf(KWHT"%s: port already in use"KRST"\n", __func__);
+    if(bind[nb].act_aid != 0) {
+		printf(KWHT"%s: port already in use."KRST"\n", __func__);
 		return -1;
 	}
 
-	bind[nb].act_reference  = act_reference;
+    if(act_aid == 0) {
+        printf(KWHT"%s: aid 0 is the dummy frame, cannot register."KRST"\n", __func__);
+		return -1;
+	}
+
+	bind[nb].act_aid = act_aid;
 	bind[nb].act_PCC = act_PCC;
 	bind[nb].act_IDC = act_IDC;
 	printf(KWHT"%s: registered at port %d"KRST"\n", __func__, nb);
 	return 0;
 }
 
-int ns_register(int nb, void* act_reference, void*__capability act_PCC,
+int
+ns_register(int nb, aid_t act_aid, void*__capability act_PCC,
         void*__capability act_IDC) {
 	if(!validate_idx(nb) || !validate_act_caps(act_PCC, act_IDC))
 		return -1;
 
-    return ns_register_core(nb, act_reference, act_PCC, act_IDC);
+    return ns_register_core(nb, act_aid, act_PCC, act_IDC);
 }

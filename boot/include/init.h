@@ -55,7 +55,7 @@ typedef struct init_elem_s {
 	register_t   arg;
 	int          daemon;
 	int          status;
-	void 	   * ctrl;
+	aid_t aid;
 } init_elem_t;
 
 extern char	__start_heap;
@@ -65,15 +65,14 @@ extern char	__stop_heap;
  * Memory routines
  */
 void	init_alloc_init(void);
-void	init_alloc_enable_system(void * ctrl);
+void	init_alloc_enable_system(aid_t aid);
 void * __capability	init_alloc(size_t s);
 void	init_free(void * __capability p);
 
-void	glue_memmgt(void * memmgt_ctrl, void* ns_ctrl);
-
+void glue_memmgt(aid_t memmgt_aid, aid_t ns_aid);
 int	acts_alive(init_elem_t * init_list, size_t  init_list_len);
 
-void *	load_module(module_t type, const char * file, int arg, const void *carg);
+aid_t load_module(module_t type, const char * file, int arg, const void *carg);
 
 void	stats_init(void);
 void	stats_display(void);

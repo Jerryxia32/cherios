@@ -35,21 +35,20 @@
 #include "assert.h"
 #include "namespace.h"
 
-void * act_self_ctrl = NULL;
-void * act_self_ref  = NULL;
+aid_t act_self_aid = 0;
 void * __capability act_self_PCC = NULLCAP;
 void * __capability act_self_IDC = NULLCAP;
 void * __capability act_self_cap   = NULLCAP;
 void * __capability helper_cap   = NULLCAP;
 void * __capability return_cap   = NULLCAP;
 
-void object_init(void * self_ctrl, void * __capability self_cap, void * __capability self_PCC, void * __capability self_IDC) {
-	assert(self_ctrl != NULL);
-	act_self_ctrl = self_ctrl;
-	act_self_ref  = act_ctrl_get_ref(self_ctrl);
+void object_init(aid_t self_aid, void*__capability self_cap,
+        void*__capability self_PCC, void*__capability self_IDC) {
+    // 0 is reserved as a dummy frame, 0 is an invalid aid.
+	assert(self_aid != 0);
+	act_self_aid = self_aid;
     act_self_PCC = self_PCC;
     act_self_IDC = self_IDC;
-
 	act_self_cap = self_cap;
 }
 
@@ -57,41 +56,30 @@ void * __capability act_get_cap(void) {
 	return act_self_cap;
 }
 
-void * act_ctrl_get_ref(void * ctrl) {
-	void * ref;
-	__asm__ (
-		"li    $v1, 21      \n"
-		"move $a0, %[ctrl] \n"
-		"syscall            \n"
-		"move %[ref], $a0  \n"
-		: [ref]"=r" (ref)
-		: [ctrl]"r" (ctrl)
-		: "v0", "v1", "a0");
-	return ref;
-}
-
-int act_ctrl_revoke(void * ctrl) {
+int
+act_ctrl_revoke(aid_t aid) {
 	int ret;
 	__asm__ (
 		"li    $v1, 25      \n"
-		"move $a0, %[ctrl] \n"
+		"move $a0, %[aid] \n"
 		"syscall            \n"
 		"move %[ret], $v0   \n"
 		: [ret]"=r" (ret)
-		: [ctrl]"r" (ctrl)
+		: [aid]"r" (aid)
 		: "v0", "v1", "a0");
 	return ret;
 }
 
-int act_ctrl_terminate(void * ctrl) {
+int
+act_ctrl_terminate(aid_t aid) {
 	int ret;
 	__asm__ (
 		"li    $v1, 26      \n"
-		"move $a0, %[ctrl] \n"
+		"move $a0, %[aid] \n"
 		"syscall            \n"
 		"move %[ret], $v0   \n"
 		: [ret]"=r" (ret)
-		: [ctrl]"r" (ctrl)
+		: [aid]"r" (aid)
 		: "v0", "v1", "a0");
 	return ret;
 }
@@ -108,12 +96,12 @@ dtor_null() {
  * CCall helpers
  */
 
-#define CCALL_ASM_CSCB "move $t9, %[cb] \n" "move $v0, %[method_nb] \n"
+#define CCALL_ASM_CSCB "move $t9, %[aid] \n" "move $v0, %[method_nb] \n"
 #define CCALL_INSTR(n) \
         "li $v1, " #n "\n" \
         "syscall \n" \
 
-#define CCALL_INOPS [cb]"r" (cb), [method_nb]"r" (method_nb)
+#define CCALL_INOPS [aid]"r" (aid), [method_nb]"r" (method_nb)
 #define CCALL_CLOBS "$c3","$c4","$c5", "v0","v1","a0","a1","a2", "t9"
 #define CCALL_TOP \
     ret_t ret; \
@@ -136,7 +124,7 @@ dtor_null() {
 
 #define CCALLS(...) CCALL(4, __VA_ARGS__)
 
-register_t ccall_1(void * cb, int method_nb,
+register_t ccall_1(aid_t aid, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const void * __capability carg1, const void * __capability carg2, const void * __capability carg3) {
     CCALL_TOP
@@ -145,7 +133,7 @@ register_t ccall_1(void * cb, int method_nb,
     return ret.rret;
 }
 
-register_t ccall_2(void * cb, int method_nb,
+register_t ccall_2(aid_t aid, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const void * __capability carg1, const void * __capability carg2, const void * __capability carg3) {
     CCALL_TOP
@@ -154,7 +142,7 @@ register_t ccall_2(void * cb, int method_nb,
     return ret.rret;
 }
 
-ret_t ccall_4(void * cb, int method_nb,
+ret_t ccall_4(aid_t aid, int method_nb,
         register_t rarg1, register_t rarg2, register_t rarg3,
         const void * __capability carg1, const void * __capability carg2, const void * __capability carg3) {
     CCALL_TOP

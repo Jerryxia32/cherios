@@ -311,8 +311,8 @@ int main() {
     
     act_self_PCC = cheri_seal(act_self_PCC, act_self_cap);
     act_self_IDC = cheri_seal(act_self_IDC, act_self_cap);
-    int ret = namespace_register(5, act_self_ref, act_self_PCC, act_self_IDC);
-    return_cap = namespace_get_IDC(7);
+    int ret = namespace_register(PORT_AES, act_self_aid, act_self_PCC, act_self_IDC);
+    return_cap = namespace_get_IDC(PORT_CCALL);
     if(ret!=0) {
         printf("AES: register failed\n");
         return -1;

@@ -80,7 +80,7 @@ start_common:
     lw          $t9, 0($t9)
     bne         $t9, $zero, to_msg
     li          $v1, 26
-    la          $t9, act_self_ctrl
+    la          $t9, act_self_aid
     lw          $a0, 0($t9)
     syscall
 

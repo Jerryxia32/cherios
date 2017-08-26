@@ -12,6 +12,7 @@
 **  10/21/93 rdg  Fixed bug found by Jeff Dunlop
 */
 
+#include<mips.h>
 #include<cheric.h>
 #include<assert.h>
 #include<stddef.h>
@@ -2767,8 +2768,8 @@ main()
     }
     printf("Stringsearch iteration: %d, with %d successes, %d fails.\n", STRINGSEARCH_ITER, foundcnt, nfoundcnt);
         
-	void * u_ref = namespace_get_ref(10);
-	assert(u_ref != NULL);
+	aid_t u_aid = namespace_get_aid(PORT_QSORT);
+	assert(u_aid != 0);
     int sent_a = 326;
     int sent_b = -21356;
     void * __capability sent_c = cheri_getpcc();
@@ -2778,7 +2779,7 @@ main()
     CHERI_PRINT_CAP(sent_d);
     /* Trying so hard to kill qsort */
     register_t ret;
-	while((ret = ccall_1(u_ref, 0, sent_a, sent_b, 0, sent_c, sent_d, NULLCAP)) == 1) {
+	while((ret = ccall_1(u_aid, 0, sent_a, sent_b, 0, sent_c, sent_d, NULLCAP)) == 1) {
     }
     printf("Stringsearch send success.\n");
     stats_display();

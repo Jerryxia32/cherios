@@ -100,12 +100,11 @@ void	msg_queue_init(aid_t act);
 int	msg_queue_empty(aid_t act);
 
 void	act_init(boot_info_t *bi);
-void	act_wait(int act, aid_t next_hint);
-void *	act_register(const reg_frame_t * frame, const char * name);
-void *	act_get_ref(act_t * ctrl);
-int	act_get_status(act_t * ctrl);
-int	act_revoke(act_t * ctrl);
-int	act_terminate(act_t * ctrl);
+void act_wait(aid_t act, aid_t next_hint);
+aid_t act_register(const reg_frame_t * frame, const char * name);
+int	act_get_status(aid_t aid);
+int	act_revoke(aid_t aid);
+int	act_terminate(aid_t aid);
 
 void	regdump(int reg_num);
 void	framedump(const struct reg_frame *frame);

@@ -89,18 +89,6 @@ void regdump(int reg_num) {
 	REG_DUMP_C(c1); REG_DUMP_C(c2); kernel_printf("\n");
 	REG_DUMP_C(c3); REG_DUMP_C(c4); REG_DUMP_C(c5);
 	REG_DUMP_C(c6); REG_DUMP_C(c7); kernel_printf("\n");
-    //REG_DUMP_C(c9); printf("\n");
-
-    /*
-	REG_DUMP_C(c10); REG_DUMP_C(c11); REG_DUMP_C(c12); REG_DUMP_C(c13);
-	REG_DUMP_C(c14); REG_DUMP_C(c15); printf("\n");
-
-	REG_DUMP_C(c16); REG_DUMP_C(c17); printf("\n");
-
-	REG_DUMP_C(c18); REG_DUMP_C(c19); REG_DUMP_C(c20); REG_DUMP_C(c21); kernel_printf("\n");
-	REG_DUMP_C(c22); REG_DUMP_C(c23); REG_DUMP_C(c24); REG_DUMP_C(c25); kernel_printf("\n");
-     */
-
 	REG_DUMP_C(c25); REG_DUMP_C(idc); REG_DUMP_C(kr1c); creg = 31; REG_DUMP_C(pcc); kernel_printf("\n");
     uint32_t haveTag = 0;
     uint32_t total = 0;
@@ -122,9 +110,9 @@ void regdump(int reg_num) {
     haveTag = 0;
     total = 0;
     capability *sweepPtr = (capability *)0x88000000;
-    for(int i=0; i<((TTABLE_SIZE*4*8)>>10 << 8); i++) {
-        for(int j=0; j<(4096/CAP_SIZE); j++) {
-            if(cheri_gettag(sweepPtr[(i<<8) + j])) {
+    for(size_t i=0; i<(TTABLE_SIZE*8); i++) {
+        for(size_t j=0; j<(PAGE_ALIGN/CAP_SIZE); j++) {
+            if(cheri_gettag(sweepPtr[(i<<(PAGE_ALIGN_BITS-CAP_SIZE_BITS)) + j])) {
                 haveTag++;
                 break;
             }

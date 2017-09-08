@@ -33,7 +33,6 @@
 #include "cp0.h"
 
 static register_t		kernel_last_timer;
-uint32_t timingFailed = 0;
 
 void kernel_timer_init(void) {
 	/*
@@ -101,12 +100,16 @@ void kernel_timer(void)
             // timeout reached, force return
             if(*remainTimep <= 0) {
                 kernel_printf(KRED"CCall expired!"KRST"\n");
-                // timing failed, signal the assembly to clear registers.
-                timingFailed = 1;
 
                 // first, release the current callee mutex
                 *((int * __capability)kernel_exception_framep_cap->cf_c0 + 0x100/sizeof(int)) = 0;
 
+                // Now clear the entire register frame to not expose info of
+                // the callee that just expired.
+                memset_c(kernel_exception_framep_cap, 0, sizeof(reg_frame_t));
+
+                // Restore the caller's context. In this untrusted callee
+                // scenario, the caller should restore callee-saved regs itself
                 kernel_exception_framep_cap->cf_pcc = *tStack;
                 kernel_exception_framep_cap->mf_pc = cheri_getoffset(*tStack);
                 void * __capability theC0 = *(tStack + 1);

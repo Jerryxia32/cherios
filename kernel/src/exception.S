@@ -196,10 +196,6 @@ kernel_cp2_exception_handler:
     la          $k0, kernel_exception_framep_ptr
     clw         $k0, $k0, 0($kdc)
     
-    la          $k1, timingFailed
-    lw          $k1, 0($k1)
-    bne         $k1, $0, timing_failed_restore
-    
     cld         $at, $k0, 0*REG_SIZE($kdc)
     cld         $v0, $k0, 1*REG_SIZE($kdc)
     cld         $v1, $k0, 2*REG_SIZE($kdc)
@@ -241,24 +237,6 @@ kernel_cp2_exception_handler:
     # On general principle, flush the contents of $k0 and $k1
     # before returning to "userspace".
     clearhi     0x0c00
-    eret
-
-timing_failed_restore:
-    # timing failed, clear all the general purpose regs of the callee.
-    clearlo     0xffff
-    clearhi     0xf3ff  # keep k0, k1
-    cclearlo    0xfffe # keep c0, as the kernel uses it
-    cld         $sp, $k0, 13*REG_SIZE($kdc)
-    cld         $k1, $k0, 18*REG_SIZE($kdc)
-    dmtc0       $k1, $14		# EPC
-    
-    clc         $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-    csetdefault $c1
-    clc         $kr1c, $k0, 10*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-    clc         $epcc, $k0, 11*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
-    # clear the timing failed flag
-    dla         $k0, timingFailed
-    csw         $0, $k0, 0($kdc)
     eret
 kernel_cp2_exception_handler_end:
 

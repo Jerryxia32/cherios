@@ -168,7 +168,7 @@ add_compile_options("$<$<COMPILE_LANGUAGE:ASM>:${ASM_COMPILER_FLAGS}>")
 
 # TODO: only add -g when CMAKE_BUILD_TYPE == Debug
 # for now we always want it
-#add_compile_options(-g)
+add_compile_options(-g0)
 
 set(CHERIOS_FILESYSTEM_DIR "${CMAKE_BINARY_DIR}/fs")
 set(CHERIOS_FILESYSTEM_DEPENDS "" CACHE INTERNAL "dependencies for filesystem")
@@ -254,7 +254,7 @@ function(add_cherios_module _target)
 
   # create a .dump file of the binary (added to byproducts so that ninja clean removes it)
   add_custom_command(TARGET ${_target} POST_BUILD BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/${_target}.dump"
-    COMMAND "${CheriSDK_TOOLCHAIN_DIR}/objdump" -x -d -S "$<TARGET_FILE:${_target}>" > "${CMAKE_CURRENT_BINARY_DIR}/${_target}.dump"
+    COMMAND "${CheriSDK_TOOLCHAIN_DIR}/llvm-objdump" -disassemble -h -t -p -r -source "$<TARGET_FILE:${_target}>" > "${CMAKE_CURRENT_BINARY_DIR}/${_target}.dump"
     )
   add_custom_command(TARGET ${_target} POST_BUILD
     # remove some sections to save place (TODO: make this depend on the configuration)

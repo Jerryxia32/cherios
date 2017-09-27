@@ -108,7 +108,7 @@ static void syscall_interrupt_enable(void) {
  */
 void kernel_exception_syscall(void)
 {
-	long sysn = kernel_exception_framep_ptr->mf_v1;
+	register_t sysn = kernel_exception_framep_ptr->mf_v1;
 	//KERNEL_TRACE("exception", "Syscall number %ld", sysn);
 	aid_t kca = kernel_curr_act;
 	switch(sysn) {

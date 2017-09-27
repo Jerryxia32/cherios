@@ -32,4 +32,4 @@ add_cherios_kernel(kernel LINKER_SCRIPT kernel.ld SOURCES
     ${KERNEL_SRCS}
     ${KERNEL_ASM_SRCS}
 )
-#set_target_properties(kernel PROPERTIES COMPILE_FLAGS "-fno-PIC")
+set_target_properties(kernel PROPERTIES COMPILE_FLAGS "-fno-strict-aliasing")

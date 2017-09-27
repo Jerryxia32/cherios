@@ -54,7 +54,8 @@ typedef struct tstackSlot {
     void*__capability slotIDC;
     int64_t remainTime;
     int32_t lastTime;
-}TstackSlot;
+    int32_t padding;
+} TstackSlot;
 
 /*
  * Kernel timer handler -- reschedule, reset timer.

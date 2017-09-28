@@ -36,6 +36,7 @@
 INCLUDE "mips.ld"
 __start = 0x1000;
 
+ENTRY(start)
 SECTIONS
 {
 	. = __start;

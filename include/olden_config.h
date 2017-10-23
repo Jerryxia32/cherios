@@ -1,0 +1,8 @@
+#ifndef _OLDEN_CONFIG_H_
+#define _OLDEN_CONFIG_H_
+
+#define OLDEN_BISORT_SIZE 250000
+#define OLDEN_BISORT_FLAG 0
+#define OLDEN_BISORT_ITER 5
+
+#endif

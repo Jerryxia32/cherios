@@ -52,6 +52,7 @@ static page_t * book = NULL;
 
 /* fd and offset are currently unused and discarded in userspace */
 void *__mmap(void *addr, size_t length, int prot, int flags) {
+	size_t page = 0;
 	int perms = CHERI_PERM_SOFT_1; /* can-free perm */
 	if(addr != NULL)
 		panic("mmap: addr must be NULL");
@@ -113,8 +114,7 @@ void *__mmap(void *addr, size_t length, int prot, int flags) {
     // for this allocation.
 
 	/* find some available space */
-	size_t page = 0;
-    size_t extraPages;
+    size_t extraPages = 0;
 	while(page < pages_nb) {
 		if(book[page].status != page_unused)
 			page += book[page].len;
@@ -142,8 +142,10 @@ void *__mmap(void *addr, size_t length, int prot, int flags) {
     // need to pad some pages to reach the next alignment.
     if(extraPages != 0) {
         book[page].status = page_unused;
+        size_t curLen = book[page].len;
         book[page].len = extraPages;
         page += extraPages;
+        book[page].len = curLen - extraPages;
     }
 	book[page].status = page_used;
 	size_t curr_len = book[page].len;

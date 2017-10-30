@@ -37,7 +37,7 @@
 	.ent start
 start:
 #j start_common
-    dla $t9, start_common
-    dadd $t9, $s4, $t9
+    la $t9, start_common
+    add $t9, $s4, $t9
     jr  $t9
     nop

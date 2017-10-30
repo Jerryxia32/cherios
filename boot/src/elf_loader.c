@@ -205,7 +205,7 @@ void *elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, si
 		Elf32_Phdr *seg = elf_segment(hdr, i);
 		if(seg->p_type == 1) {
             //ERRORM("Load at addr: %p\n", (char *)0+seg->p_vaddr);
-			env->memcpy((char *)0+seg->p_vaddr, addr + seg->p_offset, seg->p_filesz);
+			env->memcpy((void*)seg->p_vaddr, addr + seg->p_offset, seg->p_filesz);
 			TRACE("memcpy: [%lx %lx] <-- [%lx %lx] (%lx bytes)",
 			      seg->p_vaddr, seg->p_vaddr + seg->p_filesz,
 			      seg->p_offset, seg->p_offset + seg->p_filesz,

@@ -7,4 +7,3 @@ set(SRCS
 )
 
 add_cherios_executable(dijkstra ADD_TO_FILESYSTEM LINKER_SCRIPT dijkstra.ld SOURCES ${SRCS})
-set_target_properties(dijkstra PROPERTIES COMPILE_FLAGS -mxgot)

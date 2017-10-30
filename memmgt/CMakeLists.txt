@@ -10,4 +10,3 @@ set(SRCS
 )
 
 add_cherios_memmgr(memmgt ADD_TO_FILESYSTEM LINKER_SCRIPT memmgt.ld SOURCES ${SRCS})
-set_target_properties(memmgt PROPERTIES COMPILE_FLAGS -mxgot)

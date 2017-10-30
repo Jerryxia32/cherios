@@ -39,20 +39,6 @@ CAP_ALIGN = 0x20;
 SECTIONS
 {
 	. = __start;
-	.text ALIGN(CAP_ALIGN): { *(.text) }
-	.rodata ALIGN(CAP_ALIGN): { *(.rodata) }
-	.got ALIGN(CAP_ALIGN): { *(.got) }
-	.bss  ALIGN(CAP_ALIGN): { *(.bss) }
-	.data ALIGN(CAP_ALIGN): { *(.data) }
-	.ctors ALIGN(CAP_ALIGN): { *(.ctors) }
-	.dtors ALIGN(CAP_ALIGN): { *(.dtors) }
-
-	/*
-	 * Force zero-filling of previous segments in generated image.
-	 */
-	sandbox_trailer : {
-		QUAD(0xffffffffffffffff)
-	}
 
 	__start_bss = ADDR(.bss);
 	__stop_bss = ALIGN(__start_bss + SIZEOF(.bss),CAP_ALIGN);

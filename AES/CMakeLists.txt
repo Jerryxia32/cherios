@@ -8,4 +8,3 @@ set(SRCS
 )
 
 add_cherios_executable(AES ADD_TO_FILESYSTEM LINKER_SCRIPT AES.ld SOURCES ${SRCS})
-set_target_properties(AES PROPERTIES COMPILE_FLAGS -mxgot)

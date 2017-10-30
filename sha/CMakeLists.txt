@@ -8,4 +8,3 @@ set(SRCS
 )
 
 add_cherios_executable(sha ADD_TO_FILESYSTEM LINKER_SCRIPT sha.ld SOURCES ${SRCS})
-set_target_properties(sha PROPERTIES COMPILE_FLAGS -mxgot)

@@ -102,5 +102,8 @@ main() {
         ccall_real_4_r(1, REG_MAX, 0, 0, 0, NULLCAP, NULLCAP, NULLCAP, aes_PCC, aes_IDC, helper_PCC);
     }
     stats_display();
+    free_c(enc);
+    free_c(encdec);
+    free_c(theinfo);
     return 0;
 }

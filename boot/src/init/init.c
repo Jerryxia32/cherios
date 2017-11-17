@@ -74,6 +74,7 @@ init_elem_t init_list[] = {
 	B_PENTRY(m_user,	"bitcount.elf",		0, 	B_MI)
     B_PENTRY(m_user,	"adpcm.elf",		0, 	B_MI)
     B_PENTRY(m_user,	"dijkstra.elf",		0, 	B_MI)
+    B_PENTRY(m_user,	"patricia.elf",		0, 	B_MI)
 	//B_PENTRY(m_fs,		"fatfs.elf",		0,	B_FS)
 	B_FENCE
 	{m_fence, 0, NULL, 0, 0, 0, 0}

@@ -34,6 +34,7 @@
 #include "mips.h"
 
 void	bzero(void *, size_t);
+void	bzero_c(void*__capability, size_t);
 int	memcmp(const void * cs,const void * ct,size_t count);
 void *	memcpy(void *dest, const void *src, size_t n);
 void * __capability	memcpy_c(void * __capability dest, const void * __capability src, size_t n);

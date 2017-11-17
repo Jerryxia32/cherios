@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2016 Hadrien Barral
+ * Copyright (c) 2013 Michael Roe
  * All rights reserved.
  *
  * This software was developed by SRI International and the University of
@@ -27,40 +27,19 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
+#ifndef _CAPABILITY_H
+#define _CAPABILITY_H
 
-#include "cdefs.h"
-#include "errno.h"
-#include<mips.h>
+#ifdef USE_CAPS
+#define CAP_VALID(p) (__builtin_cheri_get_cap_length(p) != 0)
+#else
+#define CAP_VALID(p) ((p) != (void *) 0)
+#endif
 
-void *	mmap(void *addr, size_t length, int prot, int flags, __unused int fd, __unused off_t offset);
-int	munmap(void *addr, size_t length);
+#ifdef USE_CAPS
+#define CAP_INVALID(p) (__builtin_cheri_get_cap_length(p) == 0)
+#else
+#define CAP_INVALID(p) ((p) == (void *) 0)
+#endif
 
-void	mmap_set_act(void * ref, void * id);
-
-enum mmap_prot
-{
-  PROT_READ		= 1 << 0,
-  PROT_WRITE		= 1 << 1,
-  PROT_NO_READ_CAP	= 1 << 2,
-  PROT_NO_WRITE_CAP	= 1 << 3
-};
-#define PROT_RW (PROT_READ | PROT_WRITE)
-
-enum mmap_flags
-{
-  map_private	= 1 << 0,
-  map_shared	= 1 << 1,
-  map_anonymous	= 1 << 2
-};
-#define MAP_PRIVATE map_private
-#define MAP_ANONYMOUS map_anonymous
-#define MAP_SHARED map_shared
-
-enum mmap_return
-{
-  ENOMEM = 1
-};
-
-#define MAP_FAILED ((void *) -1)
-
-
+#endif // _CAPABILITY_H

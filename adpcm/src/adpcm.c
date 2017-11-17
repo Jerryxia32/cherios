@@ -76,12 +76,12 @@ adpcm_coder(short * __capability indata, char * __capability outdata, int len,
     signed char * __capability outp;		/* output buffer pointer */
     int val;			/* Current input sample value */
     int sign;			/* Current adpcm sign bit */
-    int delta;			/* Current adpcm output value */
+    int8_t delta;			/* Current adpcm output value */
     int diff;			/* Difference between val and valprev */
     int step;			/* Stepsize */
     int valpred;		/* Predicted output value */
     int vpdiff;			/* Current change to valpred */
-    int index;			/* Current step change index */
+    int8_t index;			/* Current step change index */
     int outputbuffer;		/* place to keep previous 4-bit value */
     int bufferstep;		/* toggle between outputbuffer/output */
 
@@ -174,11 +174,11 @@ adpcm_decoder(char * __capability indata, short * __capability outdata, int len,
     signed char * __capability inp;		/* Input buffer pointer */
     short * __capability outp;		/* output buffer pointer */
     int sign;			/* Current adpcm sign bit */
-    int delta;			/* Current adpcm output value */
+    int8_t delta;			/* Current adpcm output value */
     int step;			/* Stepsize */
     int valpred;		/* Predicted value */
     int vpdiff;			/* Current change to valpred */
-    int index;			/* Current step change index */
+    int8_t index;			/* Current step change index */
     int inputbuffer;		/* place to keep next 4-bit value */
     int bufferstep;		/* toggle between inputbuffer/input */
 

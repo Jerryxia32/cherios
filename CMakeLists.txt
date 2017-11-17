@@ -165,6 +165,7 @@ set(C_WARNING_FLAGS
     -Wno-error=incompatible-library-redeclaration
     -Wno-error=deprecated-declarations
     -Wno-error=expansion-to-defined
+    -Wno-error=char-subscripts
 )
 set(C_COMPILER_FLAGS ${C_COMPILER_FLAGS} ${C_WARNING_FLAGS})
 
@@ -283,15 +284,9 @@ add_subdirectory(hello)
 add_subdirectory(memmgt)
 add_subdirectory(namespace)
 add_subdirectory(uart)
-add_subdirectory(CRC32)
-add_subdirectory(adpcm)
-add_subdirectory(bitcount)
-add_subdirectory(dijkstra)
-add_subdirectory(stringsearch)
-add_subdirectory(qsort)
-add_subdirectory(spam)
 add_subdirectory(AES)
 add_subdirectory(sha)
+add_subdirectory(dijkstra)
 
 add_subdirectory(kernel)
 add_subdirectory(boot)

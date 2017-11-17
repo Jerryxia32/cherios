@@ -10,5 +10,6 @@
 #define BITCOUNT_ITER 5
 #define ADPCM_ITER 10
 #define DIJKSTRA_ITER 2
+#define MIBENCH_PATRICIA_ITER 10
 
 #endif

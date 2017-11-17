@@ -69,6 +69,7 @@ static void * init_act_create(const char * name, void * c0, void * pcc, void * s
 	/* set stack */
 	frame.cf_c11	= stack;
 	frame.mf_sp	= cheri_getlen(stack);
+    printf("Initial sp 0x%llx\n", frame.mf_sp);
 
 	/* set c12 */
 	frame.cf_c12	= frame.cf_pcc;
@@ -170,7 +171,7 @@ void * load_module(module_t type, const char * file, int arg, const void *carg) 
 	size_t allocsize = cheri_getlen(prgmp);
 	caches_invalidate(cheri_setoffset(prgmp, 0), allocsize);
 
-	size_t stack_size = 0x10000;
+    size_t stack_size = 0x10000;
 	void * stack = init_alloc(stack_size);
 	if(!stack) {
 		assert(0);

@@ -127,8 +127,8 @@ WORD updateCRC32(unsigned char ch, WORD crc)
 
 Boolean_T crc32file(char * __capability theC0, size_t name, unsigned long pcm_size, WORD *crc, size_t *charcnt)
 {
-      WORD oldcrc32 = 0xffffffff;
-      uint8_t c;
+      size_t oldcrc32 = 0xffffffff;
+      size_t c;
       size_t ptr = name - cheri_getbase(theC0);
       int counter = REG_SIZE;
       register_t readBuffer = 0;

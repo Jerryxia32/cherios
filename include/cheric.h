@@ -115,7 +115,8 @@
 #define CHERI_PERM_STORE_CAP		(1 <<  5)
 #define CHERI_PERM_STORE_LOCAL_CAP	(1 <<  6)
 #define CHERI_PERM_SEAL			(1 <<  7)
-#define CHERI_PERM_ACCESS_SYS_REGS	(1 << 8)
+#define CHERI_PERM_CCALL			(1 <<  8)
+#define CHERI_PERM_ACCESS_SYS_REGS	(1 << 10)
 
 #define CHERI_PERM_SOFT_0		(1 << 15)
 #define CHERI_PERM_SOFT_1		(1 << 16)

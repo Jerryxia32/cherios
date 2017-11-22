@@ -149,8 +149,9 @@ boot_info_t *load_init() {
 
 	/* set up pcc */
 	void * __capability pcc = cheri_getpcc();
-	pcc = cheri_andperm(pcc, (CHERI_PERM_ACCESS_SYS_REGS | CHERI_PERM_GLOBAL | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
-				  | CHERI_PERM_LOAD_CAP));
+    pcc = cheri_andperm(pcc, (CHERI_PERM_ACCESS_SYS_REGS | CHERI_PERM_CCALL
+            | CHERI_PERM_GLOBAL | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
+            | CHERI_PERM_LOAD_CAP));
 
 	/* populate frame */
 	bzero(&bi.init_frame, sizeof(bi.init_frame));

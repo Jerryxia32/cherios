@@ -54,10 +54,9 @@ ccall_helper:
     dmfc0   $t9, $9 # read the current count register
     csw $t9, $0, 2*CAP_SIZE+REG_SIZE($kr1c)
 #endif
-    li  $t9, 4*CAP_SIZE
 
     ccall   $c1, $c2, 42
-    cincoffset  $kr1c, $kr1c, $t9
+    cincoffset  $kr1c, $kr1c, 4*CAP_SIZE
 ccall_helper_end:
 	.size ccall_helper, ccall_helper - ccall_helper_end
 	.end ccall_helper
@@ -66,8 +65,7 @@ ccall_helper_end:
 	.global creturn_helper
 	.ent creturn_helper
 creturn_helper:
-    li  $t9, -4*CAP_SIZE
-    cincoffset  $kr1c, $kr1c, $t9
+    cincoffset  $kr1c, $kr1c, -4*CAP_SIZE
     clc $c1, $0, 0($kr1c)
     clc $c25, $0, CAP_SIZE($kr1c)
     # extract the stack pointer of the caller

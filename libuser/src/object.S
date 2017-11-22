@@ -32,7 +32,7 @@
 #Fixme: clean-up code && comment
 
 .macro  csyscalllink   jmpreg, linkreg
-    .word (0x12 << 26) | (0x13 << 21) | (\linkreg << 16) | (\jmpreg << 11)
+    .word (0x12 << 26) | (0x00 << 21)  | (\linkreg << 16) | (\jmpreg << 11) | (0x0d << 6) | (0x3f)
 .endm
 
 .set C6_OFFSET, 64

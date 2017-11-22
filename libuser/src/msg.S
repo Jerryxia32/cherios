@@ -35,7 +35,7 @@
 #include<asm.h>
 
 .macro  csyscall   jmpreg
-    .word (0x12 << 26) | (0x14 << 21)  | (\jmpreg << 11)
+    .word (0x12 << 26) | (0x00 << 21)  | (\jmpreg << 16) | (0x04 << 11) | (0x1f << 6) | (0x3f)
 .endm
 
 # Dispatch CCalls. $a3 is used as a temp register because we know there are

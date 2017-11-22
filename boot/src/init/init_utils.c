@@ -122,9 +122,10 @@ static void * __capability get_act_cap(module_t type) {
         size_t heaplen = (size_t)&__stop_heap - (size_t)&__start_heap;
         void * __capability heap = cheri_setoffset(cheri_getdefault(), (size_t)&__start_heap);
         heap = cheri_setbounds(heap, heaplen);
-        cap = cheri_andperm(heap, (CHERI_PERM_GLOBAL | CHERI_PERM_LOAD | CHERI_PERM_STORE
-                    | CHERI_PERM_LOAD_CAP | CHERI_PERM_STORE_CAP
-                    | CHERI_PERM_STORE_LOCAL_CAP | CHERI_PERM_SOFT_0));
+        cap = cheri_andperm(heap, (CHERI_PERM_GLOBAL | CHERI_PERM_LOAD
+                | CHERI_PERM_STORE | CHERI_PERM_CCALL | CHERI_PERM_LOAD_CAP
+                | CHERI_PERM_STORE_CAP | CHERI_PERM_STORE_LOCAL_CAP
+                | CHERI_PERM_SOFT_0));
         sealing_tool_no++;
         if(sealing_tool_no == 1L<<CHERI_OTYPE_WIDTH) {
             panic("Used all otypes");
@@ -211,12 +212,12 @@ load_module(module_t type, const char* file, int arg, const void* carg) {
 	void * __capability pcc = cheri_getpcc();
 	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), round_size(allocsize, CHERI_SEAL_TB_WIDTH-1));
 	pcc = cheri_incoffset(pcc, entry);
-	pcc = cheri_andperm(pcc, (CHERI_PERM_ACCESS_SYS_REGS | CHERI_PERM_EXECUTE | CHERI_PERM_LOAD
-				  | CHERI_PERM_LOAD_CAP));
+    pcc = cheri_andperm(pcc, (CHERI_PERM_ACCESS_SYS_REGS | CHERI_PERM_EXECUTE
+            | CHERI_PERM_LOAD | CHERI_PERM_LOAD_CAP | CHERI_PERM_CCALL));
     /* make sure the permission given to c0 of each module is bounded */
     prgmp = cheri_andperm(prgmp, (CHERI_PERM_GLOBAL | CHERI_PERM_LOAD | CHERI_PERM_STORE
-                | CHERI_PERM_LOAD_CAP | CHERI_PERM_STORE_CAP
-                | CHERI_PERM_STORE_LOCAL_CAP | CHERI_PERM_SOFT_0));
+            | CHERI_PERM_LOAD_CAP | CHERI_PERM_STORE_CAP | CHERI_PERM_CCALL
+            | CHERI_PERM_STORE_LOCAL_CAP | CHERI_PERM_SOFT_0));
     if(type != m_memmgt) {
         prgmp = cheri_andperm(prgmp, ~CHERI_PERM_GLOBAL);
     }

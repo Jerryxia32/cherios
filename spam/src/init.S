@@ -37,6 +37,7 @@
 	.ent start
 start:
     b start_common
+    nop
 
 .rodata
 .global __AES_start

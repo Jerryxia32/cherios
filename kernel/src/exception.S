@@ -84,14 +84,14 @@ kernel_tlb_handler:
     csd         $s1, $k1, -2*REG_SIZE($kdc)
     csc         $c1, $k1, -3*REG_SIZE-CAP_SIZE($kdc)
     # retrieve the no_store_cap bit in the ttable
-    dmfc0       $k0, $10
+    dmfc0       $k0, $MIPS_CP0_REG_ENTRYHI
     dsrl        $k0, $k0, 15
     andi        $k0, $k0, 0xfff
     la          $s0, ttableCap
     clc         $c1, $s0, 0($kdc)
     clbu        $s0, $k0, 0($c1) # load the byte into $k1
     xori        $s0, $s0, 0xff
-    dmfc0       $k0, $10
+    dmfc0       $k0, $MIPS_CP0_REG_ENTRYHI
     dsrl        $k0, $k0, 12
     andi        $k0, $k0, 0x7
     dsrl        $s0, $s0, $k0
@@ -100,11 +100,11 @@ kernel_tlb_handler:
     andi        $s0, $s0, 0x1
     dsll32      $s0, $s0, 31
     daddiu      $s0, $s0, 7
-    dmfc0       $k0, $10
+    dmfc0       $k0, $MIPS_CP0_REG_ENTRYHI
     dsrl        $k0, $k0, 6
     or          $s0, $k0, $s0
     ori         $s0, $s0, 0x18
-    dmtc0       $s0, $2
+    dmtc0       $s0, $MIPS_CP0_REG_ENTRYLO0
     dsll        $s0, $s0, 1
     dsrl        $s0, $s0, 1
     cld         $s1, $k1, -3*REG_SIZE($kdc) # the shifted byte is loaded
@@ -112,7 +112,7 @@ kernel_tlb_handler:
     dsll32      $s1, $s1, 30
     or          $s1, $s1, $s0
     ori         $s1, $s1, 0x58
-    dmtc0       $s1, $3
+    dmtc0       $s1, $MIPS_CP0_REG_ENTRYLO1
     tlbwr
     cld         $s0, $k1, -1*REG_SIZE($kdc)
     cld         $s1, $k1, -2*REG_SIZE($kdc)
@@ -176,7 +176,7 @@ kernel_cp2_exception_handler:
     csd         $k1, $k0, 16*REG_SIZE($kdc)
     mflo        $k1
     csd         $k1, $k0, 17*REG_SIZE($kdc)
-    mfc0        $k1, $14		# EPC
+    mfc0        $k1, $MIPS_CP0_REG_EPC
     csd         $k1, $k0, 18*REG_SIZE($kdc)
 
     # Set up exception stack
@@ -217,7 +217,7 @@ kernel_cp2_exception_handler:
     cld         $k1, $k0, 17*REG_SIZE($kdc)
     mtlo        $k1
     cld         $k1, $k0, 18*REG_SIZE($kdc)
-    mtc0        $k1, $14		# EPC
+    mtc0        $k1, $MIPS_CP0_REG_EPC
     
     # avoid "direct c0 access deprecated" warning
     clc         $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)

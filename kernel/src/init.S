@@ -46,9 +46,9 @@
 	.ent start
 start:
 	#Add 4 to EPCC
-    mfc0        $k1, $14
+    mfc0        $k1, $MIPS_CP0_REG_EPC
     addi        $k1, $k1, 4
-    mtc0        $k1, $14
+    mtc0        $k1, $MIPS_CP0_REG_EPC
 
 	#Save register frame
     la          $k0, kernel_init_save_frame
@@ -88,7 +88,7 @@ start:
     csd         $k1, $k0, 16*REG_SIZE($kdc)
     mflo        $k1
     csd         $k1, $k0, 17*REG_SIZE($kdc)
-    mfc0        $k1, $14		# EPC
+    mfc0        $k1, $MIPS_CP0_REG_EPC
     csd         $k1, $k0, 18*REG_SIZE($kdc)
 
     # Set up a boot-time stack using memory allocated by the linker;
@@ -143,7 +143,7 @@ start:
     cld         $k1, $k0, 17*REG_SIZE($kdc)
     mtlo        $k1
     cld         $k1, $k0, 18*REG_SIZE($kdc)
-    mtc0        $k1, $14		# EPC
+    mtc0        $k1, $MIPS_CP0_REG_EPC
 
     # avoid "direct c0 access deprecated" warning
     clc         $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)

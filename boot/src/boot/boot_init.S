@@ -33,6 +33,8 @@
 .set nobopt
 .set noat
 
+#include"asm.h"
+
 # Assembly stub on the way to running C code.  Assumes that $c0 and $pcc are
 # global and suitable.  Enable capability coprocessor.  Set up a stack.  Jump
 # to various startup functions to initialise the C runtime, and then call
@@ -43,7 +45,7 @@
 	.ent start
 start:
 	# Enable capability coprocessor.
-	mfc0		$v0, $12
+    mfc0        $v0, $MIPS_CP0_REG_STATUS
 #ifdef HARD_FLOAT
     li          $v1, 0x64000000
 #else
@@ -54,7 +56,7 @@ start:
     li          $v1, 0x4
     nor         $v1, $v1, $v1
     and         $v0, $v0, $v1
-    mtc0        $v0, $12
+    mtc0        $v0, $MIPS_CP0_REG_STATUS
 
 	# Wait for capability coprocessor to be enabled for real
     nop

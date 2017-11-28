@@ -176,7 +176,7 @@ kernel_cp2_exception_handler:
     csd         $k1, $k0, 16*REG_SIZE($kdc)
     mflo        $k1
     csd         $k1, $k0, 17*REG_SIZE($kdc)
-    mfc0        $k1, $MIPS_CP0_REG_EPC
+    dmfc0       $k1, $MIPS_CP0_REG_EPC
     csd         $k1, $k0, 18*REG_SIZE($kdc)
 
     # Set up exception stack
@@ -217,7 +217,7 @@ kernel_cp2_exception_handler:
     cld         $k1, $k0, 17*REG_SIZE($kdc)
     mtlo        $k1
     cld         $k1, $k0, 18*REG_SIZE($kdc)
-    mtc0        $k1, $MIPS_CP0_REG_EPC
+    dmtc0       $k1, $MIPS_CP0_REG_EPC
     
     # avoid "direct c0 access deprecated" warning
     clc         $c1, $k0, 0*CAP_SIZE+MIPS_FRAME_SIZE($kdc)

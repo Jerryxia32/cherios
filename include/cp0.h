@@ -40,36 +40,30 @@
  * implement cycle counting and timers.
  */
 static inline register_t
-cp0_count_get(void)
-{
-	register_t count;
+cp0_count_get(void) {
+    register_t count;
 
-	__asm__ __volatile__ ("dmfc0 %0, $9" : "=r" (count));
-	return (count & 0xFFFFFFFF);
+    __asm__ __volatile__("mfc0 %0, $9" : "=r" (count));
+    return(count & 0xFFFFFFFF);
 }
 
 static inline void
-cp0_compare_set(register_t compare)
-{
-
-	__asm__ __volatile__ ("dmtc0 %0, $11" : : "r" (compare));
+cp0_compare_set(register_t compare) {
+    __asm__ __volatile__("mtc0 %0, $11" : : "r" (compare));
 }
 
 
 static inline register_t
-cp0_status_get(void)
-{
-	register_t status;
+cp0_status_get(void) {
+    register_t status;
 
-	__asm__ __volatile__ ("dmfc0 %0, $12" : "=r" (status));
-	return (status);
+    __asm__ __volatile__("mfc0 %0, $12" : "=r" (status));
+    return status;
 }
 
 static inline void
-cp0_status_set(register_t status)
-{
-
-	__asm__ __volatile__ ("dmtc0 %0, $12" : : "r" (status));
+cp0_status_set(register_t status) {
+    __asm__ __volatile__("mtc0 %0, $12" : : "r" (status));
 }
 
 static inline void
@@ -136,12 +130,10 @@ cp0_entryhi_get(void)
  * Routines for managing the CP0 BadInstr register.
  */
 static inline register_t
-cp0_badinstr_get(void)
-{
-	register_t badinstr;
-
-	__asm__ __volatile__ ("dmfc0 %0, $8, 1" : "=r" (badinstr));
-	return (badinstr);
+cp0_badinstr_get(void) {
+    register_t badinstr;
+    __asm__ __volatile__("mfc0 %0, $8, 1" : "=r" (badinstr));
+    return badinstr;
 }
 
 /*
@@ -230,34 +222,40 @@ cp0_status_im_disable(int mask)
  * Routines for managing the CP0 cause register.
  */
 static inline register_t
-cp0_cause_get(void)
-{
-	register_t cause;
+cp0_cause_get(void) {
+    register_t cause;
 
-	__asm__ __volatile__ ("dmfc0 %0, $13" : "=r" (cause));
-	return (cause);
+    __asm__ __volatile__ ("mfc0 %0, $13" : "=r" (cause));
+    return cause;
 }
 
 static inline register_t
-cp0_cause_excode_get(void)
-{
-
-	return ((cp0_cause_get() & MIPS_CP0_CAUSE_EXCCODE) >>
-	    MIPS_CP0_CAUSE_EXCODE_SHIFT);
+cp0_cause_excode_get(void) {
+    return((cp0_cause_get() & MIPS_CP0_CAUSE_EXCCODE) >>
+            MIPS_CP0_CAUSE_EXCODE_SHIFT);
 }
 
 static inline register_t
-cp0_cause_ipending_get(void)
-{
-
-	return ((cp0_cause_get() & MIPS_CP0_CAUSE_IP) >>
-	    MIPS_CP0_CAUSE_IP_SHIFT);
+cp0_cause_ipending_get(void) {
+    return((cp0_cause_get() & MIPS_CP0_CAUSE_IP) >>
+            MIPS_CP0_CAUSE_IP_SHIFT);
 }
 
 static inline void
-cp0_cause_set(register_t cause)
-{
+cp0_cause_set(register_t cause) {
+    __asm__ __volatile__("mtc0 %0, $13" : : "r" (cause));
+}
 
-	__asm__ __volatile__ ("dmtc0 %0, $13" : : "r" (cause));
+static inline register_t
+cp0_hwrena_get(void) {
+    register_t hwrena;
+
+    __asm__ __volatile__("dmfc0 %0, $7" : "=r" (hwrena));
+    return(hwrena & 0xFFFFFFFF);
+}
+
+static inline void
+cp0_hwrena_set(register_t hwrena) {
+    __asm__ __volatile__("dmtc0 %0, $7" : : "r" (hwrena));
 }
 #endif /* _CHERI_CP0_H_ */

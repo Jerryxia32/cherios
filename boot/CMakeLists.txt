@@ -17,7 +17,6 @@ set(COMMON_SRCS
 )
 
 set(BOOT_SRCS
-    src/cp0.c
     src/boot/boot.c
     src/boot/uart.c
     src/boot/boot_printf.c

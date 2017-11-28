@@ -51,7 +51,7 @@ ccall_helper:
     csd $v1, $0, 2*CAP_SIZE($kr1c)
 //#define REAL_TIME
 #ifdef REAL_TIME
-    dmfc0   $t9, $MIPS_CP0_REG_COUNT # read the current count register
+    mfc0   $t9, $MIPS_CP0_REG_COUNT # read the current count register
     csw $t9, $0, 2*CAP_SIZE+REG_SIZE($kr1c)
 #endif
 

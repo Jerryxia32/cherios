@@ -41,21 +41,23 @@
 #include "stdio.h"
 #include "elf.h"
 #include"precision.h"
+#include"sched.h"
 
 static uint32_t sealing_tool_no = 1;
 
 static aid_t
-init_act_register(reg_frame_t * frame, const char * name) {
+init_act_register(reg_frame_t* frame, const char* name, prio_t priority) {
 	aid_t ret;
 	__asm__ __volatile__ (
 		"li    $v1, 20       \n"
 		"move $a0, %[frame] \n"
 		"move $a1, %[name]  \n"
+		"move $a2, %[priority]  \n"
 		"syscall             \n"
 		"move %[ret], $v0   \n"
 		: [ret] "=r" (ret)
-		: [frame] "r" (frame), [name] "r" (name)
-		: "v0", "v1", "a0", "a1");
+		: [frame] "r" (frame), [name] "r" (name), [priority] "r" (priority)
+		: "v0", "v1", "a0", "a1", "a2");
 	return ret;
 }
 
@@ -90,7 +92,7 @@ init_act_create(const char* name, void*__capability c0,
 	/* set namespace */
 	frame.mf_s0	= (register_t)ns_aid;
 
-	aid_t thisAid = init_act_register(&frame, name);
+	aid_t thisAid = init_act_register(&frame, name, PRIORITY_DEFAULT);
 	CCALL(1, thisAid, 0,
 	      rarg, (register_t)carg, thisAid, NULLCAP, NULLCAP, NULLCAP);
 	return thisAid;

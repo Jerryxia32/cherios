@@ -51,9 +51,10 @@ static void syscall_sleep(void) {
 }
 
 static void syscall_act_register(void) {
-	reg_frame_t * frame = (void *)kernel_exception_framep_ptr->mf_a0;
-	char * name = (void *)kernel_exception_framep_ptr->mf_a1;
-	kernel_exception_framep_ptr->mf_v0 = (register_t)act_register(frame, name);
+    reg_frame_t* frame = (void *)kernel_exception_framep_ptr->mf_a0;
+    char* name = (void *)kernel_exception_framep_ptr->mf_a1;
+    prio_t priority = (prio_t)kernel_exception_framep_ptr->mf_a2;
+    kernel_exception_framep_ptr->mf_v0 = (register_t)act_register(frame, name, priority);
 }
 
 static void syscall_act_get_status(void) {

@@ -40,7 +40,7 @@
 #include "cdefs.h"
 #include "colors.h"
 #include "math.h"
-#include "sched.h"
+#include"kernel_sched.h"
 #include "string.h"
 
 #ifdef __TRACE__
@@ -92,8 +92,6 @@ void	kernel_vtrace(const char *context, const char *fmt, va_list ap);
 void	hw_reboot(void) __dead2;
 void	kernel_freeze(void) __dead2;
 
-int	try_gc(void * p, void * pool);
-
 int	msg_push(int dest, int src, void * __capability sync_token);
 void	msg_pop(aid_t act);
 void	msg_queue_init(aid_t act);
@@ -101,7 +99,7 @@ int	msg_queue_empty(aid_t act);
 
 void	act_init(boot_info_t *bi);
 void act_wait(aid_t act, aid_t next_hint);
-aid_t act_register(const reg_frame_t * frame, const char * name);
+aid_t act_register(const reg_frame_t* frame, const char* name, prio_t priority);
 int	act_get_status(aid_t aid);
 int	act_revoke(aid_t aid);
 int	act_terminate(aid_t aid);

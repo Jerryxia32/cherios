@@ -54,13 +54,13 @@ void act_init(boot_info_t *bi) {
 	kernel_next_act = 0;
 	struct reg_frame dummy_frame;
 	bzero(&dummy_frame, sizeof(struct reg_frame));
-	act_register(&dummy_frame, "kernel");
+	act_register(&dummy_frame, "kernel", PRIORITY_DEFAULT);
 	kernel_acts[0].status = status_terminated;
 	kernel_acts[0].sched_status = sched_terminated;
 
 	/* create the activation for init, passed in the boot_info */
 	kernel_curr_act = kernel_next_act = 1;
-	act_register(&bi->init_frame, "init");
+	act_register(&bi->init_frame, "init", PRIORITY_MAX-1);
 	kernel_exception_framep_ptr = &kernel_exception_framep[kernel_curr_act];
 	sched_d2a(kernel_curr_act, sched_runnable);
 }
@@ -75,7 +75,7 @@ void kernel_skip_instr(aid_t act) {
 }
 
 aid_t
-act_register(const reg_frame_t * frame, const char * name) {
+act_register(const reg_frame_t* frame, const char* name, const prio_t priority) {
 	aid_t aid = kernel_next_act;
 
 	if(aid >= MAX_ACTIVATIONS) {
@@ -109,6 +109,7 @@ act_register(const reg_frame_t * frame, const char * name) {
 	/* set queue */
 	msg_queue_init(aid);
 	kernel_acts[aid].queue_mask = MAX_MSG-1;
+	kernel_acts[aid].priority = priority;
 
 	/* set scheduling status */
 	sched_create(aid);

@@ -1,6 +1,5 @@
 /*-
- * Copyright (c) 2011 Robert N. M. Watson
- * Copyright (c) 2016 Hadrien Barral
+ * Copyright (c) 2017 Hongyan Xia
  * All rights reserved.
  *
  * This software was developed by SRI International and the University of
@@ -29,15 +28,14 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _CHERIOS_SCHED_H_
-#define	_CHERIOS_SCHED_H_
+#ifndef _SCHED_H_
+#define _SCHED_H_
 
-aid_t	sched_reschedule(aid_t hint);
+#include"mips.h"
 
-void	sched_create(aid_t act);
-void	sched_delete(aid_t act);
+#define PRIORITY_MAX 4
+#define PRIORITY_DEFAULT 1
 
-void	sched_d2a(aid_t act, sched_status_e status);
-void	sched_a2d(aid_t act, sched_status_e status);
+typedef uint16_t prio_t;
 
-#endif /* _CHERIOS_SCHED_H_ */
+#endif /* _SCHED_H_ */

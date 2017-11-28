@@ -1,4 +1,5 @@
 /*-
+ * Copyright (c) 2011 Robert N. M. Watson
  * Copyright (c) 2016 Hadrien Barral
  * All rights reserved.
  *
@@ -28,66 +29,18 @@
  * SUCH DAMAGE.
  */
 
-#ifndef __ACTIVATIONS_H
-#define __ACTIVATIONS_H
+#ifndef _KERNEL_SCHED_H_
+#define _KERNEL_SCHED_H_
 
-#include"mips.h"
-#include"queue.h"
 #include"sched.h"
+#include"activations.h"
 
-typedef struct
-{
-	uint16_t expected_reply;
-}  sync_t;
+aid_t	sched_reschedule(aid_t hint);
 
-/*
- * Possible status for an activation
- */
-typedef enum status_e
-{
-	status_alive = 0,
-	status_revoked = 1,
-	status_terminated = 2
-} status_e;
+void	sched_create(aid_t act);
+void	sched_delete(aid_t act);
 
-/*
- * Scheduling status for an activation
- */
-typedef enum sched_status_e
-{
-	sched_waiting,
-	sched_schedulable,
-	sched_runnable,
-	sched_sync_block,
-	sched_terminated
-} sched_status_e;
+void	sched_d2a(aid_t act, sched_status_e status);
+void	sched_a2d(aid_t act, sched_status_e status);
 
-/*
- * Kernel structure for an activation
- */
-#define ACT_NAME_MAX_LEN (0x10)
-typedef struct
-{
-	/* Activation related */
-	aid_t aid;			/* Activation id -- redundant with array index */
-	status_e status;		/* Activation status flags */
-	/* Queue related */
-	msg_nb_t queue_mask;		/* Queue mask (cannot trust userspace
-					   which has write access to queue) */
-	/* Scheduling related */
-	sched_status_e sched_status;	/* Current status */
-    prio_t priority; // the priority of this act. Higher the better.
-	/* CCall related */
-	sync_t sync_token;		/* Helper for the synchronous CCall mecanism */
-	#ifndef __LITE__
-	char name[ACT_NAME_MAX_LEN];	/* Activation name (for debuging) */
-	#endif
-} act_t;
-
-extern reg_frame_t	kernel_exception_framep[];
-extern reg_frame_t *	kernel_exception_framep_ptr;
-extern act_t		kernel_acts[];
-extern aid_t 		kernel_curr_act;
-extern aid_t 		kernel_next_act;
-
-#endif
+#endif /* _KERNEL_SCHED_H_ */

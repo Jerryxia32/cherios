@@ -10,7 +10,7 @@ set(KERNEL_SRCS
     src/kernel_utils.c
     src/msg.c
     src/regdump.c
-    src/sched.c
+    src/kernel_sched.c
     src/syscalls.c
     src/timer.c
     src/uart.c

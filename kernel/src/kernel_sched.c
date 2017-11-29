@@ -111,19 +111,10 @@ sched_picknext(void) {
     for(ssize_t prioLvl = PRIORITY_MAX-1; prioLvl != -1; prioLvl--) {
         size_t thisLevelEnd = squeue_a_end[prioLvl];
         if(thisLevelEnd == 0) continue;
-        size_t endIdx = squeue_a_idx[prioLvl]+1;
-        if(endIdx >= thisLevelEnd) endIdx = 0;
-        size_t currIdx = endIdx;
-        squeue_a_idx[prioLvl] = endIdx;
-        do {
-            aid_t currAid = squeue_a[prioLvl][currIdx];
-            sched_status_e currStatus = kernel_acts[currAid].sched_status;
-            if(currStatus == sched_runnable || currStatus == sched_schedulable)
-                return currAid;
-            currIdx++;
-            if(currIdx >= thisLevelEnd) currIdx = 0;
-            squeue_a_idx[prioLvl] = currIdx;
-        } while(currIdx != endIdx);
+        size_t currIdx = squeue_a_idx[prioLvl]+1;
+        if(currIdx >= thisLevelEnd) currIdx = 0;
+        squeue_a_idx[prioLvl] = currIdx;
+        return squeue_a[prioLvl][currIdx];
     }
     return 0;
 }

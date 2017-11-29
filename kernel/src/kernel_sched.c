@@ -47,21 +47,23 @@ static void sched_nothing_to_run(void) {
 	kernel_freeze();
 }
 
-static u32   aqueue[MAX_ACTIVATIONS];
-static aid_t squeue_a[MAX_ACTIVATIONS];
-static u32   squeue_a_idx = 0;
-static u32   squeue_a_end = 0;
+static u32   aqueue[PRIORITY_MAX][MAX_ACTIVATIONS];
+static aid_t squeue_a[PRIORITY_MAX][MAX_ACTIVATIONS];
+static u32   squeue_a_idx[PRIORITY_MAX] = {0};
+static u32   squeue_a_end[PRIORITY_MAX] = {0};
 
 #define QADD(act, squeue, aqueue)    \
-	aqueue[act] = squeue##_end;  \
-	squeue[squeue##_end++] = act;
+    size_t prio = kernel_acts[act].priority; \
+    aqueue[prio][act] = squeue##_end[prio];  \
+    squeue[prio][squeue##_end[prio]++] = act;
 
-#define QDEL(act, squeue, aqueue)                  \
-	kernel_assert(squeue[aqueue[act]] == act); \
-	squeue##_end--;                            \
-	aid_t replacement = squeue[squeue##_end];  \
-	squeue[aqueue[act]] = replacement;         \
-	aqueue[replacement] = aqueue[act];
+#define QDEL(act, squeue, aqueue) \
+    size_t prio = kernel_acts[act].priority; \
+    kernel_assert(squeue[prio][aqueue[prio][act]] == act); \
+    squeue##_end[prio]--;                            \
+    aid_t replacement = squeue[prio][squeue##_end[prio]];  \
+    squeue[prio][aqueue[prio][act]] = replacement;         \
+    aqueue[prio][replacement] = aqueue[prio][act];
 
 void sched_create(aid_t act) {
 	KERNEL_TRACE("sched", "create %s-%ld", kernel_acts[act].name, act);
@@ -70,7 +72,8 @@ void sched_create(aid_t act) {
 
 void sched_delete(aid_t act) {
 	KERNEL_TRACE("sched", "delete %s-%ld", kernel_acts[act].name, act);
-	if(squeue_a[aqueue[act]] == act) {
+    size_t prioTemp = kernel_acts[act].priority;
+	if(squeue_a[prioTemp][aqueue[prioTemp][act]] == act) {
 		QDEL(act, squeue_a, aqueue);
 	}
 	kernel_acts[act].status = status_terminated;
@@ -90,12 +93,24 @@ void sched_a2d(aid_t act, sched_status_e status) {
 	kernel_acts[act].sched_status = status;
 }
 
-static aid_t sched_picknext(void) {
-	if(squeue_a_end == 0) {
-		return 0;
-	}
-	squeue_a_idx = (squeue_a_idx+1) % squeue_a_end;
-	return squeue_a[squeue_a_idx];
+// from top to low priorities, find the next schedulable or runnable act.
+static aid_t
+sched_picknext(void) {
+    for(ssize_t prioLvl = PRIORITY_MAX-1; prioLvl != -1; prioLvl--) {
+        if(squeue_a_end[prioLvl] == 0) continue;
+        size_t endIdx = (squeue_a_idx[prioLvl]+1) % squeue_a_end[prioLvl];
+        size_t currIdx = endIdx;
+        squeue_a_idx[prioLvl] = endIdx;
+        do {
+            aid_t currAid = squeue_a[prioLvl][currIdx];
+            sched_status_e currStatus = kernel_acts[currAid].sched_status;
+            if(currStatus == sched_schedulable || currStatus == sched_runnable)
+                return currAid;
+            currIdx = (currIdx+1) % squeue_a_end[prioLvl];
+            squeue_a_idx[prioLvl] = currIdx;
+        } while(currIdx != endIdx);
+    }
+    return 0;
 }
 
 aid_t sched_reschedule(aid_t hint) {
@@ -103,7 +118,7 @@ aid_t sched_reschedule(aid_t hint) {
 	size_t old_kernel_curr_act = kernel_curr_act;
 	#endif
 	if(!hint) {
-		again:
+again:
 		hint = sched_picknext();
 	}
 	if(!hint) {
@@ -113,8 +128,8 @@ aid_t sched_reschedule(aid_t hint) {
 		sched_schedule(hint);
 	}
     if(kernel_acts[hint].sched_status != sched_runnable) {
-		goto again;
-	}
+        goto again;
+    }
 
 	kernel_curr_act = hint;
 	kernel_exception_framep_ptr = kernel_exception_framep + hint;

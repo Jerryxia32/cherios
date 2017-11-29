@@ -38,4 +38,6 @@
 
 typedef uint16_t prio_t;
 
+void priority_change(aid_t act, prio_t newPrio);
+
 #endif /* _SCHED_H_ */

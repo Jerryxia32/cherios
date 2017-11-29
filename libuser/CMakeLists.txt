@@ -25,6 +25,7 @@ set(LIBUSER_SRCS
     src/msg_default.c
     src/namespace.c
     src/object.c
+    src/sched.c
     src/panic.c
     src/printf.c
     src/ssleep.c

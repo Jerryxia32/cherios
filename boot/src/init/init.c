@@ -39,6 +39,7 @@
 #include "stdio.h"
 #include"string.h"
 #include"statcounters.h"
+#include"sched.h"
 
 #define B_FS 1
 #define B_SO 1
@@ -145,6 +146,7 @@ int init_main() {
 	load_modules();
 
 	printf("Init:Z\n");
+    priority_change(1, PRIORITY_DEFAULT);
 
 	while(acts_alive(init_list, init_list_len)) {
 		ssleep(0);

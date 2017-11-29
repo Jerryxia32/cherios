@@ -52,18 +52,20 @@ static aid_t squeue_a[PRIORITY_MAX][MAX_ACTIVATIONS];
 static u32   squeue_a_idx[PRIORITY_MAX] = {0};
 static u32   squeue_a_end[PRIORITY_MAX] = {0};
 
-#define QADD(act, squeue, aqueue)    \
+#define QADD(act, squeue, aqueue) { \
     size_t prio = kernel_acts[act].priority; \
     aqueue[prio][act] = squeue##_end[prio];  \
-    squeue[prio][squeue##_end[prio]++] = act;
+    squeue[prio][squeue##_end[prio]++] = act; \
+}
 
-#define QDEL(act, squeue, aqueue) \
+#define QDEL(act, squeue, aqueue) { \
     size_t prio = kernel_acts[act].priority; \
     kernel_assert(squeue[prio][aqueue[prio][act]] == act); \
     squeue##_end[prio]--;                            \
     aid_t replacement = squeue[prio][squeue##_end[prio]];  \
     squeue[prio][aqueue[prio][act]] = replacement;         \
-    aqueue[prio][replacement] = aqueue[prio][act];
+    aqueue[prio][replacement] = aqueue[prio][act]; \
+}
 
 void sched_create(aid_t act) {
 	KERNEL_TRACE("sched", "create %s-%ld", kernel_acts[act].name, act);
@@ -91,6 +93,16 @@ void sched_a2d(aid_t act, sched_status_e status) {
 	QDEL(act, squeue_a, aqueue);
 	kernel_assert((status == sched_sync_block) || (status == sched_waiting));
 	kernel_acts[act].sched_status = status;
+}
+
+void
+sched_prio_change(aid_t act, prio_t newPrio) {
+    KERNEL_TRACE("The act is: %d\n", act);
+    KERNEL_TRACE("Old priority is: %d\n", kernel_acts[act].priority);
+    QDEL(act, squeue_a, aqueue);
+    kernel_acts[act].priority = newPrio;
+    QADD(act, squeue_a, aqueue);
+    KERNEL_TRACE("New priority is: %d\n", kernel_acts[act].priority);
 }
 
 // from top to low priorities, find the next schedulable or runnable act.

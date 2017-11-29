@@ -80,6 +80,16 @@ static void syscall_act_terminate(void) {
 	}
 }
 
+static void
+syscall_sched_prio_change(void) {
+    aid_t aid = (aid_t)kernel_exception_framep_ptr->mf_a0;
+    prio_t newPrio = (prio_t)kernel_exception_framep_ptr->mf_a1;
+    if(!is_valid_aid(aid)) kernel_panic("Invalid aid!\n");
+    if(newPrio > PRIORITY_MAX-1)
+        kernel_panic("New priority exceeds max priority!\n");
+    sched_prio_change(aid, newPrio);
+}
+
 static void syscall_puts() {
     void * msg = (void *)(kernel_exception_framep_ptr->mf_a0 +
             cheri_getbase(kernel_exception_framep_ptr->cf_c0));
@@ -153,6 +163,10 @@ void kernel_exception_syscall(void)
 		KERNEL_TRACE("exception", "Syscall %ld (gc)", sysn);
 		//syscall_gc();
 		break;
+    case 80:
+        KERNEL_TRACE("exception", "Syscall %ld (sched_priority_change)", sysn);
+        syscall_sched_prio_change();
+        break;
 	case 1001:
 		KERNEL_TRACE("exception", "(CCall1)Syscall %ld", sysn);
         kernel_ccall_fake(1);

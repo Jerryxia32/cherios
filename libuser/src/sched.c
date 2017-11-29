@@ -1,6 +1,5 @@
 /*-
- * Copyright (c) 2011 Robert N. M. Watson
- * Copyright (c) 2016 Hadrien Barral
+ * Copyright (c) 2017 Hongyan Xia
  * All rights reserved.
  *
  * This software was developed by SRI International and the University of
@@ -29,20 +28,17 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _KERNEL_SCHED_H_
-#define _KERNEL_SCHED_H_
-
+#include"mips.h"
 #include"sched.h"
-#include"activations.h"
 
-aid_t	sched_reschedule(aid_t hint);
-
-void	sched_create(aid_t act);
-void	sched_delete(aid_t act);
-
-void	sched_d2a(aid_t act, sched_status_e status);
-void	sched_a2d(aid_t act, sched_status_e status);
-
-void sched_prio_change(aid_t act, prio_t status);
-
-#endif /* _KERNEL_SCHED_H_ */
+void
+priority_change(aid_t act, prio_t newPrio) {
+    __asm__ __volatile__(
+        "li    $v1, 80       \n"
+        "move $a0, %[act] \n"
+        "move $a1, %[newPrio]  \n"
+        "syscall             \n"
+        :
+        : [act] "r" (act), [newPrio] "r" (newPrio)
+        : "v1", "a0", "a1");
+}

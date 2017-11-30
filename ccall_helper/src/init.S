@@ -55,7 +55,7 @@ ccall_helper:
     csw $t9, $0, 2*CAP_SIZE+REG_SIZE($kr1c)
 #endif
 
-    ccall   $c1, $c2, 42
+    ccall   $c1, $c2, 1
     cincoffset  $kr1c, $kr1c, 4*CAP_SIZE
 ccall_helper_end:
 	.size ccall_helper, ccall_helper - ccall_helper_end

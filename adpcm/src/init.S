@@ -36,28 +36,21 @@
 	.global start
 	.ent start
 start:
-    b start_common
+    b           start_common
+    nop
 
-.rodata
-.global __adpcm_c_start
-.global __adpcm_c_end
-
-.align 5
+    .rodata
+    .global __adpcm_c_start
+    .global __adpcm_c_end
+    .align 5
 __adpcm_c_start:
-.incbin "adpcm_large.pcm"
+    .incbin"adpcm_large.pcm"
 __adpcm_c_end:
-nop
-.size __adpcm_c_start, __adpcm_c_end - __adpcm_c_start
-.size __adpcm_c_end, 1
 
-.rodata
-.global __adpcm_d_start
-.global __adpcm_d_end
-
-.align 5
+    .rodata
+    .global __adpcm_d_start
+    .global __adpcm_d_end
+    .align 5
 __adpcm_d_start:
-.incbin "adpcm_large.adpcm"
+    .incbin"adpcm_large.adpcm"
 __adpcm_d_end:
-nop
-.size __adpcm_d_start, __adpcm_d_end - __adpcm_d_start
-.size __adpcm_d_end, 1

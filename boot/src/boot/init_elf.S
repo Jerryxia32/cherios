@@ -33,5 +33,5 @@
     .global __init_elf_start
     .global __init_elf_end
 __init_elf_start:
-    .incbin "init.elf"
+    .incbin"init.elf"
 __init_elf_end:

@@ -36,16 +36,13 @@
 	.global start
 	.ent start
 start:
-    b start_common
+    b           start_common
+    nop
 
-.rodata
-.global __pcm_start
-.global __pcm_end
-
-.align 5
+    .rodata
+    .global __pcm_start
+    .global __pcm_end
+    .align 5
 __pcm_start:
-.incbin "large.pcm"
+    .incbin"large.pcm"
 __pcm_end:
-nop
-.size __pcm_start, __pcm_end - __pcm_start
-.size __pcm_end, 1

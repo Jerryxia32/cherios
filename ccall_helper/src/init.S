@@ -37,25 +37,25 @@
 	.global start
 	.ent start
 start:
-    b start_common
+    b           start_common
     nop
 
 	.text
 	.global ccall_helper
 	.ent ccall_helper
 ccall_helper:
-    csc $idc, $0, 0($kr1c)
-    cgetdefault   $c25
+    csc         $idc, $0, 0($kr1c)
+    cgetdefault $c25
     csetoffset  $c25, $c25, $sp
-    csc $c25, $0, CAP_SIZE($kr1c)
-    csd $v1, $0, 2*CAP_SIZE($kr1c)
+    csc         $c25, $0, CAP_SIZE($kr1c)
+    csd         $v1, $0, 2*CAP_SIZE($kr1c)
 //#define REAL_TIME
 #ifdef REAL_TIME
-    mfc0   $t9, $MIPS_CP0_REG_COUNT # read the current count register
-    csw $t9, $0, 2*CAP_SIZE+REG_SIZE($kr1c)
+    mfc0        $t9, $MIPS_CP0_REG_COUNT # read the current count register
+    csw         $t9, $0, 2*CAP_SIZE+REG_SIZE($kr1c)
 #endif
 
-    ccall   $c1, $c2, 1
+    ccall       $c1, $c2, 1
     cincoffset  $kr1c, $kr1c, 4*CAP_SIZE
 ccall_helper_end:
 	.size ccall_helper, ccall_helper - ccall_helper_end
@@ -66,12 +66,12 @@ ccall_helper_end:
 	.ent creturn_helper
 creturn_helper:
     cincoffset  $kr1c, $kr1c, -4*CAP_SIZE
-    clc $c1, $0, 0($kr1c)
-    clc $c25, $0, CAP_SIZE($kr1c)
+    clc         $c1, $0, 0($kr1c)
+    clc         $c25, $0, CAP_SIZE($kr1c)
     # extract the stack pointer of the caller
     cgetoffset  $sp, $c25
     csetoffset  $c25, $c25, $0
-    cjr $c1
+    cjr         $c1
     csetdefault $c25
 creturn_helper_end:
 	.size creturn_helper, creturn_helper - creturn_helper_end

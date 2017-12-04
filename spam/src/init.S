@@ -36,17 +36,13 @@
 	.global start
 	.ent start
 start:
-    b start_common
+    b           start_common
     nop
 
-.rodata
-.global __AES_start
-.global __AES_end
-
-.align 5
+    .rodata
+    .global __AES_start
+    .global __AES_end
+    .align 5
 __AES_start:
-.incbin "AES_input_large.asc"
+    .incbin"AES_input_large.asc"
 __AES_end:
-nop
-.size __AES_start, __AES_end - __AES_start
-.size __AES_end, 1

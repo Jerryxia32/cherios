@@ -28,9 +28,9 @@
 # SUCH DAMAGE.
 #
 
-.rodata
-.global __fs_start
-.global __fs_end
+    .rodata
+    .global __fs_start
+    .global __fs_end
 __fs_start:
-.incbin "fs.img"
+    .incbin"fs.img"
 __fs_end:

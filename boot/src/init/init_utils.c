@@ -64,7 +64,7 @@ init_act_register(reg_frame_t* frame, const char* name, prio_t priority) {
 static aid_t
 init_act_create(const char* name, void*__capability c0,
         void* __capability pcc, void* stack, void*__capability act_cap,
-        aid_t ns_aid, register_t rarg, const void* carg) {
+        aid_t ns_aid, register_t rarg, const void* carg, prio_t priority) {
 	reg_frame_t frame;
 	memset(&frame, 0, sizeof(reg_frame_t));
 
@@ -92,7 +92,7 @@ init_act_create(const char* name, void*__capability c0,
 	/* set namespace */
 	frame.mf_s0	= (register_t)ns_aid;
 
-	aid_t thisAid = init_act_register(&frame, name, PRIORITY_DEFAULT);
+	aid_t thisAid = init_act_register(&frame, name, priority);
 	CCALL(1, thisAid, 0,
 	      rarg, (register_t)carg, thisAid, NULLCAP, NULLCAP, NULLCAP);
 	return thisAid;
@@ -220,15 +220,21 @@ load_module(module_t type, const char* file, int arg, const void* carg) {
     prgmp = cheri_andperm(prgmp, (CHERI_PERM_GLOBAL | CHERI_PERM_LOAD | CHERI_PERM_STORE
             | CHERI_PERM_LOAD_CAP | CHERI_PERM_STORE_CAP | CHERI_PERM_CCALL
             | CHERI_PERM_STORE_LOCAL_CAP | CHERI_PERM_SOFT_0));
+
+    prio_t priority = PRIORITY_DEFAULT;
+
     if(type != m_memmgt) {
         prgmp = cheri_andperm(prgmp, ~CHERI_PERM_GLOBAL);
     }
     if(type != m_ccall_helper) {
         pcc = cheri_andperm(pcc, ~CHERI_PERM_ACCESS_SYS_REGS);
     }
+    if(type != m_user) {
+        priority = PRIORITY_MAX-1;
+    }
 
     aid_t thisAid = init_act_create(file, cheri_setoffset(prgmp, 0),
-            pcc, stack, get_act_cap(type), ns_aid, arg, carg);
+            pcc, stack, get_act_cap(type), ns_aid, arg, carg, priority);
 	if(thisAid == 0) {
 		return 0;
 	}

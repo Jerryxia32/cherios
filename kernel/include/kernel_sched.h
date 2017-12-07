@@ -44,5 +44,6 @@ void	sched_d2a(aid_t act, sched_status_e status);
 void	sched_a2d(aid_t act, sched_status_e status);
 
 void sched_prio_change(aid_t act, prio_t status);
+void sched_caps_init();
 
 #endif /* _KERNEL_SCHED_H_ */

@@ -47,24 +47,42 @@ static void sched_nothing_to_run(void) {
 	kernel_freeze();
 }
 
-static u32   aqueue[PRIORITY_MAX][MAX_ACTIVATIONS];
+static uint32_t aqueue[PRIORITY_MAX][MAX_ACTIVATIONS];
 static aid_t squeue_a[PRIORITY_MAX][MAX_ACTIVATIONS];
-static u32   squeue_a_idx[PRIORITY_MAX] = {0};
-static u32   squeue_a_end[PRIORITY_MAX] = {0};
+static uint32_t squeue_a_idx[PRIORITY_MAX] = {0};
+static uint32_t squeue_a_end[PRIORITY_MAX] = {0};
+
+static uint32_t (*__capability aqueue_cap)[MAX_ACTIVATIONS];
+static aid_t (*__capability squeue_a_cap)[MAX_ACTIVATIONS];
+static uint32_t*__capability squeue_a_idx_cap;
+static uint32_t*__capability squeue_a_end_cap;
+
+void
+sched_caps_init() {
+    void*__capability theDefault = cheri_getdefault();
+    aqueue_cap = cheri_setbounds(cheri_setoffset(theDefault,
+            (size_t)&aqueue[0][0]), sizeof(u32)*PRIORITY_MAX*MAX_ACTIVATIONS);
+    squeue_a_cap = cheri_setbounds(cheri_setoffset(theDefault,
+            (size_t)&squeue_a[0][0]), sizeof(aid_t)*PRIORITY_MAX*MAX_ACTIVATIONS);
+    squeue_a_idx_cap = cheri_setbounds(cheri_setoffset(theDefault,
+            (size_t)&squeue_a_idx[0]), sizeof(u32)*PRIORITY_MAX);
+    squeue_a_end_cap = cheri_setbounds(cheri_setoffset(theDefault,
+            (size_t)&squeue_a_end[0]), sizeof(u32)*PRIORITY_MAX);
+}
 
 #define QADD(act, squeue, aqueue) { \
     size_t prio = kernel_acts[act].priority; \
-    aqueue[prio][act] = squeue##_end[prio];  \
-    squeue[prio][squeue##_end[prio]++] = act; \
+    aqueue##_cap[prio][act] = squeue##_end_cap[prio];  \
+    squeue##_cap[prio][squeue##_end_cap[prio]++] = act; \
 }
 
 #define QDEL(act, squeue, aqueue) { \
     size_t prio = kernel_acts[act].priority; \
-    kernel_assert(squeue[prio][aqueue[prio][act]] == act); \
-    squeue##_end[prio]--;                            \
-    aid_t replacement = squeue[prio][squeue##_end[prio]];  \
-    squeue[prio][aqueue[prio][act]] = replacement;         \
-    aqueue[prio][replacement] = aqueue[prio][act]; \
+    kernel_assert(squeue##_cap[prio][aqueue##_cap[prio][act]] == act); \
+    squeue##_end_cap[prio]--;                            \
+    aid_t replacement = squeue##_cap[prio][squeue##_end_cap[prio]];  \
+    squeue##_cap[prio][aqueue##_cap[prio][act]] = replacement;         \
+    aqueue##_cap[prio][replacement] = aqueue##_cap[prio][act]; \
 }
 
 void sched_create(aid_t act) {
@@ -75,7 +93,7 @@ void sched_create(aid_t act) {
 void sched_delete(aid_t act) {
 	KERNEL_TRACE("sched", "delete %s-%ld", kernel_acts[act].name, act);
     size_t prioTemp = kernel_acts[act].priority;
-	if(squeue_a[prioTemp][aqueue[prioTemp][act]] == act) {
+	if(squeue_a_cap[prioTemp][aqueue_cap[prioTemp][act]] == act) {
 		QDEL(act, squeue_a, aqueue);
 	}
 	kernel_acts[act].status = status_terminated;
@@ -109,12 +127,12 @@ sched_prio_change(aid_t act, prio_t newPrio) {
 static aid_t
 sched_picknext(void) {
     for(ssize_t prioLvl = PRIORITY_MAX-1; prioLvl != -1; prioLvl--) {
-        size_t thisLevelEnd = squeue_a_end[prioLvl];
+        size_t thisLevelEnd = squeue_a_end_cap[prioLvl];
         if(thisLevelEnd == 0) continue;
-        size_t currIdx = squeue_a_idx[prioLvl]+1;
+        size_t currIdx = squeue_a_idx_cap[prioLvl]+1;
         if(currIdx >= thisLevelEnd) currIdx = 0;
-        squeue_a_idx[prioLvl] = currIdx;
-        return squeue_a[prioLvl][currIdx];
+        squeue_a_idx_cap[prioLvl] = currIdx;
+        return squeue_a_cap[prioLvl][currIdx];
     }
     return 0;
 }

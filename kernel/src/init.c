@@ -96,6 +96,7 @@ int cherios_main(int argc, void *p) {
 	 */
 	memcpy(&boot_info, p, sizeof(boot_info));
 
+    sched_caps_init();
 	install_exception_vectors();
 	act_init(&boot_info);
 	kernel_interrupts_init(1);

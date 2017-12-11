@@ -56,7 +56,7 @@
     .ent kernel_exception_trampoline
 kernel_exception_trampoline:
     j           kernel_cp2_exception_handler
-    csetoffset  $kdc, $kdc, $0
+    lui         $k0, %hi(kernel_exception_framep_ptr)
 kernel_exception_trampoline_end:
 
     .global kernel_ccall_trampoline
@@ -72,7 +72,7 @@ kernel_ccall_trampoline_end:
     .ent kernel_tlb_trampoline
 kernel_tlb_trampoline:
     j           kernel_tlb_handler
-    csetoffset  $kdc, $kdc, $0
+    dmfc0       $k0, $MIPS_CP0_REG_ENTRYHI
 kernel_tlb_trampoline_end:
 
     .text
@@ -84,7 +84,6 @@ kernel_tlb_handler:
     csd         $s1, $k1, -2*REG_SIZE($kdc)
     csc         $c1, $k1, -3*REG_SIZE-CAP_SIZE($kdc)
     # retrieve the no_store_cap bit in the ttable
-    dmfc0       $k0, $MIPS_CP0_REG_ENTRYHI
     dsrl        $k0, $k0, 15
     andi        $k0, $k0, 0xfff
     la          $s0, ttableCap
@@ -138,7 +137,7 @@ kernel_cp2_exception_handler:
     # relative to KDC.  First save and clear CP2 context, then
     # move on to general-purpose registers.
     #
-    la          $k0, kernel_exception_framep_ptr
+    addiu       $k0, %lo(kernel_exception_framep_ptr)
     clw         $k0, $k0, 0($kdc)
 
     csc         $c1, $k0, 1*CAP_SIZE+MIPS_FRAME_SIZE($kdc)
@@ -181,6 +180,8 @@ kernel_cp2_exception_handler:
 
     # Set up exception stack
     la          $sp, __stop_exception_stack
+    # using small sections in the kernel, $gp has to be initialized.
+    la          $gp, _gp
     
     # Restore the kernel's C0 after returning from the user
     # context -- this is the only capability used in the kernel

@@ -41,9 +41,6 @@ SECTIONS
 	.init : {
 		KEEP (*(.init))
 	} = 0
-	.text ALIGN(CAP_ALIGN): {
-		*(.text)
-	}
 	.fini ALIGN(CAP_ALIGN): {
 		KEEP (*(.fini))
 	} = 0
@@ -65,19 +62,21 @@ SECTIONS
 		KEEP (*(SORT(.dtors.*)))
 		KEEP (*/crtendC.o(.dtors))
 	}
-	.data ALIGN(CAP_ALIGN): {
-		*(.data)
-	}
-	_gp = ALIGN(CAP_ALIGN) + 0x7fc0;
-	.got : {
-		*(.got.plt)
-		*(.got)
-	}
-	.bss ALIGN(CAP_ALIGN): {
-		__start_bss = .;
-		*(.bss)
-		__stop_bss = ALIGN(., CAP_ALIGN);
-	}
+    .text ALIGN(CAP_ALIGN): {
+        _gp = ALIGN(.+0x7ff0, CAP_ALIGN);
+        *(.text)
+    }
+    .sdata ALIGN(CAP_ALIGN): {
+        *(.sdata)
+    }
+    .sbss ALIGN(CAP_ALIGN): {
+        __start_bss = ALIGN(., CAP_ALIGN);
+        *(.sbss)
+    }
+    .bss ALIGN(CAP_ALIGN): {
+        *(.bss)
+        __stop_bss = ALIGN(., CAP_ALIGN);
+    }
 	.stack ALIGN(PAGE_ALIGN): {
 		__start_exception_stack	= .;
 		. += __size_exception_stack;

@@ -94,6 +94,8 @@ start:
     # Set up a boot-time stack using memory allocated by the linker;
     # assume that $c0 is a sensible starting capability for this.
     la          $sp, __stop_exception_stack
+    # using small sections in the kernel, $gp has to be initialized.
+    la          $gp, _gp
 
     # Initialise BSS and globals before running C constructors, so that C
     # constructors can take them (and other aspects of the conventional C

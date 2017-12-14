@@ -7,6 +7,7 @@
 #include"tree.h"
 #include<stdio.h>
 #include<statcounters.h>
+#include<sys/mman.h>
 
 int dealwithargs(int argc, char *argv[]);
 
@@ -45,6 +46,7 @@ int main (int argc, char *argv[])
     temp = cheri_setoffset(temp, 0);
       }
     stats_display();
+    munmap(temp, 64<<20);
     return 0;
 }
 

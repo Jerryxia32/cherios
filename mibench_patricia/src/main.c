@@ -125663,6 +125663,7 @@ main()
     }
     printf("Counter %d\n", counter);
     stats_display();
+    munmap(temp, 64<<20);
 
 	return 0;
 }

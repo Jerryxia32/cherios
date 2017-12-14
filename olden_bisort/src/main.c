@@ -275,7 +275,9 @@ int main(argc,argv)
      }
     printf("done\n");
   }
+  malloc_pool = cheri_setoffset(malloc_pool, 0);
   stats_display();
+  munmap(malloc_pool, 32<<20);
   return(0); /* just to get rid of the warnning */
 } 
 

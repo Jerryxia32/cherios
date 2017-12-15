@@ -175,7 +175,7 @@ add_compile_options("$<$<COMPILE_LANGUAGE:ASM>:${ASM_COMPILER_FLAGS}>")
 
 # TODO: only add -g when CMAKE_BUILD_TYPE == Debug
 # for now we always want it
-#add_compile_options(-g)
+add_compile_options(-g0)
 
 set(CHERIOS_FILESYSTEM_DIR "${CMAKE_BINARY_DIR}/fs")
 set(CHERIOS_FILESYSTEM_DEPENDS "" CACHE INTERNAL "dependencies for filesystem")

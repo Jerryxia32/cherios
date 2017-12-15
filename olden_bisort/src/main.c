@@ -236,7 +236,7 @@ int main(argc,argv)
 
 
 { 
-  malloc_pool = mmap(NULL, 32<<20, PROT_RW, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+  malloc_pool = mmap(NULL, 256<<20, PROT_RW, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
   stats_init();
   HANDLE *h;
   int sval;
@@ -275,7 +275,9 @@ int main(argc,argv)
      }
     printf("done\n");
   }
+  malloc_pool = cheri_setoffset(malloc_pool, 0);
   stats_display();
+  munmap(malloc_pool, 256<<20);
   return(0); /* just to get rid of the warnning */
 } 
 

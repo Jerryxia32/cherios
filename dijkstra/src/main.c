@@ -295,5 +295,6 @@ int main() {
       temp = cheri_setoffset(temp, 0);
   }
   stats_display();
+  munmap(temp, 256<<20);
   return 0;
 }

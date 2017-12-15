@@ -5,6 +5,7 @@
 #include<olden_config.h>
 #include<statcounters.h>
 #include<cheric.h>
+#include<sys/mman.h>
 
 typedef struct blue_return {
   Vertex vert;
@@ -143,9 +144,10 @@ int main(int argc, char *argv[])
     dist = ComputeMst(graph,size);
 
     printf("MST has cost %d\n",dist);
-    remaining = 128<<20;
+    remaining = 256<<20;
     temp = cheri_setoffset(temp, 0);
   }
   stats_display();
+  munmap(temp, 256<<20);
   return 0;
 }

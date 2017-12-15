@@ -6,6 +6,7 @@
 #include<olden_config.h>
 #include<stdio.h>
 #include<statcounters.h>
+#include<sys/mman.h>
 
 static int adj(Direction d, ChildType ct)
 {
@@ -148,6 +149,7 @@ int main(int argc, char *argv[])
     temp = cheri_setoffset(temp, 0);
   }
   stats_display();
+  munmap(temp, 256<<20);
   return 0;
 }
 

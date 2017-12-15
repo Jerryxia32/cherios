@@ -19,9 +19,9 @@ char *localmalloc(int size)
   
   if (size>remaining) 
     {
-      temp = mmap(NULL, 128<<20, PROT_RW, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+      temp = mmap(NULL, 256<<20, PROT_RW, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
       if(temp == MAP_FAILED) printf("Error! malloc returns null\n");
-      remaining = 128<<20;
+      remaining = 256<<20;
     }
   blah = temp;
   temp += size;

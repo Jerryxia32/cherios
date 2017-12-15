@@ -30,7 +30,7 @@
 
 INCLUDE "common.ld"
 
-__size_memory		= 0x16000000;	/* Start simple: 256M above load address */
+__size_memory		= 0x18000000;	/* Start simple: 256M above load address */
 __size_init_stack	= 0x10000;	/* Start simple: 64K */
 
 CAP_ALIGN = 0x20;

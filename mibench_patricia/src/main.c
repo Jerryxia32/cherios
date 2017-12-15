@@ -125501,9 +125501,9 @@ char* temp;
 
 static void __attribute__((noinline))
 mallocinit() {
-  temp = mmap(NULL, 128<<20, PROT_RW, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+  temp = mmap(NULL, 256<<20, PROT_RW, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
   if(temp == MAP_FAILED) printf("Error! malloc returns null\n");
-  remaining = 128<<20;
+  remaining = 256<<20;
 }
 
 char *localmalloc(size_t size) 
@@ -125659,10 +125659,11 @@ main()
             }
         }
         temp = cheri_setoffset(temp, 0);
-        remaining = 128<<20;
+        remaining = 256<<20;
     }
     printf("Counter %d\n", counter);
     stats_display();
+    munmap(temp, 256<<20);
 
 	return 0;
 }

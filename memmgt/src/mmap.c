@@ -164,7 +164,7 @@ int __munmap(void *addr, size_t length) {
 	length += pagesz; /* fixme: fix for dlmalloc, see above */
 	size_t page = addr2chunk(addr, length);
 
-	book[page].status = page_released;
+	book[page].status = page_unused;
 	return 0;
 }
 

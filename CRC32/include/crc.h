@@ -14,7 +14,7 @@
 **  File: CRC_32.C
 */
 
-#define UPDC32(octet,crc) (crc_32_tab[((crc)^((BYTE)octet)) & 0xff] ^ ((crc) >> 8))
+#define UPDC32(octet,crc) (crc_32_tab[((crc)^(octet)) & 0xffUL] ^ ((crc) >> 8))
 
 WORD updateCRC32(unsigned char ch, WORD crc);
 Boolean_T crc32file(char * __capability uncachedC0, size_t name, unsigned long pcm_size, WORD *crc, unsigned long *charcnt);

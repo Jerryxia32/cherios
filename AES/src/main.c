@@ -50,7 +50,7 @@
 
 #include"aes.h"
 
-int main_aes(byte * __capability in, byte * __capability out, int64_t length, char * __capability givenKey);
+int main_aes(byte * __capability in, byte * __capability out, int32_t length, char * __capability givenKey);
 
 void empty_entry() {
 }
@@ -88,10 +88,10 @@ size_t ctrl_methods_nb = countof(ctrl_methods);
 
 #define RAND(a,b) (((a = 36969 * (a & 65535) + (a >> 16)) << 16) + (b = 18000 * (b & 65535) + (b >> 16))  )
 
-void fillrand(byte *buf, int len)
+void fillrand(byte *buf, uint32_t len)
 {   static uint32_t a[2], mt = 1, count = 4;
     static uint8_t          r[4];
-    int                  i;
+    uint32_t                  i;
 
     if(mt) { 
 	 mt = 0; 
@@ -112,13 +112,13 @@ void fillrand(byte *buf, int len)
     }
 }    
 
-uint64_t encfile(byte * __capability fin, byte * __capability fout, aes *ctx, uint64_t length) {   
+uint32_t encfile(byte * __capability fin, byte * __capability fout, aes *ctx, uint32_t length) {   
     byte            inbuf[16] __attribute__((aligned(CAP_SIZE)));
     byte outbuf[16] __attribute__((aligned(CAP_SIZE)));
     byte * __capability inbufcap = inbuf;
     byte * __capability outbufcap = outbuf;
-    uint64_t   i=0, l=0;
-    uint64_t readbytes = 0, writebytes = 0;
+    uint32_t   i=0, l=0;
+    uint32_t readbytes = 0, writebytes = 0;
 
     fillrand(outbuf, 16);           /* set an IV for CBC mode           */
     memcpy_hack(fout + writebytes, outbufcap, 16);
@@ -173,14 +173,14 @@ uint64_t encfile(byte * __capability fin, byte * __capability fout, aes *ctx, ui
     return writebytes;
 }
 
-int decfile(byte * __capability fin, byte * __capability fout, aes *ctx, uint64_t length) {
+int decfile(byte * __capability fin, byte * __capability fout, aes *ctx, uint32_t length) {
     byte    inbuf1[16] __attribute__((aligned(CAP_SIZE)));
     byte inbuf2[16] __attribute__((aligned(CAP_SIZE)));
     byte outbuf[16] __attribute__((aligned(CAP_SIZE)));
     byte *bp1, *bp2, *tp;
     byte * __capability bp1cap, * __capability bp2cap, * __capability tpcap;
-    uint64_t i, l, flen;
-    uint64_t readbytes = 0, writebytes = 0;
+    uint32_t i, l, flen;
+    uint32_t readbytes = 0, writebytes = 0;
     byte * __capability inbuf1cap = inbuf1;
     byte * __capability inbuf2cap = inbuf2;
     byte * __capability outbufcap = outbuf;
@@ -251,11 +251,11 @@ int decfile(byte * __capability fin, byte * __capability fout, aes *ctx, uint64_
 }
 
 int
-main_aes(byte * __capability in, byte * __capability out, int64_t length, char * __capability givenKey) {
+main_aes(byte * __capability in, byte * __capability out, int32_t length, char * __capability givenKey) {
     char * __capability cp;
     char    ch;
     byte key[32] __attribute__((aligned(CAP_SIZE)));
-    int     i=0, by=0, key_len=0, err = 0;
+    uint32_t     i=0, by=0, key_len=0, err = 0;
     aes     ctx[1];
 
     cp = givenKey;   /* this is a pointer to the hexadecimal key digits  */

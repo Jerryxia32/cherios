@@ -1,10 +1,12 @@
 /* JWS */
 
 #include<mips.h>
+#include<cheric.h>
 #include<stdio.h>
 #include<stdlib.h>
 #include<statcounters.h>
 #include<olden_config.h>
+#include<sys/mman.h>
 #define random OL_random
 
 uint32_t random(uint32_t);
@@ -29,11 +31,19 @@ extern int dealwithargs (int argc, char *argv[]);
 
 
 int flag=0,foo=0;
+void*__capability malloc_pool;
+
+void*
+own_malloc(size_t n) {
+    void* ret = cheri_setbounds(malloc_pool, n);
+    malloc_pool = cheri_incoffset(malloc_pool, n);
+    return ret;
+}
 
 #define NewNode(h,v) \
   \
 { \
-    h = (HANDLE *) malloc(sizeof(struct node)); \
+    h = (HANDLE *) own_malloc(sizeof(struct node)); \
       h->value = v; \
 	h->left = NIL; \
 	  h->right = NIL; \
@@ -226,6 +236,7 @@ int main(argc,argv)
 
 
 { 
+  malloc_pool = mmap(NULL, 32<<20, PROT_RW, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
   stats_init();
   HANDLE *h;
   int sval;
@@ -234,6 +245,7 @@ int main(argc,argv)
   n = dealwithargs(argc,argv);
 
   for(int i=0; i<OLDEN_BISORT_ITER; i++) {
+    malloc_pool = cheri_setoffset(malloc_pool, 0);
     printf("Bisort with %d size\n", n);
     h = RandTree(n,12345768,0);
     sval = random(245867) % RANGE;

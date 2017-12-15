@@ -38,7 +38,7 @@ static char sccsid[] = "@(#)memset.c	8.1 (Berkeley) 6/4/93";
 
 #include "mips.h"
 
-#define	wsize	sizeof(u_int)
+#define	wsize	sizeof(unsigned int)
 #define	wmask	(wsize - 1)
 
 /*

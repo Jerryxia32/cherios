@@ -6,29 +6,55 @@
 #include<namespace.h>
 #include<assert.h>
 #include<mibench_iter.h>
+#include<sys/mman.h>
 
 #define NUM_NODES                          100
 #define NONE                               9999
 
+
+size_t remaining = 0;
+char* temp;
+
+static void __attribute__((noinline))
+mallocinit() {
+  temp = mmap(NULL, 256<<20, PROT_RW, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+  if(temp == MAP_FAILED) printf("Error! malloc returns null\n");
+  remaining = 256<<20;
+}
+
+char *localmalloc(size_t size) 
+{
+  char *blah;
+  
+  if(size>remaining) mallocinit();
+  blah = temp;
+  temp += size;
+  remaining -= size;
+  return cheri_setbounds(blah, size);
+}
+
+void localfree(void* a) {
+}
+
 struct _NODE
 {
-  int iDist;
-  int iPrev;
+  uint32_t iDist;
+  uint32_t iPrev;
 } __attribute__((aligned(8)));
 typedef struct _NODE NODE;
 
 struct _QITEM
 {
-  int iNode;
-  int iDist;
-  int iPrev;
+  uint32_t iNode;
+  uint32_t iDist;
+  uint32_t iPrev;
   struct _QITEM * __capability qNext;
 };
 typedef struct _QITEM QITEM;
 
 QITEM * __capability qHead = NULLCAP;
 
-int AdjMatrix[NUM_NODES][NUM_NODES] = {
+uint32_t AdjMatrix[NUM_NODES][NUM_NODES] = {
 {32,32,54,12,52,56,8,30,44,94,44,39,65,19,51,91,1,5,89,34,25,58,20,51,38,65,30,7,20,10,51,18,43,71,97,61,26,5,57,70,65,0,75,29,86,93,87,87,64,75,88,89,100,7,40,37,38,36,44,24,46,95,43,89,32,5,15,58,77,72,95,8,38,69,37,24,27,90,77,92,31,30,80,30,37,86,33,76,21,77,100,68,37,8,22,69,81,38,94,57},
 {76,54,65,14,89,69,4,16,24,47,7,21,78,53,17,81,39,50,22,60,93,89,94,30,97,16,65,43,20,24,67,62,78,98,42,67,32,46,49,57,60,56,44,37,75,62,17,13,11,40,40,4,95,100,0,57,82,31,0,1,56,67,30,100,64,72,66,63,18,81,19,44,2,63,81,78,91,64,91,2,70,97,73,64,97,39,21,78,70,21,46,25,54,76,92,84,47,57,46,31},
 {38,31,75,40,61,21,84,51,86,41,19,21,37,58,86,100,97,73,44,67,60,90,58,13,31,49,63,44,73,76,76,77,73,16,83,100,4,67,51,56,7,36,77,10,95,28,10,57,0,54,23,60,9,48,39,40,97,69,84,35,44,25,11,83,8,61,83,12,27,100,34,0,35,10,10,96,39,87,53,5,40,42,66,15,90,71,55,87,39,5,88,49,97,100,32,4,60,81,83,53},
@@ -131,14 +157,14 @@ int AdjMatrix[NUM_NODES][NUM_NODES] = {
 {83,41,74,0,22,80,77,21,20,89,22,14,73,58,83,70,98,63,22,2,86,27,39,41,40,66,73,36,21,92,44,4,32,85,4,21,64,47,42,85,1,64,65,40,88,48,9,51,77,99,53,63,92,58,3,31,24,76,34,11,33,44,15,31,28,86,52,93,99,94,43,100,24,7,40,11,21,15,63,99,13,82,61,4,40,30,2,30,72,36,41,71,80,23,1,8,8,20,67,7}
 };
 
-int g_qCount = 0;
+uint32_t g_qCount = 0;
 NODE rgnNodes[NUM_NODES];
-int ch;
-int iPrev, iNode;
-int i, iCost, iDist;
+uint32_t ch;
+uint32_t iPrev, iNode;
+uint32_t i, iCost, iDist;
 
 
-void print_path (NODE *rgnNodes_l, int chNode)
+void print_path (NODE *rgnNodes_l, uint32_t chNode)
 {
   if (rgnNodes_l[chNode].iPrev != NONE)
     {
@@ -148,9 +174,9 @@ void print_path (NODE *rgnNodes_l, int chNode)
 }
 
 
-void enqueue (int iNode_l, int iDist_l, int iPrev_l)
+void enqueue (uint32_t iNode_l, uint32_t iDist_l, uint32_t iPrev_l)
 {
-  QITEM * __capability qNew = (QITEM * __capability)malloc(sizeof(QITEM));
+  QITEM * __capability qNew = (QITEM * __capability)localmalloc(sizeof(QITEM));
   QITEM * __capability qLast = qHead;
   
   if (!qNew) 
@@ -177,7 +203,7 @@ void enqueue (int iNode_l, int iDist_l, int iPrev_l)
 }
 
 
-void dequeue (int *piNode, int *piDist, int *piPrev)
+void dequeue (uint32_t *piNode, uint32_t *piDist, uint32_t *piPrev)
 {
   QITEM * __capability qKill = qHead;
   
@@ -188,18 +214,18 @@ void dequeue (int *piNode, int *piDist, int *piPrev)
       *piDist = qHead->iDist;
       *piPrev = qHead->iPrev;
       qHead = qHead->qNext;
-      free(qKill);
+      localfree(qKill);
       g_qCount--;
     }
 }
 
 
-int qcount (void)
+uint32_t qcount (void)
 {
   return(g_qCount);
 }
 
-void dijkstra(int chStart, int chEnd) 
+void dijkstra(uint32_t chStart, uint32_t chEnd) 
 {
   
 
@@ -212,7 +238,7 @@ void dijkstra(int chStart, int chEnd)
 
   if (chStart == chEnd) 
     {
-      printf("Shortest path is 0 in cost. Just stay where you are.\n");
+      //printf("Shortest path is 0 in cost. Just stay where you are.\n");
     }
   else
     {
@@ -239,15 +265,15 @@ void dijkstra(int chStart, int chEnd)
 	    }
 	}
       
-      printf("Shortest path is %d in cost. ", rgnNodes[chEnd].iDist);
-      printf("Path is: ");
-      print_path(rgnNodes, chEnd);
-      printf("\n");
+      //printf("Shortest path is %d in cost. ", rgnNodes[chEnd].iDist);
+      //printf("Path is: ");
+      //print_path(rgnNodes, chEnd);
+      //printf("\n");
     }
 }
 
 int main() {
-  int i_l,j;
+  uint32_t i_l,j;
   
   /* make a fully connected matrix */
   //for (i=0;i<NUM_NODES;i++) {
@@ -260,11 +286,13 @@ int main() {
 
   /* finds 10 shortest paths between nodes */
   stats_init();
-  for(int iter=0; iter<DIJKSTRA_ITER; iter++) {
+  for(uint32_t iter=0; iter<DIJKSTRA_ITER; iter++) {
       for (i_l=0,j=NUM_NODES/2;i_l<100;i_l+=1,j+=1) {
                 j=j%NUM_NODES;
           dijkstra(i_l,j);
       }
+      remaining = 256<<20;
+      temp = cheri_setoffset(temp, 0);
   }
   stats_display();
   return 0;

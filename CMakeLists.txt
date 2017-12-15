@@ -165,6 +165,7 @@ set(C_WARNING_FLAGS
     -Wno-error=incompatible-library-redeclaration
     -Wno-error=deprecated-declarations
     -Wno-error=expansion-to-defined
+    -Wno-error=char-subscripts
 )
 set(C_COMPILER_FLAGS ${C_COMPILER_FLAGS} ${C_WARNING_FLAGS})
 

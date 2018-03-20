@@ -55,6 +55,7 @@
 #define	cheri_getperm(x)        __builtin_cheri_perms_get((x))
 #define	cheri_getsealed(x)      __builtin_cheri_sealed_get((x))
 #define	cheri_gettag(x)         __builtin_cheri_tag_get((x))
+#define	cheri_getmultitag(x)    __builtin_cheri_multitag_get((x))
 #define	cheri_gettype(x)        __builtin_cheri_type_get((x))
 
 #define	cheri_andperm(x, y)     __builtin_cheri_perms_and((x), (y))
@@ -70,7 +71,7 @@
 
 #define	cheri_ccheckperm(c, p)  __builtin_cheri_perms_check((c), (p))
 #define	cheri_cchecktype(c, t)  __builtin_cheri_type_check((c), (t))
-#define	cheri_testsubset(x, y)  __builtin_cheri_test_subset((x), (y))
+#define	cheri_testsubset(x, y)  __builtin_cheri_subset_test((x), (y))
 
 #define	cheri_getdefault()      __builtin_mips_cheri_get_global_data_cap()
 #define	cheri_getidc()          __builtin_mips_cheri_get_invoke_data_cap()

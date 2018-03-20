@@ -106,14 +106,17 @@ __malloc_core(size_t nbytes)
 	 * stored in hash buckets which satisfies request.
 	 * Account for space used per block for accounting.
 	 */
-	if (nbytes <= pagesz - sizeof (*op)) {
+  // TODO:
+  //if (nbytes <= pagesz - sizeof (*op)) {
+  if (nbytes <= pagesz) {
 		amt = CAP_SIZE*2;	/* size of first bucket */
 		bucket = ctz(amt)-3;
 	} else {
 		amt = pagesz;
 		bucket = pagebucket;
 	}
-	while (nbytes > (size_t)amt - sizeof(*op)) {
+  //while (nbytes > (size_t)amt - sizeof(*op)) {
+  while (nbytes > (size_t)amt) {
 		amt <<= 1;
 		if (amt == 0)
 			return (NULLCAP);

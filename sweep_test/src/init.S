@@ -140,3 +140,11 @@ fifteen:
   csc         $c1, $zero, 120($c3)
 sixteen:
   jr          $ra
+
+  .rodata
+  .global __tags_bin_start
+  .global __tags_bin_end
+  .align 5
+__tags_bin_start:
+  .incbin"tags.bin"
+__tags_bin_end:

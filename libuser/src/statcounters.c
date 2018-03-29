@@ -170,21 +170,19 @@ void sample_statcounters (statcounters_bank_t * const cnt_bank)
 }
 
 /* diff two statcounters_banks into a third one */
-void diff_statcounters (
-    const statcounters_bank_t * const be,
-    const statcounters_bank_t * const bs,
-    statcounters_bank_t * const bd)
-{
-    if (bs == NULL || be == NULL || be == NULL)
+void
+diff_statcounters (
+        const statcounters_bank_t * const be,
+        const statcounters_bank_t * const bs,
+        statcounters_bank_t * const bd) {
+    if (bs == NULL || be == NULL || bd == NULL)
         errno = -1;
-    else
-    {
+    else {
         bd->itlb_miss    = be->itlb_miss - bs->itlb_miss;
         bd->dtlb_miss    = be->dtlb_miss - bs->dtlb_miss;
         bd->cycle        = be->cycle - bs->cycle;
         bd->inst         = be->inst - bs->inst;
-        for (int i = 0; i < MAX_MOD_CNT; i++)
-        {
+        for (int i = 0; i < MAX_MOD_CNT; i++) {
             bd->icache[i]    = be->icache[i] - bs->icache[i];
             bd->dcache[i]    = be->dcache[i] - bs->dcache[i];
             bd->l2cache[i]   = be->l2cache[i] - bs->l2cache[i];
@@ -192,6 +190,31 @@ void diff_statcounters (
             bd->tagcache[i]  = be->tagcache[i] - bs->tagcache[i];
             bd->l2cachemaster[i]  = be->l2cachemaster[i] - bs->l2cachemaster[i];
             bd->tagcachemaster[i]  = be->tagcachemaster[i] - bs->tagcachemaster[i];
+        }
+    }
+}
+
+/* diff two statcounters_banks into a third one */
+void
+add_statcounters (
+        const statcounters_bank_t * const be,
+        const statcounters_bank_t * const bs,
+        statcounters_bank_t * const bd) {
+    if (bs == NULL || be == NULL || bd == NULL)
+        errno = -1;
+    else {
+        bd->itlb_miss    = be->itlb_miss + bs->itlb_miss;
+        bd->dtlb_miss    = be->dtlb_miss + bs->dtlb_miss;
+        bd->cycle        = be->cycle + bs->cycle;
+        bd->inst         = be->inst + bs->inst;
+        for (int i = 0; i < MAX_MOD_CNT; i++) {
+            bd->icache[i]    = be->icache[i] + bs->icache[i];
+            bd->dcache[i]    = be->dcache[i] + bs->dcache[i];
+            bd->l2cache[i]   = be->l2cache[i] + bs->l2cache[i];
+            bd->mipsmem[i]   = be->mipsmem[i] + bs->mipsmem[i];
+            bd->tagcache[i]  = be->tagcache[i] + bs->tagcache[i];
+            bd->l2cachemaster[i]  = be->l2cachemaster[i] + bs->l2cachemaster[i];
+            bd->tagcachemaster[i]  = be->tagcachemaster[i] + bs->tagcachemaster[i];
         }
     }
 }

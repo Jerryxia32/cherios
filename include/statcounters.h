@@ -130,6 +130,11 @@ void diff_statcounters (
     const statcounters_bank_t * const bs,
     const statcounters_bank_t * const be,
     statcounters_bank_t * const bd);
+// add two statcounters_banks into a third one
+void add_statcounters (
+    const statcounters_bank_t * const bs,
+    const statcounters_bank_t * const be,
+    statcounters_bank_t * const bd);
 // dump a statcounters_bank in a file (csv or human readable)
 int dump_statcounters (
     const statcounters_bank_t * const b,

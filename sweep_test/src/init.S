@@ -32,16 +32,16 @@
 .set nobopt
 .set noat
 
-	.text
-	.global start
-	.ent start
+  .text
+  .global start
+  .ent start
 start:
   b           start_common
   nop
 
-	.text
-	.global sweep_line
-	.ent sweep_line
+  .text
+  .global sweep_line
+  .ent sweep_line
 sweep_line:
   clc         $c1, $zero, 0($c3)
   clc         $c2, $zero, 8($c3)
@@ -140,6 +140,154 @@ fifteen:
   csc         $c1, $zero, 120($c3)
 sixteen:
   jr          $ra
+
+  .text
+  .global sweep_line_nosubset
+  .ent sweep_line_nosubset
+sweep_line_nosubset:
+  sd          $ra, -8($sp)
+  clc         $c1, $zero, 0($c3)
+  clc         $c2, $zero, 8($c3)
+  jal         check_subset
+  cmove       $c25, $c1
+  beqz        $v0, one_no
+  clc         $c5, $zero, 16($c3)
+  ccleartag   $c1, $c1
+  csc         $c1, $zero, 0($c3)
+one_no:
+  jal         check_subset
+  cmove       $c25, $c2
+  beqz        $v0, two_no
+  clc         $c1, $zero, 24($c3)
+  ccleartag   $c2, $c2
+  csc         $c2, $zero, 8($c3)
+two_no:
+  jal         check_subset
+  cmove       $c25, $c5
+  beqz        $v0, three_no
+  clc         $c2, $zero, 32($c3)
+  ccleartag   $c5, $c5
+  csc         $c5, $zero, 16($c3)
+three_no:
+  jal         check_subset
+  cmove       $c25, $c1
+  beqz        $v0, four_no
+  clc         $c5, $zero, 40($c3)
+  ccleartag   $c1, $c1
+  csc         $c1, $zero, 24($c3)
+four_no:
+  jal         check_subset
+  cmove       $c25, $c2
+  beqz        $v0, five_no
+  clc         $c1, $zero, 48($c3)
+  ccleartag   $c2, $c2
+  csc         $c2, $zero, 32($c3)
+five_no:
+  jal         check_subset
+  cmove       $c25, $c5
+  beqz        $v0, six_no
+  clc         $c2, $zero, 56($c3)
+  ccleartag   $c5, $c5
+  csc         $c5, $zero, 40($c3)
+six_no:
+  jal         check_subset
+  cmove       $c25, $c1
+  beqz        $v0, seven_no
+  clc         $c5, $zero, 64($c3)
+  ccleartag   $c1, $c1
+  csc         $c1, $zero, 48($c3)
+seven_no:
+  jal         check_subset
+  cmove       $c25, $c2
+  beqz        $v0, eight_no
+  clc         $c1, $zero, 72($c3)
+  ccleartag   $c2, $c2
+  csc         $c2, $zero, 56($c3)
+eight_no:
+  jal         check_subset
+  cmove       $c25, $c5
+  beqz        $v0, nine_no
+  clc         $c2, $zero, 80($c3)
+  ccleartag   $c5, $c5
+  csc         $c5, $zero, 64($c3)
+nine_no:
+  jal         check_subset
+  cmove       $c25, $c1
+  beqz        $v0, ten_no
+  clc         $c5, $zero, 88($c3)
+  ccleartag   $c1, $c1
+  csc         $c1, $zero, 72($c3)
+ten_no:
+  jal         check_subset
+  cmove       $c25, $c2
+  beqz        $v0, eleven_no
+  clc         $c1, $zero, 96($c3)
+  ccleartag   $c2, $c2
+  csc         $c2, $zero, 80($c3)
+eleven_no:
+  jal         check_subset
+  cmove       $c25, $c5
+  beqz        $v0, twelve_no
+  clc         $c2, $zero, 104($c3)
+  ccleartag   $c5, $c5
+  csc         $c5, $zero, 88($c3)
+twelve_no:
+  jal         check_subset
+  cmove       $c25, $c1
+  beqz        $v0, thirteen_no
+  clc         $c5, $zero, 112($c3)
+  ccleartag   $c1, $c1
+  csc         $c1, $zero, 96($c3)
+thirteen_no:
+  jal         check_subset
+  cmove       $c25, $c2
+  beqz        $v0, fourteen_no
+  clc         $c1, $zero, 120($c3)
+  ccleartag   $c2, $c2
+  csc         $c2, $zero, 104($c3)
+fourteen_no:
+  jal         check_subset
+  cmove       $c25, $c5
+  beqz        $v0, fifteen_no
+  nop
+  jal         check_subset
+  cmove       $c25, $c1
+  ccleartag   $c5, $c5
+  csc         $c5, $zero, 112($c3)
+fifteen_no:
+  beqz        $v0, sixteen_no
+  ccleartag   $c1, $c1
+  csc         $c1, $zero, 120($c3)
+sixteen_no:
+  ld          $ra, -8($sp)
+  jr          $ra
+  nop
+
+check_subset:
+  cgettag     $a3, $c4
+  cgettag     $v1, $c25
+  bne         $a3, $v1, check_subset_ret
+  addiu       $v0, $zero, 0
+  cgetbase    $v1, $c4
+  cgetbase    $a0, $c25
+  sltu        $a3, $a0, $v1
+  bnez        $a3, check_subset_ret
+  nop
+  cgetlen     $a3, $c25
+  cgetlen     $a1, $c4
+  addu        $a3, $a3, $a0
+  addu        $v1, $a1, $v1
+  sltu        $a3, $v1, $a3
+  bnez        $a3, check_subset_ret
+  nop
+  cgetperm    $a3, $c4
+  cgetperm    $v0, $c25
+  and         $a3, $v0, $a3
+  xor         $a3, $a3, $v0
+  sltiu       $v0, $a3, 1
+check_subset_ret:
+  jr          $ra
+  nop
 
   .rodata
   .global __tags_bin_start

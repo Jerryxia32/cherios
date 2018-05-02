@@ -9,8 +9,10 @@
 #define CAPS_PER_LINE (CACHELINE_SIZE/CAP_SIZE)
 
 // This should be in .bss and zeroed.
-static statcounters_bank_t counter_sum_bank1;
-static statcounters_bank_t counter_sum_bank2;
+static statcounters_bank_t counter_sum_bank_baseline;
+static statcounters_bank_t counter_sum_bank_testsub;
+static statcounters_bank_t counter_sum_bank_multitag;
+static statcounters_bank_t counter_sum_bank_testsubAndMultiTag;
 static statcounters_bank_t counter_start;
 static statcounters_bank_t counter_end;
 static statcounters_bank_t counter_diff;
@@ -24,6 +26,7 @@ gen_rand() {
 }
 
 void sweep_line(void*__capability, void*__capability);
+void sweep_line_nosubset(void*__capability, void*__capability);
 
 extern char __tags_bin_start, __tags_bin_end;
 
@@ -54,8 +57,45 @@ main() {
         *(thePool+i) = NULLCAP;
     }
 
+    // baseline, no magic
+    void*__capability*__capability sweeper2 = thePool;
+    sample_statcounters(&counter_start);
+    for(uint32_t i=0; i<(lenToScan>>CACHELINE_SIZE_BITS); i++) {
+      sweep_line_nosubset((void*__capability)sweeper2, thePCC);
+      sweeper2 += CAPS_PER_LINE;
+    }
+    sample_statcounters(&counter_end);
+    diff_statcounters(&counter_end, &counter_start, &counter_diff);
+    // Add the diff to the final results.
+    add_statcounters(&counter_diff, &counter_sum_bank_baseline, &counter_sum_bank_baseline);
+
+    // with ctestsubset
+    sweeper2 = thePool;
+    sample_statcounters(&counter_start);
+    for(uint32_t i=0; i<(lenToScan>>CACHELINE_SIZE_BITS); i++) {
+      sweep_line((void*__capability)sweeper2, thePCC);
+      sweeper2 += CAPS_PER_LINE;
+    }
+    sample_statcounters(&counter_end);
+    diff_statcounters(&counter_end, &counter_start, &counter_diff);
+    add_statcounters(&counter_diff, &counter_sum_bank_testsub, &counter_sum_bank_testsub);
+
+    // Use creadmultitag instruction.
     void*__capability (*__capability sweeper)[CAPS_PER_LINE] =
         (void*__capability (*__capability)[CAPS_PER_LINE])thePool;
+    sample_statcounters(&counter_start);
+    for(uint32_t i=0; i<(lenToScan>>CACHELINE_SIZE_BITS); i++) {
+      if(cheri_getmultitag(sweeper)) {
+        sweep_line_nosubset((void*__capability)sweeper, thePCC);
+      }
+      sweeper++;
+    }
+    sample_statcounters(&counter_end);
+    diff_statcounters(&counter_end, &counter_start, &counter_diff);
+    add_statcounters(&counter_diff, &counter_sum_bank_multitag, &counter_sum_bank_multitag);
+
+    // Use creadmultitag and ctestsubset instructions.
+    sweeper = (void*__capability (*__capability)[CAPS_PER_LINE])thePool;
     sample_statcounters(&counter_start);
     for(uint32_t i=0; i<(lenToScan>>CACHELINE_SIZE_BITS); i++) {
       if(cheri_getmultitag(sweeper)) {
@@ -65,24 +105,19 @@ main() {
     }
     sample_statcounters(&counter_end);
     diff_statcounters(&counter_end, &counter_start, &counter_diff);
-    // Add the diff to the final results.
-    add_statcounters(&counter_diff, &counter_sum_bank1, &counter_sum_bank1);
-
-    void*__capability*__capability sweeper2 = thePool;
-    sample_statcounters(&counter_start);
-    for(uint32_t i=0; i<(lenToScan>>CACHELINE_SIZE_BITS); i++) {
-      sweep_line((void*__capability)sweeper2, thePCC);
-      sweeper2 += CAPS_PER_LINE;
-    }
-    sample_statcounters(&counter_end);
-    diff_statcounters(&counter_end, &counter_start, &counter_diff);
-    add_statcounters(&counter_diff, &counter_sum_bank2, &counter_sum_bank2);
+    add_statcounters(&counter_diff, &counter_sum_bank_testsubAndMultiTag, &counter_sum_bank_testsubAndMultiTag);
 
     currentOffset += POOL_SIZE;
   }
 
-  dump_statcounters(&counter_sum_bank1, NULL, NULL);
-  dump_statcounters(&counter_sum_bank2, NULL, NULL);
+  printf("Baseline:\n");
+  dump_statcounters(&counter_sum_bank_baseline, NULL, NULL);
+  printf("With ctestsubset:\n");
+  dump_statcounters(&counter_sum_bank_testsub, NULL, NULL);
+  printf("With creadmultitag:\n");
+  dump_statcounters(&counter_sum_bank_multitag, NULL, NULL);
+  printf("With ctestsubset and creadmultitag:\n");
+  dump_statcounters(&counter_sum_bank_testsubAndMultiTag, NULL, NULL);
 
   return 0;
 }

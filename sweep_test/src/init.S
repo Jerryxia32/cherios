@@ -45,97 +45,97 @@ start:
 sweep_line:
   clc         $c1, $zero, 0($c3)
   clc         $c2, $zero, 8($c3)
-  ctestsubset $t0, $c4, $c1
-  beqz        $t0, one
+  ctestsubset $t9, $c4, $c1
+  beqz        $t9, one
   clc         $c5, $zero, 16($c3)
   ccleartag   $c1, $c1
   csc         $c1, $zero, 0($c3)
 one:
-  ctestsubset $t0, $c4, $c2
-  beqz        $t0, two
+  ctestsubset $t9, $c4, $c2
+  beqz        $t9, two
   clc         $c1, $zero, 24($c3)
   ccleartag   $c2, $c2
   csc         $c2, $zero, 8($c3)
 two:
-  ctestsubset $t0, $c4, $c5
-  beqz        $t0, three
+  ctestsubset $t9, $c4, $c5
+  beqz        $t9, three
   clc         $c2, $zero, 32($c3)
   ccleartag   $c5, $c5
   csc         $c5, $zero, 16($c3)
 three:
-  ctestsubset $t0, $c4, $c1
-  beqz        $t0, four
+  ctestsubset $t9, $c4, $c1
+  beqz        $t9, four
   clc         $c5, $zero, 40($c3)
   ccleartag   $c1, $c1
   csc         $c1, $zero, 24($c3)
 four:
-  ctestsubset $t0, $c4, $c2
-  beqz        $t0, five
+  ctestsubset $t9, $c4, $c2
+  beqz        $t9, five
   clc         $c1, $zero, 48($c3)
   ccleartag   $c2, $c2
   csc         $c2, $zero, 32($c3)
 five:
-  ctestsubset $t0, $c4, $c5
-  beqz        $t0, six
+  ctestsubset $t9, $c4, $c5
+  beqz        $t9, six
   clc         $c2, $zero, 56($c3)
   ccleartag   $c5, $c5
   csc         $c5, $zero, 40($c3)
 six:
-  ctestsubset $t0, $c4, $c1
-  beqz        $t0, seven
+  ctestsubset $t9, $c4, $c1
+  beqz        $t9, seven
   clc         $c5, $zero, 64($c3)
   ccleartag   $c1, $c1
   csc         $c1, $zero, 48($c3)
 seven:
-  ctestsubset $t0, $c4, $c2
-  beqz        $t0, eight
+  ctestsubset $t9, $c4, $c2
+  beqz        $t9, eight
   clc         $c1, $zero, 72($c3)
   ccleartag   $c2, $c2
   csc         $c2, $zero, 56($c3)
 eight:
-  ctestsubset $t0, $c4, $c5
-  beqz        $t0, nine
+  ctestsubset $t9, $c4, $c5
+  beqz        $t9, nine
   clc         $c2, $zero, 80($c3)
   ccleartag   $c5, $c5
   csc         $c5, $zero, 64($c3)
 nine:
-  ctestsubset $t0, $c4, $c1
-  beqz        $t0, ten
+  ctestsubset $t9, $c4, $c1
+  beqz        $t9, ten
   clc         $c5, $zero, 88($c3)
   ccleartag   $c1, $c1
   csc         $c1, $zero, 72($c3)
 ten:
-  ctestsubset $t0, $c4, $c2
-  beqz        $t0, eleven
+  ctestsubset $t9, $c4, $c2
+  beqz        $t9, eleven
   clc         $c1, $zero, 96($c3)
   ccleartag   $c2, $c2
   csc         $c2, $zero, 80($c3)
 eleven:
-  ctestsubset $t0, $c4, $c5
-  beqz        $t0, twelve
+  ctestsubset $t9, $c4, $c5
+  beqz        $t9, twelve
   clc         $c2, $zero, 104($c3)
   ccleartag   $c5, $c5
   csc         $c5, $zero, 88($c3)
 twelve:
-  ctestsubset $t0, $c4, $c1
-  beqz        $t0, thirteen
+  ctestsubset $t9, $c4, $c1
+  beqz        $t9, thirteen
   clc         $c5, $zero, 112($c3)
   ccleartag   $c1, $c1
   csc         $c1, $zero, 96($c3)
 thirteen:
-  ctestsubset $t0, $c4, $c2
-  beqz        $t0, fourteen
+  ctestsubset $t9, $c4, $c2
+  beqz        $t9, fourteen
   clc         $c1, $zero, 120($c3)
   ccleartag   $c2, $c2
   csc         $c2, $zero, 104($c3)
 fourteen:
-  ctestsubset $t0, $c4, $c5
-  beqz        $t0, fifteen
-  ctestsubset $t0, $c4, $c1
+  ctestsubset $t9, $c4, $c5
+  beqz        $t9, fifteen
+  ctestsubset $t9, $c4, $c1
   ccleartag   $c5, $c5
   csc         $c5, $zero, 112($c3)
 fifteen:
-  beqz        $t0, sixteen
+  beqz        $t9, sixteen
   ccleartag   $c1, $c1
   csc         $c1, $zero, 120($c3)
 sixteen:

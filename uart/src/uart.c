@@ -28,8 +28,9 @@
  * SUCH DAMAGE.
  */
 
-#include "mips.h"
-#include "uart.h"
+#include"mips.h"
+#include"uart.h"
+#include"cp0.h"
 
 /*
  * Device-independent UART I/O routines.  These wrap a smaller set of
@@ -69,10 +70,28 @@ uart_poll_getc(void)
 }
 
 void
-uart_puts(const char *str)
-{
-	const char *cp;
+uart_puts(const char*__capability str) {
+	const char*__capability cp;
 
 	for (cp = str; *cp != '\0'; cp++)
 		uart_putc(*cp);
+}
+
+void
+uart_puts_ptr(const char* str) {
+	const char* cp;
+
+	for (cp = str; *cp != '\0'; cp++)
+		uart_putc(*cp);
+}
+
+#include<colors.h>
+
+void
+uart_puts_wrapper(const char*__capability str) {
+  cp0_status_ie_disable();
+  uart_puts_ptr(KBLU);
+  uart_puts(str);
+  uart_puts_ptr(KRST);
+  cp0_status_ie_enable();
 }

@@ -36,8 +36,11 @@
 extern char ccall_helper;
 extern char creturn_helper;
 
+extern int non_user;
+
 int main(void)
 {
+  non_user = 1;
 	puts("CCall helper Hello world.\n");
     void * __capability call_helper = cheri_getpcc();
     void * __capability return_helper = cheri_getpcc();

@@ -127,7 +127,9 @@ static void load_modules(void) {
 	}
 }
 
+extern int non_user;
 int init_main() {
+  non_user = 1;
     act_self_cap = cheri_setoffset(cheri_getdefault(), 1);
     act_self_cap = cheri_setbounds(act_self_cap, 1);
     act_self_cap = cheri_andperm(act_self_cap, CHERI_PERM_SEAL);

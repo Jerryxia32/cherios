@@ -36,8 +36,10 @@ size_t msg_methods_nb = countof(msg_methods);
 void (*ctrl_methods[]) = {NULL, ctor_null, dtor_null};
 size_t ctrl_methods_nb = countof(ctrl_methods);
 
+extern int non_user;
 int main(void)
 {
+  non_user = 1;
 	syscall_puts("Namespace Hello world\n");
 
 	ns_init();

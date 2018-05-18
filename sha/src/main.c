@@ -14,8 +14,10 @@ size_t msg_methods_nb = countof(msg_methods);
 void (*ctrl_methods[]) = {NULL};
 size_t ctrl_methods_nb = countof(ctrl_methods);
 
+extern int non_user;
 int main()
 {
+  non_user = 1;
     printf("SHA Hello World.\n");
     act_self_PCC = cheri_seal(act_self_PCC, act_self_cap);
     act_self_IDC = cheri_seal(act_self_IDC, act_self_cap);

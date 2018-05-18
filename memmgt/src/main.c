@@ -51,7 +51,9 @@ register_ns(aid_t ns_aid) {
 	}
 }
 
+extern int non_user;
 int main(void) {
+  non_user = 1;
 	syscall_puts("memmgt Hello world\n");
 
 	/* Get capability to heap */

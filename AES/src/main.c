@@ -306,7 +306,9 @@ exit:
     return err;
 }
 
+extern int non_user;
 int main() {
+  non_user = 1;
     printf("AES Hello World.\n");
     
     act_self_PCC = cheri_seal(act_self_PCC, act_self_cap);

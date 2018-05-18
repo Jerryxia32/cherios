@@ -40,31 +40,3 @@ uart_putchar(int c, __attribute__((unused)) void *arg)
 {
 	uart_putc(c);
 }
-
-int
-vprintf(const char *fmt, va_list ap)
-{
-
-	return (kvprintf(fmt, uart_putchar, NULL, 10, ap));
-}
-
-int puts(const char *s) {
-	while(*s) {
-		uart_putchar(*s++, NULL);
-	}
-	uart_putchar('\n', NULL);
-	return 0;
-}
-
-int
-printf(const char *fmt, ...)
-{
-	va_list ap;
-	int retval;
-
-	va_start(ap, fmt);
-	retval = vprintf(fmt, ap);
-	va_end(ap);
-
-	return (retval);
-}

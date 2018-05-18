@@ -53,6 +53,7 @@ void		uart_putc(char ch);
 char		uart_getc(void);
 int		uart_poll_putc(void);
 int		uart_poll_getc(void);
-void		uart_puts(const char *str);
+void		uart_puts(const char*__capability str);
+void uart_puts_wrapper(const char*__capability str);
 
 #endif /* _CHERIOS_UART_H_ */

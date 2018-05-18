@@ -157,11 +157,9 @@ boot_info_t *load_init() {
 	bzero(&bi.init_frame, sizeof(bi.init_frame));
 	bi.init_frame.cf_pcc = pcc;
 	bi.init_frame.mf_pc  = addr_to_reg(entry);
-	//bi.init_frame.cf_c11 = stack;
 	bi.init_frame.mf_sp  = addr_to_reg((size_t)stack + INIT_STACK_SIZE);
-    bi.init_frame.mf_s0 = addr_to_reg((size_t)&__fs_start);
-    bi.init_frame.mf_s1 = addr_to_reg((size_t)&__fs_end);
-	//bi.init_frame.cf_c12 = pcc;
+  bi.init_frame.mf_s0 = addr_to_reg((size_t)&__fs_start);
+  bi.init_frame.mf_s1 = addr_to_reg((size_t)&__fs_end);
 	bi.init_frame.cf_c0  = cheri_setoffset(prgmp, 0);
 
 	return &bi;

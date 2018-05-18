@@ -35,40 +35,31 @@
 void*__capability uart_cap = NULLCAP;
 void*__capability sealing_tool = NULLCAP;
 
-static void user_putc(char c) {
-	printf(KGRN KBLD"%c"KRST, c);
-}
-
-static void user_puts(const void * s) {
-	printf(KGRN KBLD"%s"KRST, s);
-}
-
 extern void msg_entry;
-void (*msg_methods[]) = {user_putc, user_puts};
+void (*msg_methods[]) = {uart_putc, uart_puts_wrapper};
 size_t msg_methods_nb = countof(msg_methods);
 void (*ctrl_methods[]) = {NULL, ctor_null, dtor_null};
 size_t ctrl_methods_nb = countof(ctrl_methods);
 
+extern int non_user;
 int main(void)
 {
-	syscall_puts("UART Hello world\n");
+  non_user = 1;
+	printf("UART Hello world\n");
 
 	/* Get capability to use uart */
-	uart_cap = act_get_cap();
+  uart_cap = act_get_cap();
   sealing_tool = *(capability*__capability)cheri_getdefault();
   act_self_PCC = cheri_seal(act_self_PCC, sealing_tool);
   act_self_IDC = cheri_seal(act_self_IDC, sealing_tool);
   int ret = namespace_register(PORT_UART, act_self_aid, act_self_PCC, act_self_IDC);
-	if(ret!=0) {
-		syscall_puts("UART: register failed\n");
-		return -1;
-	}
+  return_cap = namespace_get_IDC(PORT_CCALL);
+  if(ret!=0) {
+    printf("UART: register failed\n");
+    return -1;
+  }
 
-  CHERI_PRINT_CAP(uart_cap);
-  CHERI_PRINT_CAP(act_self_PCC);
-  CHERI_PRINT_CAP(act_self_IDC);
-
-	syscall_puts("UART: setup OK\n");
+	printf("UART: setup OK\n");
 
 	msg_enable = 1; /* Go in waiting state instead of exiting */
 	return 0;

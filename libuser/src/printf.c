@@ -30,33 +30,46 @@
  * SUCH DAMAGE.
  */
 
-#include "mips.h"
-#include "stdarg.h"
-#include "stdio.h"
-#include "object.h"
-#include "assert.h"
-#include "namespace.h"
+#include"mips.h"
+#include"stdarg.h"
+#include"stdio.h"
+#include"object.h"
+#include"assert.h"
+#include"namespace.h"
+#include"cheric.h"
+#include"string.h"
 
-static void buf_puts(char * str) {
-	#if 1
-	/* Syscall version */
-	__asm__ __volatile__ (
-		"li   $v1, 34 \n"
-		"move $a0, %[str] \n"
-		"syscall      \n"
-		:: [str]"r" (str): "v1", "a0");
-	#else
-	/* CCall version */
-	static void * uart_ref = NULL;
-	static void * uart_id  = NULL;
-	if(uart_ref == NULL) {
-		uart_ref = namespace_get_ref(1);
-		uart_id  = namespace_get_id(1);
-	}
-	assert(uart_ref != NULL);
-	assert(uart_id != NULL);
-	ccall_r_n(uart_ref, uart_id, 1, (register_t)str);
-	#endif
+int non_user;
+int uart_init_done = 0;
+
+static void
+buf_puts(char * str) {
+  static void*__capability uart_PCC = NULLCAP;
+  static void*__capability uart_IDC = NULLCAP;
+  if(non_user) {
+    /* Syscall version */
+    __asm__ __volatile__ (
+      "li   $v1, 34 \n"
+      "move $a0, %[str] \n"
+      "syscall      \n"
+      :: [str]"r" (str): "v1", "a0");
+  } else {
+    if(!uart_init_done) {
+      uart_PCC = namespace_get_PCC(PORT_UART);
+      uart_IDC = namespace_get_IDC(PORT_UART);
+      if(helper_cap == NULLCAP)
+        helper_cap = namespace_get_PCC(PORT_CCALL);
+      assert(uart_PCC != NULLCAP);
+      assert(uart_IDC != NULLCAP);
+      assert(helper_cap != NULLCAP);
+      uart_init_done = 1;
+    }
+    /* CCall version */
+    void*__capability strCap = cheri_getdefault();
+    strCap = cheri_setoffset(strCap, (size_t)str);
+    strCap = cheri_setbounds(strCap, strlen(str)+1);
+    ccall_real_4_c(1, REG_MAX, 0, 0, 0, strCap, NULLCAP, NULLCAP, uart_PCC, uart_IDC, helper_cap);
+  }
 }
 
 void buf_putc(char chr) {

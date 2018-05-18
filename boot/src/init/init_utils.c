@@ -125,15 +125,6 @@ static void * __capability get_act_cap(module_t type) {
                 | CHERI_PERM_STORE | CHERI_PERM_CCALL | CHERI_PERM_LOAD_CAP
                 | CHERI_PERM_STORE_CAP | CHERI_PERM_STORE_LOCAL_CAP
                 | CHERI_PERM_SOFT_0));
-        sealing_tool_no++;
-        if(sealing_tool_no == 1L<<CHERI_OTYPE_WIDTH) {
-            panic("Used all otypes");
-        }
-        void * __capability mem_seal_tool = cheri_getdefault();
-        mem_seal_tool = cheri_setoffset(mem_seal_tool, sealing_tool_no);
-        mem_seal_tool = cheri_setbounds(mem_seal_tool, 1);
-        mem_seal_tool = cheri_andperm(mem_seal_tool, (CHERI_PERM_SEAL));
-        *(capability * __capability)cap = mem_seal_tool;
         break;
 
 		break;
@@ -229,7 +220,9 @@ load_module(module_t type, const char* file, int arg, const void* carg) {
     if(type != m_user) {
         priority = PRIORITY_MAX-1;
     }
-    if(type == m_uart) {
+    if(type==m_uart || type==m_memmgt) {
+      // Very hacky. We don't have enough cap registers, so just pass the
+      // sealing capability at the first location of the user's DDC.
       sealing_tool_no++;
       if(sealing_tool_no == 1L<<CHERI_OTYPE_WIDTH) {
           panic("Used all otypes");

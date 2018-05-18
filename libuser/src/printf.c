@@ -39,7 +39,9 @@
 #include"cheric.h"
 #include"string.h"
 
-int non_user;
+// Non-user tasks will not see UART ready, so just use syscall to do printf.
+// User tasks do CCall printf into UART module.
+int non_user = 0;
 int uart_init_done = 0;
 
 static void
@@ -64,10 +66,12 @@ buf_puts(char * str) {
       assert(helper_cap != NULLCAP);
       uart_init_done = 1;
     }
-    /* CCall version */
+    // CCall version
+    // Problem is that UART does not have DDC to the entire address space like
+    // the kernel, so we have to pass him a capability of the string.
     void*__capability strCap = cheri_getdefault();
     strCap = cheri_setoffset(strCap, (size_t)str);
-    strCap = cheri_setbounds(strCap, strlen(str)+1);
+    strCap = cheri_setbounds(strCap, strlen(str)+1); // include the last '\0'
     ccall_real_4_c(1, REG_MAX, 0, 0, 0, strCap, NULLCAP, NULLCAP, uart_PCC, uart_IDC, helper_cap);
   }
 }

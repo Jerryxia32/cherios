@@ -60,8 +60,7 @@ int main(void) {
 	void * __capability heap = act_get_cap();
 	CHERI_PRINT_CAP(heap);
 	assert(heap != NULLCAP);
-    sealing_tool = *(capability * __capability)heap;
-	CHERI_PRINT_CAP(sealing_tool);
+  sealing_tool = *(capability * __capability)cheri_getdefault();
     act_self_PCC = cheri_setoffset(act_self_PCC, (size_t)&msg_entry_ccall);
     act_self_PCC = cheri_seal(act_self_PCC, sealing_tool);
     act_self_IDC = cheri_seal(act_self_IDC, sealing_tool);

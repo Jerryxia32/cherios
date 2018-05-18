@@ -49,6 +49,8 @@ int main(void)
 
 	/* Get capability to use uart */
   uart_cap = act_get_cap();
+  // Very hacky. Init puts the sealing capability in the first location of
+  // UART's DDC.
   sealing_tool = *(capability*__capability)cheri_getdefault();
   act_self_PCC = cheri_seal(act_self_PCC, sealing_tool);
   act_self_IDC = cheri_seal(act_self_IDC, sealing_tool);

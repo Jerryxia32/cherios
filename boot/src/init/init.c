@@ -63,10 +63,10 @@ init_elem_t init_list[] = {
 	B_FENCE
 	B_DENTRY(m_namespace,	"namespace.elf",	0,	1)
 	B_FENCE
-	//B_DENTRY(m_uart,	"uart.elf",		0,	1)
 	B_DENTRY(m_ccall_helper,	"ccall_helper.elf",		0, 	1)
 	B_DENTRY(m_core,	"AES.elf",		0, 	1)
 	B_DENTRY(m_core,	"sha.elf",		0, 	1)
+  B_DENTRY(m_uart, "uart.elf", 0, 1)
 	B_FENCE
 	B_PENTRY(m_user,	"spam.elf",		0, 	B_MI)
 	B_PENTRY(m_user,	"qsort.elf",		0, 	B_MI)

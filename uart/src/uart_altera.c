@@ -31,7 +31,7 @@
 #include "mips.h"
 #include "uart.h"
 
-extern void * uart_cap;
+extern void*__capability uart_cap;
 #define	CHERI_UART_BASE			uart_cap	/* JTAG UART */
 
 /*-
@@ -93,25 +93,19 @@ static int	buffer_valid;
  * endian, so we byte swap 32-bit reads and writes.
  */
 static inline uint32_t
-uart_data_read(void)
-{
-
+uart_data_read(void) {
 	return (mips_cap_ioread_uint32le(CHERI_UART_BASE,
 	    ALTERA_JTAG_UART_DATA_OFF));
 }
 
 static inline void
-uart_data_write(uint32_t v)
-{
-
+uart_data_write(uint32_t v) {
 	mips_cap_iowrite_uint32le(CHERI_UART_BASE,
 	    ALTERA_JTAG_UART_DATA_OFF, v);
 }
 
 static inline uint32_t
-uart_control_read(void)
-{
-
+uart_control_read(void) {
 	return (mips_cap_ioread_uint32le(CHERI_UART_BASE,
 	    ALTERA_JTAG_UART_CONTROL_OFF));
 }

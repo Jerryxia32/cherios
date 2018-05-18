@@ -28,10 +28,12 @@
  * SUCH DAMAGE.
  */
 
-#include "lib.h"
-#include "uart.h"
+#include"lib.h"
+#include"uart.h"
+#include<cheric.h>
 
-void * uart_cap = NULL;
+void*__capability uart_cap = NULLCAP;
+void*__capability sealing_tool = NULLCAP;
 
 static void user_putc(char c) {
 	printf(KGRN KBLD"%c"KRST, c);
@@ -53,17 +55,18 @@ int main(void)
 
 	/* Get capability to use uart */
 	uart_cap = act_get_cap();
-
-	/* Register ourself to the kernel as being the UART module */
-	int ret = namespace_register(1, act_self_ref, act_self_id);
+  sealing_tool = *(capability*__capability)cheri_getdefault();
+  act_self_PCC = cheri_seal(act_self_PCC, sealing_tool);
+  act_self_IDC = cheri_seal(act_self_IDC, sealing_tool);
+  int ret = namespace_register(PORT_UART, act_self_aid, act_self_PCC, act_self_IDC);
 	if(ret!=0) {
 		syscall_puts("UART: register failed\n");
 		return -1;
 	}
 
-	#if 0
-	uart_init(); /* done during boot process */
-	#endif
+  CHERI_PRINT_CAP(uart_cap);
+  CHERI_PRINT_CAP(act_self_PCC);
+  CHERI_PRINT_CAP(act_self_IDC);
 
 	syscall_puts("UART: setup OK\n");
 

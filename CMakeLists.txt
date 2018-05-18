@@ -287,7 +287,7 @@ add_subdirectory(ccall_helper)
 add_subdirectory(memmgt)
 add_subdirectory(namespace)
 add_subdirectory(sweep_test)
-#add_subdirectory(uart)
+add_subdirectory(uart)
 #
 add_subdirectory(kernel)
 add_subdirectory(boot)

@@ -108,18 +108,15 @@ static void * __capability get_act_cap(module_t type) {
 #define	UART_BASE	0x180003f8
 #define	UART_SIZE	0x40
 #elif defined(CONSOLE_altera)
-#define	UART_BASE	0x18000000
+#define	UART_BASE	0xff000000
 #define	UART_SIZE	0x08
 #else
 #error UART type not found
 #endif
-
-        /*
-		cap = cheri_getdefault();
-		cap = cheri_setoffset(cap, mips_phys_to_uncached(UART_BASE));
-		cap = cheri_setbounds(cap, UART_SIZE);
-         */
-		break;
+    cap = cheri_getdefault();
+    cap = cheri_setoffset(cap, mips_phys_to_uncached(UART_BASE));
+    cap = cheri_setbounds(cap, UART_SIZE);
+    break;
 	case m_memmgt:{}
         size_t heaplen = (size_t)&__stop_heap - (size_t)&__start_heap;
         void * __capability heap = cheri_setoffset(cheri_getdefault(), (size_t)&__start_heap);
@@ -231,6 +228,17 @@ load_module(module_t type, const char* file, int arg, const void* carg) {
     }
     if(type != m_user) {
         priority = PRIORITY_MAX-1;
+    }
+    if(type == m_uart) {
+      sealing_tool_no++;
+      if(sealing_tool_no == 1L<<CHERI_OTYPE_WIDTH) {
+          panic("Used all otypes");
+      }
+      void*__capability cap = cheri_getdefault();
+      cap = cheri_setoffset(cap, sealing_tool_no);
+      cap = cheri_setbounds(cap, 1);
+      cap = cheri_andperm(cap, (CHERI_PERM_SEAL));
+      *(capability*__capability)prgmp = cap;
     }
 
     aid_t thisAid = init_act_create(file, cheri_setoffset(prgmp, 0),

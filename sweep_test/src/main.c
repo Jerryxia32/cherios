@@ -12,7 +12,8 @@
 static statcounters_bank_t counter_sum_bank_baseline;
 static statcounters_bank_t counter_sum_bank_testsub;
 static statcounters_bank_t counter_sum_bank_multitag;
-static statcounters_bank_t counter_sum_bank_testsubAndMultiTag;
+static statcounters_bank_t counter_sum_bank_pagedirty;
+static statcounters_bank_t counter_sum_bank_all;
 static statcounters_bank_t counter_start;
 static statcounters_bank_t counter_end;
 static statcounters_bank_t counter_diff;
@@ -37,6 +38,7 @@ main() {
   printf("The length of the coredump is %zd\n", theLen);
   void*__capability thePCC = cheri_getpcc();
   void*__capability*__capability thePool = calloc_c(POOL_SIZE, 1);
+  char*__capability pageBitVec;
   printf("The length of the pool is %zd\n", cheri_getlen(thePool));
   void*__capability testCap = calloc_c(16, 1);
 
@@ -46,13 +48,18 @@ main() {
   // We have limited memory in CheriRTOS, so only do the sweeping for a small
   // fraction each time.
   while(theLen > currentOffset) {
+    // We have to clear the pageBitVec each time. Use calloc to do that.
+    // Each byte indicates whether a page is dirty.
+    pageBitVec = calloc_c(POOL_SIZE>>PAGE_ALIGN_BITS, 1);
     size_t lenToScan = (theLen-currentOffset)>POOL_SIZE? POOL_SIZE :
         (theLen-currentOffset);
 
     // Populate the POOL with capabilities.
     for(size_t i=0; i<(lenToScan >> CAP_SIZE_BITS); i++) {
-      if((*(&__tags_bin_start+(i>>3)+(currentOffset>>6)) & (1<<(i & 0x7))) != 0)
+      if((*(&__tags_bin_start+(i>>3)+(currentOffset>>6)) & (1<<(i & 0x7))) != 0) {
         *(thePool+i) = testCap;
+        *(pageBitVec+(i>>(PAGE_ALIGN_BITS-CAP_SIZE_BITS))) = 1;
+      }
       else
         *(thePool+i) = NULLCAP;
     }
@@ -81,33 +88,57 @@ main() {
     add_statcounters(&counter_diff, &counter_sum_bank_testsub, &counter_sum_bank_testsub);
 
     // Use creadmultitag instruction.
-    void*__capability (*__capability sweeper)[CAPS_PER_LINE] =
-        (void*__capability (*__capability)[CAPS_PER_LINE])thePool;
+    sweeper2 = thePool;
     sample_statcounters(&counter_start);
     for(uint32_t i=0; i<(lenToScan>>CACHELINE_SIZE_BITS); i++) {
-      if(cheri_getmultitag(sweeper)) {
-        sweep_line_nosubset((void*__capability)sweeper, thePCC);
+      if(cheri_getmultitag(sweeper2)) {
+        sweep_line_nosubset((void*__capability)sweeper2, thePCC);
       }
-      sweeper++;
+      sweeper2 += CAPS_PER_LINE;
     }
     sample_statcounters(&counter_end);
     diff_statcounters(&counter_end, &counter_start, &counter_diff);
     add_statcounters(&counter_diff, &counter_sum_bank_multitag, &counter_sum_bank_multitag);
 
-    // Use creadmultitag and ctestsubset instructions.
-    sweeper = (void*__capability (*__capability)[CAPS_PER_LINE])thePool;
+    // page dirty
+    sweeper2 = thePool;
     sample_statcounters(&counter_start);
-    for(uint32_t i=0; i<(lenToScan>>CACHELINE_SIZE_BITS); i++) {
-      if(cheri_getmultitag(sweeper)) {
-        sweep_line((void*__capability)sweeper, thePCC);
+    for(uint32_t pageNum=0; pageNum<(lenToScan>>PAGE_ALIGN_BITS); pageNum++) {
+      if(pageBitVec[pageNum]) {
+        for(uint32_t i=0; i<PAGE_ALIGN/CAP_SIZE/CAPS_PER_LINE; i++) {
+          sweep_line_nosubset((void*__capability)sweeper2, thePCC);
+          sweeper2 += CAPS_PER_LINE;
+        }
+      } else {
+        sweeper2 += PAGE_ALIGN/CAP_SIZE;
       }
-      sweeper++;
     }
     sample_statcounters(&counter_end);
     diff_statcounters(&counter_end, &counter_start, &counter_diff);
-    add_statcounters(&counter_diff, &counter_sum_bank_testsubAndMultiTag, &counter_sum_bank_testsubAndMultiTag);
+    add_statcounters(&counter_diff, &counter_sum_bank_pagedirty, &counter_sum_bank_pagedirty);
+
+    // Use all tricks.
+    sweeper2 = thePool;
+    sample_statcounters(&counter_start);
+    for(uint32_t pageNum=0; pageNum<(lenToScan>>PAGE_ALIGN_BITS); pageNum++) {
+      if(pageBitVec[pageNum]) {
+        for(uint32_t i=0; i<PAGE_ALIGN/CAP_SIZE/CAPS_PER_LINE; i++) {
+          if(cheri_getmultitag(sweeper2)) {
+            sweep_line((void*__capability)sweeper2, thePCC);
+          }
+          sweeper2 += CAPS_PER_LINE;
+        }
+      } else {
+        sweeper2 += PAGE_ALIGN/CAP_SIZE;
+      }
+    }
+    sample_statcounters(&counter_end);
+    diff_statcounters(&counter_end, &counter_start, &counter_diff);
+    add_statcounters(&counter_diff, &counter_sum_bank_all, &counter_sum_bank_all);
 
     currentOffset += POOL_SIZE;
+    // Avoid memory leaks.
+    free_c(pageBitVec);
   }
 
   printf("Baseline:\n");
@@ -116,8 +147,10 @@ main() {
   dump_statcounters(&counter_sum_bank_testsub, NULL, NULL);
   printf("With creadmultitag:\n");
   dump_statcounters(&counter_sum_bank_multitag, NULL, NULL);
-  printf("With ctestsubset and creadmultitag:\n");
-  dump_statcounters(&counter_sum_bank_testsubAndMultiTag, NULL, NULL);
+  printf("With pagedirty:\n");
+  dump_statcounters(&counter_sum_bank_pagedirty, NULL, NULL);
+  printf("With all:\n");
+  dump_statcounters(&counter_sum_bank_all, NULL, NULL);
 
   return 0;
 }

@@ -5,8 +5,10 @@
 #include<cheric.h>
 #include<statcounters.h>
 
-#define POOL_SIZE (64U << 20)
+#define POOL_SIZE (32U << 20)
 #define CAPS_PER_LINE (CACHELINE_SIZE/CAP_SIZE)
+
+#define FP_RATE_INV (186) // the inverse false-positive rate
 
 // This should be in .bss and zeroed.
 static statcounters_bank_t counter_sum_bank_baseline;
@@ -36,6 +38,8 @@ main() {
   // the length of the total coredump memory size
   size_t theLen = (&__tags_bin_end - &__tags_bin_start) << 6;
   printf("The length of the coredump is %zd\n", theLen);
+  size_t fpPages = (theLen / FP_RATE_INV) >> PAGE_ALIGN_BITS;
+  printf("The number of false positive pages is %zd\n", fpPages);
   void*__capability thePCC = cheri_getpcc();
   void*__capability*__capability thePool = calloc_c(POOL_SIZE, 1);
   char*__capability pageBitVec;
@@ -62,6 +66,15 @@ main() {
       }
       else
         *(thePool+i) = NULLCAP;
+    }
+
+    // Add false positive pages.
+    size_t tempOffset = 0;
+    for(size_t remainCount = 0; remainCount < fpPages; remainCount++) {
+      while(pageBitVec[tempOffset])
+        tempOffset++;
+      pageBitVec[tempOffset] = 1;
+      tempOffset++;
     }
 
     // baseline, no magic

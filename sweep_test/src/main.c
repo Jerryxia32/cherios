@@ -71,7 +71,7 @@ main() {
 
     // Add false positive pages.
     size_t tempOffset = 0;
-    for(size_t remainCount = 0; remainCount < fpPages; remainCount++) {
+    for(size_t remainCount = 0; remainCount < fpPages/(theLen/POOL_SIZE==0? 1:theLen/POOL_SIZE); remainCount++) {
       while(pageBitVec[tempOffset])
         tempOffset++;
       pageBitVec[tempOffset] = 1;

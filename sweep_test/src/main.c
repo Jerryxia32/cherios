@@ -5,10 +5,12 @@
 #include<cheric.h>
 #include<statcounters.h>
 
+#define FOUR_CAPS // Sweep four mother capabilities at a time.
+
 #define POOL_SIZE (32U << 20)
 #define CAPS_PER_LINE (CACHELINE_SIZE/CAP_SIZE)
 
-#define FP_RATE_INV (186) // the inverse false-positive rate
+#define FP_RATE_INV (9999999) // the inverse false-positive rate
 
 // This should be in .bss and zeroed.
 static statcounters_bank_t counter_sum_bank_baseline;
@@ -35,12 +37,11 @@ extern char __tags_bin_start, __tags_bin_end;
 
 int
 main() {
-  // the length of the total coredump memory size
   size_t theLen = (&__tags_bin_end - &__tags_bin_start) << 6;
-  printf("The length of the coredump is %zd\n", theLen);
   size_t fpPages = (theLen / FP_RATE_INV) >> PAGE_ALIGN_BITS;
   printf("The number of false positive pages is %zd\n", fpPages);
   void*__capability thePCC = cheri_getpcc();
+  void*__capability theDDC = cheri_getdefault();
   void*__capability*__capability thePool = calloc_c(POOL_SIZE, 1);
   char*__capability pageBitVec;
   printf("The length of the pool is %zd\n", cheri_getlen(thePool));
@@ -82,6 +83,11 @@ main() {
     sample_statcounters(&counter_start);
     for(uint32_t i=0; i<(lenToScan>>CACHELINE_SIZE_BITS); i++) {
       sweep_line_nosubset((void*__capability)sweeper2, thePCC);
+#ifdef FOUR_CAPS
+      sweep_line_nosubset((void*__capability)sweeper2, theDDC);
+      sweep_line_nosubset((void*__capability)sweeper2, thePCC);
+      sweep_line_nosubset((void*__capability)sweeper2, theDDC);
+#endif // FOUR_CAPS
       sweeper2 += CAPS_PER_LINE;
     }
     sample_statcounters(&counter_end);
@@ -94,6 +100,11 @@ main() {
     sample_statcounters(&counter_start);
     for(uint32_t i=0; i<(lenToScan>>CACHELINE_SIZE_BITS); i++) {
       sweep_line((void*__capability)sweeper2, thePCC);
+#ifdef FOUR_CAPS
+      sweep_line((void*__capability)sweeper2, theDDC);
+      sweep_line((void*__capability)sweeper2, thePCC);
+      sweep_line((void*__capability)sweeper2, theDDC);
+#endif // FOUR_CAPS
       sweeper2 += CAPS_PER_LINE;
     }
     sample_statcounters(&counter_end);
@@ -106,6 +117,11 @@ main() {
     for(uint32_t i=0; i<(lenToScan>>CACHELINE_SIZE_BITS); i++) {
       if(cheri_getmultitag(sweeper2)) {
         sweep_line_nosubset((void*__capability)sweeper2, thePCC);
+#ifdef FOUR_CAPS
+        sweep_line_nosubset((void*__capability)sweeper2, theDDC);
+        sweep_line_nosubset((void*__capability)sweeper2, thePCC);
+        sweep_line_nosubset((void*__capability)sweeper2, theDDC);
+#endif // FOUR_CAPS
       }
       sweeper2 += CAPS_PER_LINE;
     }
@@ -120,6 +136,11 @@ main() {
       if(pageBitVec[pageNum]) {
         for(uint32_t i=0; i<PAGE_ALIGN/CAP_SIZE/CAPS_PER_LINE; i++) {
           sweep_line_nosubset((void*__capability)sweeper2, thePCC);
+#ifdef FOUR_CAPS
+          sweep_line_nosubset((void*__capability)sweeper2, theDDC);
+          sweep_line_nosubset((void*__capability)sweeper2, thePCC);
+          sweep_line_nosubset((void*__capability)sweeper2, theDDC);
+#endif // FOUR_CAPS
           sweeper2 += CAPS_PER_LINE;
         }
       } else {
@@ -138,6 +159,11 @@ main() {
         for(uint32_t i=0; i<PAGE_ALIGN/CAP_SIZE/CAPS_PER_LINE; i++) {
           if(cheri_getmultitag(sweeper2)) {
             sweep_line((void*__capability)sweeper2, thePCC);
+#ifdef FOUR_CAPS
+            sweep_line((void*__capability)sweeper2, theDDC);
+            sweep_line((void*__capability)sweeper2, thePCC);
+            sweep_line((void*__capability)sweeper2, theDDC);
+#endif // FOUR_CAPS
           }
           sweeper2 += CAPS_PER_LINE;
         }
@@ -164,6 +190,8 @@ main() {
   dump_statcounters(&counter_sum_bank_pagedirty, NULL, NULL);
   printf("With all:\n");
   dump_statcounters(&counter_sum_bank_all, NULL, NULL);
+  // the length of the total coredump memory size
+  printf("The length of the coredump is %zd\n", theLen);
 
   return 0;
 }

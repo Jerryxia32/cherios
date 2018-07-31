@@ -140,6 +140,7 @@ fifteen:
   csc         $c1, $zero, 120($c3)
 sixteen:
   jr          $ra
+  nop
 
   .text
   .global sweep_line_nosubset

@@ -72,7 +72,7 @@ void load_kernel() {
 	extern u8 __kernel_elf_start, __kernel_elf_end;
 	size_t minaddr, maxaddr, entry;
 	char * __capability prgmp = elf_loader_mem(&env, &__kernel_elf_start,
-				     &minaddr, &maxaddr, &entry, 1);
+				     &minaddr, &maxaddr, &entry, NULLCAP, 1);
 
 	if(!prgmp) {
 		boot_printf(KRED"Could not load kernel file"KRST"\n");
@@ -125,7 +125,7 @@ boot_info_t *load_init() {
 
 	// FIXME: init is direct mapped for now
 	char * __capability prgmp = elf_loader_mem(&env, &__init_elf_start,
-				     &minaddr, &maxaddr, &entry, 1);
+				     &minaddr, &maxaddr, &entry, NULLCAP, 1);
 
 	if(!prgmp) {
 		boot_printf(KRED"Could not load init file"KRST"\n");

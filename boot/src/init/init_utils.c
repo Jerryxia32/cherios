@@ -157,14 +157,16 @@ static void * __capability get_act_cap(module_t type) {
 
 static aid_t ns_aid = 0;
 
-static void * __capability elf_loader(Elf_Env *env, const char * file, size_t *maxaddr, size_t * entry) {
+static void*__capability
+elf_loader(Elf_Env* env, const char* file, size_t* maxaddr, size_t* entry,
+        void*__capability* allocPCC) {
 	int filelen=0;
 	char * addr = load(file, &filelen);
 	if(!addr) {
 		printf("Could not read file %s", file);
 		return NULLCAP;
 	}
-	return elf_loader_mem(env, addr, NULL, maxaddr, entry, 0);
+	return elf_loader_mem(env, addr, NULL, maxaddr, entry, allocPCC, 0);
 }
 
 static void * __capability init_memcpy(void * __capability dest, const void * __capability src, size_t n) {
@@ -175,6 +177,7 @@ aid_t
 load_module(module_t type, const char* file, int arg, const void* carg) {
 	size_t entry;
     size_t allocsize;
+    void*__capability allocPCC;
 	Elf_Env env = {
 	  .alloc   = init_alloc,
 	  .free    = init_free,
@@ -183,24 +186,23 @@ load_module(module_t type, const char* file, int arg, const void* carg) {
 	  .memcpy_c  = init_memcpy,
 	};
 
-	char * __capability prgmp = elf_loader(&env, file, &allocsize, &entry);
+	char * __capability prgmp =
+            elf_loader(&env, file, &allocsize, &entry, &allocPCC);
     printf(KWHT"Module loaded at %p, entry: %x, size: %x"KRST"\n", (void *)cheri_getbase(prgmp), entry, allocsize);
-	if(!prgmp) {
+	if(!prgmp || !allocPCC) {
 		assert(0);
 		return 0;
 	}
 
 	/* Invalidate the whole range; elf_loader only returns a
 	   pointer to the entry point. */
-	caches_invalidate((void *)cheri_getbase(prgmp), allocsize);
-
-	//prgmp += entry;
+	caches_invalidate((void *)cheri_getbase(allocPCC), cheri_getlen(allocPCC));
 
     /* Make the stack pointer cap size aligned */
 	void * stack = (void *)(cheri_getlen(prgmp) - 2*_MIPS_SZCAP/8);
     printf(KWHT"Stack bottom at %p"KRST"\n", stack);
 	void * __capability pcc = cheri_getpcc();
-	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(prgmp)), round_size(allocsize, CHERI_SEAL_TB_WIDTH-1));
+	pcc = cheri_setbounds(cheri_setoffset(pcc, cheri_getbase(allocPCC)), cheri_getlen(allocPCC));
 	pcc = cheri_incoffset(pcc, entry);
     pcc = cheri_andperm(pcc, (CHERI_PERM_ACCESS_SYS_REGS | CHERI_PERM_EXECUTE
             | CHERI_PERM_LOAD | CHERI_PERM_LOAD_CAP | CHERI_PERM_CCALL));

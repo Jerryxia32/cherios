@@ -140,7 +140,7 @@ static inline Elf32_Phdr *elf_segment(Elf32_Ehdr *hdr, int idx) {
 
 /* not secure */
 
-void * __capability elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, size_t *entry, int kernelMode) {
+void * __capability elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_t *maxaddr, size_t *entry, void*__capability* allocPCC, int kernelMode) {
 	//char *addr = (char *)p;
     char * __capability addr = cheri_getdefault();
     addr = cheri_setoffset(addr, (size_t)p);
@@ -156,16 +156,25 @@ void * __capability elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_
 	TRACE("e_entry:%lX e_phnum:%d e_shnum:%d", hdr->e_entry, hdr->e_phnum, hdr->e_shnum);
 
 	size_t allocsize = 0;
+	size_t textAllocsize = 0;
 	for(int i=0; i<hdr->e_phnum; i++) {
 		Elf32_Phdr *seg = elf_segment(hdr, i);
 		TRACE("SGMT: type:%X flags:%X offset:%lX vaddr:%lX filesz:%lX memsz:%lX align:%lX",
 		      seg->p_type, seg->p_flags, seg->p_offset, seg->p_vaddr,
 		      seg->p_filesz, seg->p_memsz, seg->p_align);
 		if(seg->p_type == 1) {
-			size_t bound = seg->p_vaddr + seg->p_memsz;
-			allocsize = umax(allocsize, bound);
-			lowaddr = umin(lowaddr, seg->p_vaddr);
-			TRACE("lowaddr:%lx allocsize:%lx bound:%lx", lowaddr, allocsize, bound);
+            if(seg->p_vaddr == 0) {
+                // This is a dirty hack. To support separate PCC and DDC, we
+                // force .text to start from vaddr 0 in the ELF, and others
+                // start from 0x1000, so segment with p_vaddr==0 is the .text
+                // section.
+                textAllocsize = seg->p_memsz;
+            } else {
+                size_t bound = seg->p_vaddr + seg->p_memsz;
+                allocsize = umax(allocsize, bound);
+                lowaddr = umin(lowaddr, seg->p_vaddr);
+                TRACE("lowaddr:%lx allocsize:%lx bound:%lx", lowaddr, allocsize, bound);
+            }
 		} else if(seg->p_type == 0x6474E551) {
 			/* GNU Stack */
 		} else if(seg->p_type == 0x6) {
@@ -179,13 +188,19 @@ void * __capability elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_
 	}
 
     char * __capability prgmp;
+    char*__capability tempAllocPCC;
     if(kernelMode == 0) {
         prgmp = env->alloc(allocsize + MODULE_STACK_SIZE); //over provision for a 64KiB stack
+        tempAllocPCC = env->alloc(textAllocsize);
     } else {
         prgmp = env->alloc(allocsize);
     }
     if(!prgmp) {
-        ERROR("alloc failed");
+        ERROR("alloc failed in ELF DDC loading");
+        return NULL;
+    }
+    if(!kernelMode && !tempAllocPCC) {
+        ERROR("alloc failed in ELF PCC loading");
         return NULL;
     }
 
@@ -194,11 +209,16 @@ void * __capability elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_
 	for(int i=0; i<hdr->e_phnum; i++) {
 		Elf32_Phdr *seg = elf_segment(hdr, i);
 		if(seg->p_type == 1) {
-			env->memcpy_c(prgmp+seg->p_vaddr, addr + seg->p_offset, seg->p_filesz);
-			TRACE("memcpy: [%lx %lx] <-- [%lx %lx] (%lx bytes)",
-			      seg->p_vaddr, seg->p_vaddr + seg->p_filesz,
-			      seg->p_offset, seg->p_offset + seg->p_filesz,
-			      seg->p_filesz);
+            if(seg->p_vaddr == 0) {
+                // This is the .text section, copy to PCC.
+                env->memcpy_c(tempAllocPCC+seg->p_vaddr, addr + seg->p_offset, seg->p_filesz);
+            } else {
+                env->memcpy_c(prgmp+seg->p_vaddr, addr + seg->p_offset, seg->p_filesz);
+            }
+            TRACE("memcpy: [%lx %lx] <-- [%lx %lx] (%lx bytes)",
+                  seg->p_vaddr, seg->p_vaddr + seg->p_filesz,
+                  seg->p_offset, seg->p_offset + seg->p_filesz,
+                  seg->p_filesz);
 		}
 	}
 	//env->free(addr);
@@ -206,6 +226,7 @@ void * __capability elf_loader_mem(Elf_Env *env, void *p, size_t *minaddr, size_
 	if(minaddr)	*minaddr = lowaddr;
 	if(maxaddr)	*maxaddr = allocsize;
 	if(entry)	*entry   = e_entry;
+    if(allocPCC) *allocPCC = tempAllocPCC;
 
 	return prgmp;
 }

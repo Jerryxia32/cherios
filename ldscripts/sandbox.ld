@@ -28,11 +28,6 @@
  * SUCH DAMAGE.
  */
 
-/*
- * Linker definition for a relocatable sandbox.  Each one begins with a
- * 0x1000 byte "guard" region to catch NULL pointer dereferences.
- */
-
 INCLUDE "mips.ld"
 __start = 0x1000;
 

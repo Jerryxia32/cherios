@@ -38,7 +38,7 @@
 #include"stdio.h"
 #include"precision.h"
 
-static const size_t pool_size = 1024*160;
+static const size_t pool_size = 1024*176;
 static char pool[pool_size] __attribute__((aligned(0x1000)));
 
 static char * pool_start = NULL;

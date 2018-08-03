@@ -188,7 +188,8 @@ load_module(module_t type, const char* file, int arg, const void* carg) {
 
 	char * __capability prgmp =
             elf_loader(&env, file, &allocsize, &entry, &allocPCC);
-    printf(KWHT"Module loaded at %p, entry: %x, size: %x"KRST"\n", (void *)cheri_getbase(prgmp), entry, allocsize);
+    printf(KWHT"Module PCC loaded at %p, size: %x"KRST"\n", (void *)cheri_getbase(allocPCC), cheri_getlen(allocPCC));
+    printf(KWHT"Module DDC loaded at %p, size: %x"KRST"\n", (void *)cheri_getbase(prgmp), allocsize);
 	if(!prgmp || !allocPCC) {
 		assert(0);
 		return 0;

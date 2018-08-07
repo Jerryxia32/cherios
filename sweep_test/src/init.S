@@ -290,6 +290,211 @@ check_subset_ret:
   jr          $ra
   nop
 
+  .text
+  .global sweep_line_four
+  .ent sweep_line_four
+  # $c4, c11, c12, c13 are the four mother capabilities to sweep.
+  # XXX: This function uses more registers than CheriRTOS supports!!!
+  # So please disable interrupts before using it.
+sweep_line_four:
+  clc         $c1, $zero, 0($c3)
+  cgetdefault $c11
+  cgetpcc     $c12
+  clc         $c2, $zero, 8($c3)
+  cgetdefault $c13
+  ctestsubset $t9, $c4, $c1
+  ctestsubset $t0, $c11, $c1
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c1
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c1
+  or          $t9, $t9, $t0
+  beqz        $t9, one_four
+  clc         $c5, $zero, 16($c3)
+  ccleartag   $c1, $c1
+  csc         $c1, $zero, 0($c3)
+one_four:
+  ctestsubset $t9, $c4, $c2
+  ctestsubset $t0, $c11, $c2
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c2
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c2
+  or          $t9, $t9, $t0
+  beqz        $t9, two_four
+  clc         $c1, $zero, 24($c3)
+  ccleartag   $c2, $c2
+  csc         $c2, $zero, 8($c3)
+two_four:
+  ctestsubset $t9, $c4, $c5
+  ctestsubset $t0, $c11, $c5
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c5
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c5
+  or          $t9, $t9, $t0
+  beqz        $t9, three_four
+  clc         $c2, $zero, 32($c3)
+  ccleartag   $c5, $c5
+  csc         $c5, $zero, 16($c3)
+three_four:
+  ctestsubset $t9, $c4, $c1
+  ctestsubset $t0, $c11, $c1
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c1
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c1
+  or          $t9, $t9, $t0
+  beqz        $t9, four_four
+  clc         $c5, $zero, 40($c3)
+  ccleartag   $c1, $c1
+  csc         $c1, $zero, 24($c3)
+four_four:
+  ctestsubset $t9, $c4, $c2
+  ctestsubset $t0, $c11, $c2
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c2
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c2
+  or          $t9, $t9, $t0
+  beqz        $t9, five_four
+  clc         $c1, $zero, 48($c3)
+  ccleartag   $c2, $c2
+  csc         $c2, $zero, 32($c3)
+five_four:
+  ctestsubset $t9, $c4, $c5
+  ctestsubset $t0, $c11, $c5
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c5
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c5
+  or          $t9, $t9, $t0
+  beqz        $t9, six_four
+  clc         $c2, $zero, 56($c3)
+  ccleartag   $c5, $c5
+  csc         $c5, $zero, 40($c3)
+six_four:
+  ctestsubset $t9, $c4, $c1
+  ctestsubset $t0, $c11, $c1
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c1
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c1
+  or          $t9, $t9, $t0
+  beqz        $t9, seven_four
+  clc         $c5, $zero, 64($c3)
+  ccleartag   $c1, $c1
+  csc         $c1, $zero, 48($c3)
+seven_four:
+  ctestsubset $t9, $c4, $c2
+  ctestsubset $t0, $c11, $c2
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c2
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c2
+  or          $t9, $t9, $t0
+  beqz        $t9, eight_four
+  clc         $c1, $zero, 72($c3)
+  ccleartag   $c2, $c2
+  csc         $c2, $zero, 56($c3)
+eight_four:
+  ctestsubset $t9, $c4, $c5
+  ctestsubset $t0, $c11, $c5
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c5
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c5
+  or          $t9, $t9, $t0
+  beqz        $t9, nine_four
+  clc         $c2, $zero, 80($c3)
+  ccleartag   $c5, $c5
+  csc         $c5, $zero, 64($c3)
+nine_four:
+  ctestsubset $t9, $c4, $c1
+  ctestsubset $t0, $c11, $c1
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c1
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c1
+  or          $t9, $t9, $t0
+  beqz        $t9, ten_four
+  clc         $c5, $zero, 88($c3)
+  ccleartag   $c1, $c1
+  csc         $c1, $zero, 72($c3)
+ten_four:
+  ctestsubset $t9, $c4, $c2
+  ctestsubset $t0, $c11, $c2
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c2
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c2
+  or          $t9, $t9, $t0
+  beqz        $t9, eleven_four
+  clc         $c1, $zero, 96($c3)
+  ccleartag   $c2, $c2
+  csc         $c2, $zero, 80($c3)
+eleven_four:
+  ctestsubset $t9, $c4, $c5
+  ctestsubset $t0, $c11, $c5
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c5
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c5
+  or          $t9, $t9, $t0
+  beqz        $t9, twelve_four
+  clc         $c2, $zero, 104($c3)
+  ccleartag   $c5, $c5
+  csc         $c5, $zero, 88($c3)
+twelve_four:
+  ctestsubset $t9, $c4, $c1
+  ctestsubset $t0, $c11, $c1
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c1
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c1
+  or          $t9, $t9, $t0
+  beqz        $t9, thirteen_four
+  clc         $c5, $zero, 112($c3)
+  ccleartag   $c1, $c1
+  csc         $c1, $zero, 96($c3)
+thirteen_four:
+  ctestsubset $t9, $c4, $c2
+  ctestsubset $t0, $c11, $c2
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c2
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c2
+  or          $t9, $t9, $t0
+  beqz        $t9, fourteen_four
+  clc         $c1, $zero, 120($c3)
+  ccleartag   $c2, $c2
+  csc         $c2, $zero, 104($c3)
+fourteen_four:
+  ctestsubset $t9, $c4, $c5
+  ctestsubset $t0, $c11, $c5
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c5
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c5
+  or          $t9, $t9, $t0
+  beqz        $t9, fifteen_four
+  ctestsubset $t9, $c4, $c1
+  ccleartag   $c5, $c5
+  csc         $c5, $zero, 112($c3)
+fifteen_four:
+  ctestsubset $t0, $c11, $c1
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c12, $c1
+  or          $t9, $t9, $t0
+  ctestsubset $t0, $c13, $c1
+  or          $t9, $t9, $t0
+  beqz        $t9, sixteen_four
+  ccleartag   $c1, $c1
+  csc         $c1, $zero, 120($c3)
+sixteen_four:
+  jr          $ra
+  nop
+
   .rodata
   .global __tags_bin_start
   .global __tags_bin_end

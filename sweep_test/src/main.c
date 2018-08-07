@@ -32,6 +32,7 @@ gen_rand() {
 
 void sweep_line(void*__capability, void*__capability);
 void sweep_line_nosubset(void*__capability, void*__capability);
+void sweep_line_four(void*__capability, void*__capability);
 
 extern char __tags_bin_start, __tags_bin_end;
 
@@ -99,11 +100,10 @@ main() {
     sweeper2 = thePool;
     sample_statcounters(&counter_start);
     for(uint32_t i=0; i<(lenToScan>>CACHELINE_SIZE_BITS); i++) {
+#ifndef FOUR_CAPS
       sweep_line((void*__capability)sweeper2, thePCC);
-#ifdef FOUR_CAPS
-      sweep_line((void*__capability)sweeper2, theDDC);
-      sweep_line((void*__capability)sweeper2, thePCC);
-      sweep_line((void*__capability)sweeper2, theDDC);
+#else // FOUR_CAPS
+      sweep_line_four((void*__capability)sweeper2, thePCC);
 #endif // FOUR_CAPS
       sweeper2 += CAPS_PER_LINE;
     }
@@ -158,11 +158,10 @@ main() {
       if(pageBitVec[pageNum]) {
         for(uint32_t i=0; i<PAGE_ALIGN/CAP_SIZE/CAPS_PER_LINE; i++) {
           if(cheri_getmultitag(sweeper2)) {
+#ifndef FOUR_CAPS
             sweep_line((void*__capability)sweeper2, thePCC);
-#ifdef FOUR_CAPS
-            sweep_line((void*__capability)sweeper2, theDDC);
-            sweep_line((void*__capability)sweeper2, thePCC);
-            sweep_line((void*__capability)sweeper2, theDDC);
+#else // FOUR_CAPS
+            sweep_line_four((void*__capability)sweeper2, thePCC);
 #endif // FOUR_CAPS
           }
           sweeper2 += CAPS_PER_LINE;
